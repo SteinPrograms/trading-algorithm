@@ -1,9 +1,4 @@
-mysql-connector-python
-datetime
-numpy
-sklearn
-xgboost
-pandas
-Python-Brokers-API
-openpyxl
-ciso8601
+mysql-connector-python~=8.0.27
+datetime~=4.3
+
+requests~=2.26.0
