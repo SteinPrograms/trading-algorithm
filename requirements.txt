@@ -1,0 +1,9 @@
+mysql-connector-python
+datetime
+numpy
+sklearn
+xgboost
+pandas
+Python-Brokers-API
+openpyxl
+ciso8601
