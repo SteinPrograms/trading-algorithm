@@ -16,10 +16,16 @@ class Database:
         self.cursor.execute(sql, params)
         if commit:
             self.database.commit()
-        if fetchone:
-            results = self.cursor.fetchone()
+            self.close_connection()
         else:
-            results = self.cursor.fetchall()
+            if fetchone:
+                results = self.cursor.fetchone()
+            else:
+                results = self.cursor.fetchall()
+            self.close_connection()
+            return results
+
+    def close_connection(self):
         self.cursor.close()
         self.database.close()
-        return results
+
