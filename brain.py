@@ -1,11 +1,15 @@
 
+import datetime
+import os
+import requests
+import sys
+import time
 
-import time, datetime, os, sys, requests
 from brokerconnection import realcommands
-from prediction import Prediction, __autor__
-from settings import Settings
 from database import Database
 from position import Position
+from prediction import Prediction
+from settings import Settings
 
 # Definition of variables
 Position = Position()
@@ -19,7 +23,7 @@ def current_second():
 
 def cls():
     """
-    This function clear the terminal in order to get the clear view of the prints.c
+    This function clears the terminal in order to get the clear view of the prints.c
     """
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -30,8 +34,8 @@ def open_position(symbol):
     and then save the data inside the class Position.
     """
 
-    if not Position.backtesting:
-        order = realcommands().limit_open(symbol=symbol, backtesting=Position.backtesting)
+    if not Position.back_testing:
+        order = realcommands().limit_open(symbol=symbol, backtesting=Position.back_testing)
         if order['error']:
             return False
         Position.open_price = float(order['order']['price'])
@@ -58,7 +62,7 @@ def close_position():
     and then save the data inside an excel spreadsheet.
     """
     Position.status = 'close'
-    Position.stoploss = False
+    Position.stop_loss = False
     Position.effective_yield = effective_yield_calculation(Position.close_price, Position.open_price, Settings.fee)
     Position.total_yield = round(Position.total_yield * Position.effective_yield, 5)
     if Position.total_yield > Position.highest_yield:
@@ -75,13 +79,17 @@ def save_position():
         date = time.time()
 
         text = ''
-        text += "\nRendement : " + str(round((Position.total_yield - 1) * 100, 2)) + ' %'
+        text += "\nYield : " + str(round((Position.total_yield - 1) * 100, 2)) + ' %'
         program_notification(message=text)
 
         # Saving position into database
         Database.database_request(
             sql=(
-                """REPLACE INTO positions (paire,opening_date,closing_date,duration,opening_price,closing_price,exit_way,highest_price,lowest_price,position_yield,total_yield) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""),
+                "REPLACE INTO positions "
+                "(paire,opening_date,closing_date,duration,opening_price,closing_price,exit_way,highest_price,"
+                "lowest_price,position_yield,total_yield) "
+                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            ),
             params=(
                 Position.symbol,
                 datetime.datetime.fromtimestamp(Position.time),
@@ -104,8 +112,9 @@ def save_position():
 
 def program_notification(message):
     try:
-        token = Database.database_request(sql="""SELECT token FROM telegram"""),
-        chat_id = Database.database_request(sql="""SELECT chatid FROM telegram""")
+        telegram_data = Database.database_request(sql="""SELECT * FROM telegram""", fetchone=True)
+        token = telegram_data["token"],
+        chat_id = telegram_data["chat_id"]
 
         url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
         requests.post(url)
@@ -144,13 +153,13 @@ def check_position():
     # Stop loss
     # Close position :
     if current_effective_yield < Settings.risk:
-        if Position.backtesting:
-            Position.close_price = Position.open_price * (Settings.risk)
+        if Position.back_testing:
+            Position.close_price = Position.open_price * Settings.risk
         else:
-            order = realcommands().limit_close(Position.symbol, backtesting=Position.backtesting)
+            order = realcommands().limit_close(Position.symbol, backtesting=Position.back_testing)
             Position.close_price = float(order['price'])
 
-        Position.close_mode = 'stoploss'
+        Position.close_mode = 'stop-loss'
         Position.number_lost += 1
         close_position()
         return
@@ -158,10 +167,10 @@ def check_position():
     # Take profit on expected yield
     # Closing on take-profit : Check if the yield  is stronger  than the minimal yield considering fees and slippage
     if current_effective_yield > Settings.expected_yield:
-        if Position.backtesting:
+        if Position.back_testing:
             Position.close_price = Position.current_price
         else:
-            order = realcommands().limit_close(symbol=Position.symbol, backtesting=Position.backtesting)
+            order = realcommands().limit_close(symbol=Position.symbol, backtesting=Position.back_testing)
             Position.close_price = float(order['price'])
 
         Position.close_mode = 'take-profit'
@@ -201,16 +210,14 @@ def find_entry_point():
                 Settings.expected_yield = 2 - predict['recovery']
                 return predict
 
-
         except Exception as error:
             print('error while predicting : %s' % error)
 
 
-def manage_position(predict):
+def manage_position():
     # We clear the console
     cls()
-    for values in predict:
-        print(values, ':', predict[values], '\n')
+
     current_effective_yield = effective_yield_calculation(Position.current_price, Position.open_price, Settings.fee)
     # Give information about the program
     statistics = {
@@ -225,7 +232,7 @@ def manage_position(predict):
         'position_yield': str(round((current_effective_yield - 1) * 100, 2)) + ' %',
         'total_yield': str(round((Position.total_yield * current_effective_yield - 1) * 100, 2)) + ' %',
         'number_lost': Position.number_lost,
-        'stoploss': Position.stoploss,
+        'stop-loss': Position.stop_loss,
         'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(Position.time, 0))),
     }
 
@@ -247,19 +254,18 @@ def main():
     # Check the correct version of python
     if sys.version_info[0] < 3:
         raise Exception("Python 3 or a more recent version is required.")
-    # test des commandes et de la connection au broker
+    # Testing connection to broker
     if realcommands().test_connection():
         print("Connected to market")
 
     elif input("Unable to connect to market, run in back-testing mode? Y/N : ").upper() == 'N':
         return
     else:
-        Position.backtesting = True
+        Position.back_testing = True
 
     # Saving start time
     Position.start_time = time.time()
 
-    ###PROGRAM STARTING###
     print('---Starting Trading---')
 
     while True:
@@ -271,30 +277,24 @@ def main():
 
             # When there is no open position
             if Position.status == 'close':
-                predict = find_entry_point()
+                find_entry_point()
 
             # If there is a current open position
             elif Position.status == 'open':
-                manage_position(predict)
-
-
-
-
+                manage_position()
 
         except KeyboardInterrupt:
             if Position.status == 'open':
-                if Position.backtesting:
+                if Position.back_testing:
                     Position.close_price = Position.current_price
                 else:
-                    order = realcommands().limit_close(symbol=Position.symbol, backtesting=Position.backtesting)
+                    order = realcommands().limit_close(symbol=Position.symbol, backtesting=Position.back_testing)
                     Position.close_price = float(order['price'])
 
                 Position.close_mode = 'stopping program'
                 close_position()
             print("---Ending Trading--")
             break
-
-    program_notification("Arrêt du programme : " + Settings.program_name)
 
 
 if __name__ == '__main__':

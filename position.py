@@ -17,7 +17,7 @@ class Position:
         self.time=0
         self.effective_yield=0
         self.highest_yield = 1
-        self.stoploss = False
-        self.backtesting = False
+        self.stop_loss = False
+        self.back_testing = False
         self.start_time = 0
         self.period = 14
