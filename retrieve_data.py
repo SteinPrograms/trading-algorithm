@@ -25,6 +25,7 @@ class DataRetriever:
         - Save prices in the database every minute.
         """
         # Use timedelta to ensure every minute data (because it takes more than 1s with time.sleep + execution time)
+        Database().database_request("DELETE FROM price_history", commit=True)
         try:
             start_time = time.time()
 

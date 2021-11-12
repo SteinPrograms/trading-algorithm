@@ -14,7 +14,6 @@ from settings import Settings
 # Definition of variables
 Position = Position()
 Settings = Settings()
-Database = Database()
 
 
 def current_second():
@@ -83,7 +82,7 @@ def save_position():
         program_notification(message=text)
 
         # Saving position into database
-        Database.database_request(
+        Database().database_request(
             sql=(
                 "REPLACE INTO positions "
                 "(paire,opening_date,closing_date,duration,opening_price,closing_price,exit_way,highest_price,"
@@ -112,7 +111,7 @@ def save_position():
 
 def program_notification(message):
     try:
-        telegram_data = Database.database_request(sql="""SELECT * FROM telegram""", fetchone=True)
+        telegram_data = Database().database_request(sql="""SELECT * FROM telegram""", fetchone=True)
         token = telegram_data["token"],
         chat_id = telegram_data["chat_id"]
 
