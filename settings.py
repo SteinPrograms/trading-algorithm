@@ -20,6 +20,3 @@ class Settings:
         self.expected_yield = 1 + 2 * self.fee
         self.risk = 1 - 5 / 100
         self.program_risk = 10 / 100
-
-    def parameters(self, ):
-        pass
