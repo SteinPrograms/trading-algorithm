@@ -111,7 +111,7 @@ def save_position():
 def program_notification(message):
     try:
         telegram_data = Database().database_request(sql="""SELECT * FROM telegram""", fetchone=True)
-        token = telegram_data["token"],
+        token = telegram_data["token"]
         chat_id = telegram_data["chat_id"]
 
         url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
