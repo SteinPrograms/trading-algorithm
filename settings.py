@@ -21,4 +21,4 @@ class Settings:
         self.risk = 1 - 5 / 100
         self.program_risk = 10 / 100
         self.timeframe_length = 15  # In minutes
-        self.prediction_time = 360  # In minutes
+        self.prediction_time = 60  # In minutes

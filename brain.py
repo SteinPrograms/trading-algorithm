@@ -275,7 +275,8 @@ def main():
 
             # When there is no open position
             if Position.status == 'close':
-                find_entry_point()
+                if datetime.datetime.now().second == 2:
+                    find_entry_point()
 
             # If there is a current open position
             elif Position.status == 'open':
