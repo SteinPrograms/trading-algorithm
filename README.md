@@ -6,4 +6,6 @@
 Base program built on the 8th Nov 2021
 
 #Trading Program Architecture
->>>>>>> 6abbe8b (initial commit)
+
+The database structure must be as followed :
+> 

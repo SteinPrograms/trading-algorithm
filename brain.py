@@ -85,12 +85,11 @@ def save_position():
         Database().database_request(
             sql=(
                 "REPLACE INTO positions "
-                "(paire,opening_date,closing_date,duration,opening_price,closing_price,exit_way,highest_price,"
+                "(opening_date,closing_date,duration,opening_price,closing_price,exit_way,highest_price,"
                 "lowest_price,position_yield,total_yield) "
-                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             ),
             params=(
-                Position.symbol,
                 datetime.datetime.fromtimestamp(Position.time),
                 datetime.datetime.fromtimestamp(date),
                 str(datetime.timedelta(seconds=round(date, 0) - round(Position.time, 0))),

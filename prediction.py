@@ -1,15 +1,15 @@
 from pprint import pprint
 
-from settings import Settings
 from database import Database
-from datetime import datetime
+from settings import Settings
 
 
 class Prediction:
     def __init__(self):
         pass
 
-    def predict_yield_for_the_day(self, timeframe: int, resultinXh: int) -> float:
+    @staticmethod
+    def prediction_with_pattern_similarity(timeframe: int, resultin: int) -> float:
 
         prices = [{'price': value['price'], 'date': value['date']} for value in
                   Database().database_request("SELECT * FROM price_history ORDER BY date ASC")]
@@ -25,23 +25,40 @@ class Prediction:
                    for index, value in enumerate(prices)][:-timeframe][:-1]
 
         similarity_coefficients = []
-        for index, value in enumerate(dataset[:-len(dataframe)]):
+
+        # Creating the similarity_coefficient for every dataframe
+        for index, value in enumerate(dataset[:-(len(dataframe) + resultin)]):
             dataframe2 = dataset[index: index + len(dataframe)]
-            coefficient = 0
-            for index_in_dataframe in range(len(dataframe)):
-                coefficient += min(dataframe[index_in_dataframe],
-                                   dataframe2[index_in_dataframe])/max(dataframe[index_in_dataframe],
-                                                                       dataframe2[index_in_dataframe])
-            similarity_coefficients.append(coefficient/len(dataframe))
+            coefficient = sum(
+                min(dataframe[index_in_dataframe], dataframe2[index_in_dataframe])
+                / max(
+                    dataframe[index_in_dataframe], dataframe2[index_in_dataframe]
+                )
+                for index_in_dataframe in range(len(dataframe))
+            ) / len(dataframe)
 
-        pprint(similarity_coefficients)
+            similarity_coefficients.append(coefficient)
 
-
-
-    def buy_signal(self):
-        yield_for_the_day = self.predict_yield_for_the_day()
-        if yield_for_the_day > Settings().expected_yield:
-            return {"signal": "buy", "yield_for_the_day": yield_for_the_day}
+        # Test if there is at least one coefficient
+        if similarity_coefficients:
+            # Find the position of the closest dataframe
+            position_of_highest_coefficient = similarity_coefficients.index(max(similarity_coefficients))
+            # Find the performance of what happened after the end of dataframe
+            start = dataset[position_of_highest_coefficient + timeframe]
+            end = dataset[position_of_highest_coefficient + timeframe + resultin]
+            return end / start
 
         else:
-            return {"signal": "neutral"}
+            raise Exception("There is not enough data")
+
+    def buy_signal(self):
+        predicted_yield = self.prediction_with_pattern_similarity(
+            timeframe=Settings().timeframe_length,
+            resultin=Settings().prediction_time
+        )
+
+        if predicted_yield > Settings().expected_yield:
+            return {"signal": "buy", "yield_for_the_day": predicted_yield}
+
+        else:
+            return {"signal": "neutral", "yield_for_the_day": predicted_yield}
