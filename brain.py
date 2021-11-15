@@ -265,7 +265,7 @@ def main():
     Position.start_time = time.time()
 
     print('---Starting Trading---')
-
+    program_notification("---Starting Trading Bot---")
     while True:
         try:
             # If the program total risk is reached
