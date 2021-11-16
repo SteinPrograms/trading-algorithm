@@ -76,10 +76,7 @@ def save_position():
     """
     try:
         date = time.time()
-
-        text = ''
-        text += "\nYield : " + str(round((Position.total_yield - 1) * 100, 2)) + ' %'
-        program_notification(message=text)
+        program_notification("\nYield : " + str(round((Position.total_yield - 1) * 100, 2)) + ' %')
 
         # Saving position into database
         Database().database_request(

@@ -4,6 +4,10 @@ from database import Database
 from settings import Settings
 
 
+def mean(array : list)->float:
+    return sum(array)/len(array)
+
+
 class Prediction:
     def __init__(self):
         pass
@@ -44,9 +48,11 @@ class Prediction:
             # Find the position of the closest dataframe
             position_of_highest_coefficient = similarity_coefficients.index(max(similarity_coefficients))
             # Find the performance of what happened after the end of dataframe
-            start = dataset[position_of_highest_coefficient + timeframe]
-            end = dataset[position_of_highest_coefficient + timeframe + resultin]
-            return end / start
+            value = mean(
+                dataset[position_of_highest_coefficient + timeframe:position_of_highest_coefficient + timeframe + resultin]
+            )/dataset[position_of_highest_coefficient + timeframe]
+
+            return value
 
         else:
             raise Exception("There is not enough data")
