@@ -202,11 +202,14 @@ def find_entry_point():
             if predict['signal'] == 'buy' and open_position(
                     symbol + '/' + Settings.base_asset
             ):
-                Settings.expected_yield = 2 - predict['recovery']
+                Settings.expected_yield = predict['predicted_yield']
                 return predict
 
         except Exception as error:
             print('error while predicting : %s' % error)
+
+        # Else pause program
+        time.sleep(2)
 
 
 def manage_position():

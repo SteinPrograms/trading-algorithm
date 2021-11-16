@@ -64,7 +64,7 @@ class Prediction:
         )
 
         if predicted_yield > Settings().expected_yield:
-            return {"signal": "buy", "yield_for_the_day": predicted_yield}
+            return {"signal": "buy", "predicted_yield": predicted_yield}
 
         else:
-            return {"signal": "neutral", "yield_for_the_day": predicted_yield}
+            return {"signal": "neutral", "predicted_yield": predicted_yield}
