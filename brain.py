@@ -180,8 +180,6 @@ def find_entry_point():
             # We analyze the market with the signals defined inside prediction.py
             predict = Prediction().buy_signal()
 
-            for values in predict:
-                print(values, ':', predict[values], '\n')
             # Give information about the program
             statistics = {
                 '': '------------------------------ :',
@@ -195,10 +193,13 @@ def find_entry_point():
             # We clear the console
             cls()
 
+            for values in predict:
+                print(values, ':', predict[values], '\n')
+
             for data, value in statistics.items():
                 print(data, ':', value, '\n')
 
-                # If we get a buy signal then :
+            # If we get a buy signal then :
             if predict['signal'] == 'buy' and open_position(
                     symbol + '/' + Settings.base_asset
             ):
