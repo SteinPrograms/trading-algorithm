@@ -57,14 +57,22 @@ class Prediction:
         else:
             raise Exception("There is not enough data")
 
-    def buy_signal(self):
+    def signal(self):
         predicted_yield = self.prediction_with_pattern_similarity(
             timeframe=Settings().timeframe_length,
             resultin=Settings().prediction_time
         )
 
         if predicted_yield > Settings().expected_yield:
-            return {"signal": "buy", "predicted_yield": predicted_yield}
+            return {
+                "signal": "buy", 
+                "predicted_yield": predicted_yield,
+                "symbol":symbol,
+            }
 
         else:
-            return {"signal": "neutral", "predicted_yield": predicted_yield}
+            return {
+                "signal": "neutral",
+                "predicted_yield": predicted_yield,
+                "symbol":symbol,
+            }
