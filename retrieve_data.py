@@ -34,7 +34,7 @@ class DataRetriever:
                     while True:
                         try:
                             self.cls()
-                            print(str(dt.timedelta(seconds=round(time.time(), 0) - round(start_time, 0))))
+                            print(dt.timedelta(seconds=round(time.time(), 0) - round(start_time, 0)))
                             prices = self.broker.prices(self.watchlist, self.base_asset)
                             for pair in prices:
                                 Database().database_request(
