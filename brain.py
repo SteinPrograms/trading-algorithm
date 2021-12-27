@@ -1,3 +1,6 @@
+"""Simple program which buys on Monday at 21:00 and Sells on Friday at 21:00"""
+
+
 from datetime import datetime, timedelta
 import os
 import threading
@@ -39,7 +42,7 @@ def main():
                 # Entering into backtesting mode
                 backtesting = True
 
-            list_of_positions = [Position(backtesting,"ETH"),Position(backtesting,"BTC")]
+            list_of_positions = [Position(backtesting,"ETH")]
             print('---Starting Trading---')
 
             #Looping into trading program
@@ -55,11 +58,15 @@ def main():
                         for position in list_of_positions
                     )
 
-                    total_yield = 1 + (positions_yield - len(list_of_positions))/len(list_of_positions)
+                    #Refreshing current total yield
+                    total_yield +=  (
+                        positions_yield - len(list_of_positions)
+                    ) / len(list_of_positions)
+
 
 
                     # If the program total risk is reached
-                    if highest_yield - total_yield > Settings().program_risk:
+                    if highest_yield - total_yield+positions_yield > Settings().program_risk:
                         raise DrawdownException
 
 
