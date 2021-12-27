@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/brain.py" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/prediction.py" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/retrieve_data.py" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/test.py" dialect="GenericSQL" />
-  </component>
-</project>

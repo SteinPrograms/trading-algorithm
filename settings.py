@@ -2,14 +2,10 @@ import importlib
 
 
 class Settings:
-
     def __init__(self) -> None:
-        self.watchlist = [
-            'BTC',
-        ]
         self.fee = 0.07 / 100
         self.broker_name = 'ftx'
-        self.program_version = 'v0.1_MeanTrading'
+        self.program_version = 'v0.0'
         self.username = 'Hugo'
         self.program_name = self.program_version + '_' + self.username + '_' + self.broker_name
         self.back_testing = False
@@ -20,5 +16,3 @@ class Settings:
         self.expected_yield = 1 + 2 * self.fee
         self.risk = 1 - 5 / 100
         self.program_risk = 10 / 100
-        self.timeframe_length = 60  # In minutes
-        self.prediction_time = 60  # In minutes
