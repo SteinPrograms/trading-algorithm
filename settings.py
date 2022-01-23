@@ -1,5 +1,5 @@
 import importlib
-
+import ccxt
 
 class Settings:
     def __init__(self) -> None:
@@ -10,8 +10,7 @@ class Settings:
         self.program_name = self.program_version + '_' + self.username + '_' + self.broker_name
         self.back_testing = False
         self.base_asset = 'USDT'
-        broker = getattr(importlib.import_module('Python_Brokers_API'), '%s' % self.broker_name)
-        self.broker = broker()
+        self.broker = ccxt.ftx()
         self.path = self.broker_name + ".key"
         self.expected_yield = 1 + 2 * self.fee
         self.risk = 1 - 5 / 100
