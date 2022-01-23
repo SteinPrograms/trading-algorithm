@@ -161,29 +161,33 @@ class Position:
             self.close_position()
             return
         
-        
-    
     def manage_position(self):
         """Manage position : look for selling or buying actions
         
         """
-        current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
-        # Give information about the program
-        statistics = {
+        statistics = {}
+        
+        if self.status == 'close':
+            self.find_entry_point()
+        
+        else:
+            current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
+            # Give information about the program
+            statistics = {
+                'current_price': self.current_price,
+                'open_price': self.open_price,
+                'highest_price': self.highest_price,
+                'lowest_price': self.lowest_price,
+                'position_yield': str(round((current_effective_yield - 1) * 100, 2)) + ' %',
+                'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0))),
+                'stop-loss': self.stop_loss,
+            }
             
-            'current_status': self.status,
-            'current_price': self.current_price,
-            'open_price': self.open_price,
-            'highest_price': self.highest_price,
-            'lowest_price': self.lowest_price,
-            'position_number': self.number,
-            'position_yield': str(round((current_effective_yield - 1) * 100, 2)) + ' %',
-            'total_yield': str(round((self.total_yield * current_effective_yield - 1) * 100, 2)) + ' %',
-            'number_lost': self.number_lost,
-            'stop-loss': self.stop_loss,
-            'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0))),
-        }
-
+        statistics['current_status'] = self.status
+        statistics['position_number']= self.number
+        statistics['total_yield']= str(round((self.total_yield * current_effective_yield - 1) * 100, 2)) + ' %'
+        statistics['number_lost']= self.number_lost
+        
         for data, value__ in statistics.items():
             print(data, ':', value__, '\n')
 
@@ -191,13 +195,11 @@ class Position:
             # We check if we have to do something with the current position, update current price highest price and
             # lowest price
             self.check_position()
+            
         finally:
             pass
         # We slow down the requests
         time.sleep(0.2)
-        
-        
-        
         
     def find_entry_point(self):
         """[summary]
@@ -212,21 +214,8 @@ class Position:
             # We analyze the market with the signals defined inside prediction.py
             predict = Prediction().buy_signal()
 
-            # Give information about the program
-            statistics = {
-                'running_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(Position.start_time, 0))),
-                'current_status': Position.status,
-                'total_yield': str(round((Position.total_yield - 1) * 100, 2)) + ' %',
-                'position_number': Position.number,
-                'position_lost': Position.number_lost,
-            }
-
-
             for values in predict:
                 print(values, ':', predict[values], '\n')
-
-            for data, value in statistics.items():
-                print(data, ':', value, '\n')
 
             # If we get a buy signal then :
             if predict['signal'] == 'buy' and self.open_position(
