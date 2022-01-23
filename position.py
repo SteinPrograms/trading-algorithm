@@ -144,7 +144,6 @@ class Position:
                 self.close_price = float(order['price'])
 
             self.close_mode = 'stop-loss'
-            self.number_lost += 1
             self.close_position()
             return
 
@@ -186,7 +185,6 @@ class Position:
         statistics['current_status'] = self.status
         statistics['position_number']= self.number
         statistics['total_yield']= str(round((self.total_yield - 1) * 100, 2)) + ' %'
-        statistics['number_lost']= self.number_lost
         
         for data, value__ in statistics.items():
             print(data, ':', value__, '\n')
