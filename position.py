@@ -48,10 +48,10 @@ class Position:
             if order['error']:
                 return False
             self.open_price = float(order['order']['price'])
-            current_price = Settings.broker.price(self.symbol)['ask']
+            current_price = Settings().broker.price(self.symbol)['ask']
         else:
             time.sleep(2)
-            current_price = Settings.broker.price(self.symbol)['ask']
+            current_price = Settings().broker.price(self.symbol)['ask']
             self.open_price = current_price
 
         self.current_price = current_price
@@ -70,7 +70,7 @@ class Position:
         """
         self.status = 'close'
         self.stop_loss = False
-        self.effective_yield = self.effective_yield_calculation(self.close_price, self.open_price, Settings.fee)
+        self.effective_yield = self.effective_yield_calculation(self.close_price, self.open_price, Settings().fee)
         self.total_yield = round(self.total_yield * self.effective_yield, 5)
         if self.total_yield > self.highest_yield:
             self.highest_yield = self.total_yield
@@ -117,7 +117,7 @@ class Position:
         Then checks if it has to close the position
         
         """
-        self.current_price = Settings.broker.price(self.symbol)['bid']
+        self.current_price = Settings().broker.price(self.symbol)['bid']
 
         # Updating highest_price
         if self.current_price > self.highest_price:
@@ -131,14 +131,14 @@ class Position:
         current_effective_yield = self.effective_yield_calculation(
             current_price=self.current_price,
             opening_price=self.open_price,
-            fee=Settings.fee
+            fee=Settings().fee
         )
 
         # Stop loss
         # Close position :
-        if current_effective_yield < Settings.risk:
+        if current_effective_yield < Settings().risk:
             if self.back_testing:
-                self.close_price = self.open_price * Settings.risk
+                self.close_price = self.open_price * Settings().risk
             else:
                 order = RealCommands().limit_close(self.symbol, backtesting=self.back_testing)
                 self.close_price = float(order['price'])
@@ -150,7 +150,7 @@ class Position:
 
         # Take profit on expected yield
         # Closing on take-profit : Check if the yield  is stronger  than the minimal yield considering fees and slippage
-        if current_effective_yield > Settings.expected_yield:
+        if current_effective_yield > Settings().expected_yield:
             if self.back_testing:
                 self.close_price = self.current_price
             else:
@@ -167,7 +167,7 @@ class Position:
         """Manage position : look for selling or buying actions
         
         """
-        current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings.fee)
+        current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
         # Give information about the program
         statistics = {
             
@@ -230,9 +230,9 @@ class Position:
 
             # If we get a buy signal then :
             if predict['signal'] == 'buy' and self.open_position(
-                    self.symbol + '/' + Settings.base_asset
+                    self.symbol + '/' + Settings().base_asset
             ):
-                Settings.expected_yield = predict['predicted_yield']
+                Settings().expected_yield = predict['predicted_yield']
                 return predict
 
         except Exception as error:
