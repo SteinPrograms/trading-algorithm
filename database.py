@@ -32,5 +32,4 @@ class Database:
 
     def launch_program(self):
         request = self.database_request("SELECT status FROM program")
-        print(request)
         return request[0]['status']==1
