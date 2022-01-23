@@ -185,7 +185,7 @@ class Position:
             
         statistics['current_status'] = self.status
         statistics['position_number']= self.number
-        statistics['total_yield']= str(round((self.total_yield * current_effective_yield - 1) * 100, 2)) + ' %'
+        statistics['total_yield']= str(round((self.total_yield - 1) * 100, 2)) + ' %'
         statistics['number_lost']= self.number_lost
         
         for data, value__ in statistics.items():
