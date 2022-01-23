@@ -241,7 +241,7 @@ class Position:
         # Else pause program
         time.sleep(2)
         
-    def effective_yield_calculation(current_price, opening_price, fee):
+    def effective_yield_calculation(self,current_price, opening_price, fee):
         r = float(current_price) / float(opening_price)
         f = float(fee)
         return r - (f + (1 - f) * r * f)
