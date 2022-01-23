@@ -25,7 +25,7 @@ def main():
 
     #Looping/awaiting for instructions from database (filled through website)
     while True:
-        
+        time.sleep(1)
         #Looking for server instruction
         if Database().launch_program():
             ## Saving start time
