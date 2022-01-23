@@ -59,7 +59,7 @@ class Prediction:
 
     def signal(self):
         predicted_yield = self.prediction_with_pattern_similarity(
-            timeframe=Settings().timeframe_length,
+            timeframe=Settings().timeframe,
             resultin=Settings().prediction_time
         )
 
