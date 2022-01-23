@@ -52,7 +52,7 @@ def main():
                 # Print program running time in console
                 print(f'running_time :{timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}')
                 try:
-                    
+                    """
                     positions_yield = sum(
                         position.yield_calculation()
                         for position in list_of_positions
@@ -68,7 +68,7 @@ def main():
                     # If the program total risk is reached
                     if highest_yield - total_yield+positions_yield > Settings().program_risk:
                         raise DrawdownException
-
+                    """
 
                     # Managing open positions (checking current yield and if it needs to trigger a sell/buy)
                     for position in list_of_positions:
