@@ -1,7 +1,4 @@
 import datetime
-import os
-import requests
-import sys
 import time
 
 from brokerconnection import RealCommands
@@ -210,7 +207,7 @@ class Position:
         """
         try:
             # We analyze the market with the signals defined inside prediction.py
-            predict = Prediction().buy_signal()
+            predict = Prediction().signal()
 
             for values in predict:
                 print(values, ':', predict[values], '\n')
