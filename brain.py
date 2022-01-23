@@ -42,7 +42,7 @@ def main():
                 # Entering into backtesting mode
                 backtesting = True
 
-            list_of_positions = [Position(backtesting,"ETH")]
+            list_of_positions = [Position(backtesting,"BTC")]
             print('---Starting Trading---')
 
             #Looping into trading program

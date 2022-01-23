@@ -7,7 +7,7 @@ import time
 class DataRetriever:
     def __init__(self):
         self.broker = settings.Settings().broker
-        self.watchlist = settings.Settings().watchlist
+        self.watchlist = ['BTC']
         self.base_asset = settings.Settings().base_asset
         self.retrieve_data()
 
