@@ -42,7 +42,7 @@ def main():
                 # Entering into backtesting mode
                 backtesting = True
 
-            list_of_positions = [Position(backtesting,"BTC")]
+            position = Position(backtesting,"BTC")
             print('---Starting Trading---')
 
             #Looping into trading program
@@ -70,18 +70,8 @@ def main():
                         raise DrawdownException
                     """ 
                     
-                    # List of threads
-                    threads = []
-                    # Managing open positions (checking current yield and if it needs to trigger a sell/buy)
-                    for position in list_of_positions:
-                        # Starting a thread for every managable position
-                        thread = threading.Thread(target=position.manage_position)
-                        threads.append(thread)
-                        thread.start()
-                    
-                    # Waiting for all threads to end
-                    for thread in threads:
-                        thread.join()
+                    # Manage position
+                    position.manage_position()
 
                     # If server asks to turnoff the program
                     if not Database().launch_program():
@@ -90,9 +80,9 @@ def main():
 
                 except KeyboardInterrupt or DrawdownException :
                     # Close every position
-                    for position in list_of_positions:
-                        if position.is_open():
-                            threading.Thread(target=position.close_position).start()
+                    
+                    if position.is_open():
+                        position.close_position()
 
                     print("---Ending Trading--")
                     return
