@@ -67,12 +67,10 @@ class Prediction:
             return {
                 "signal": "buy", 
                 "predicted_yield": predicted_yield,
-                "symbol":symbol,
             }
 
         else:
             return {
                 "signal": "neutral",
                 "predicted_yield": predicted_yield,
-                "symbol":symbol,
             }

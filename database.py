@@ -6,9 +6,9 @@ class Database:
         try:
             self.database = mysql.connector.connect(
                 host="localhost",
-                user="user",
+                user="hugodemenez",
                 password="password",
-                database="trading",
+                database="stein",
                 auth_plugin='mysql_native_password',
             )
             self.cursor = self.database.cursor(buffered=True, dictionary=True)
@@ -31,5 +31,5 @@ class Database:
 
 
     def launch_program(self):
-        request = self.database_request("SELECT program FROM ACTIONS")
+        request = self.database_request("SELECT status FROM program")
         print(request)

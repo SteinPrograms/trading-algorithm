@@ -18,8 +18,6 @@ def main():
     """
 
     # Variables definition
-    ## Saving start time
-    start_time = time.time()
     ## Initializing yields
     total_yield = 1
     highest_yield = 1
@@ -30,6 +28,8 @@ def main():
         
         #Looking for server instruction
         if Database().launch_program():
+            ## Saving start time
+            start_time = time.time()
             # Testing connection to broker
             if RealCommands().test_connection():
                 print("Connected to market")
