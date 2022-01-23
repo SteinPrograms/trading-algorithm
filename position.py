@@ -245,3 +245,6 @@ class Position:
         r = float(current_price) / float(opening_price)
         f = float(fee)
         return r - (f + (1 - f) * r * f)
+    
+    def yield_calculation(self,):
+        return self.total_yield
