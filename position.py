@@ -1,6 +1,7 @@
 import datetime
 import time
 
+
 from brokerconnection import RealCommands
 from database import Database
 from prediction import Prediction
@@ -167,6 +168,13 @@ class Position:
             self.find_entry_point()
         
         else:
+            try:
+                # We check if we have to do something with the current position, update current price highest price and
+                # lowest price
+                self.check_position()
+            except:
+                print("Unable to check position status")
+            
             current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
             # Give information about the program
             statistics = {
@@ -186,13 +194,6 @@ class Position:
         for data, value__ in statistics.items():
             print(data, ':', value__, '\n')
 
-        try:
-            # We check if we have to do something with the current position, update current price highest price and
-            # lowest price
-            self.check_position()
-            
-        finally:
-            pass
         # We slow down the requests
         time.sleep(0.2)
         
