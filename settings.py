@@ -11,7 +11,6 @@ class Settings:
         elif self.broker_name == 'binance':
             self.binance()
             
-        self.program_name = self.program_version+'_'+self.username+'_'+self.broker_name
         self.backtesting = False
         self.base_asset = 'USD'
         broker = getattr(importlib.import_module('Python_Brokers_API'), '%s'%self.broker_name)

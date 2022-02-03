@@ -20,14 +20,13 @@ class realcommands:
             file.write(API_KEY+'\n')
             file.write(SECRET_KEY)
 
-
     def limit_close(self,symbol,backtesting):
-        #Checking connectivity
+        # Checking connectivity
         print("checking connectivity")
         if not backtesting:
             while True:
                 try:
-                    #Get the quantity of crypto in balance
+                    # Get the quantity of crypto in balance
                     balance = self.broker.get_balances(re.sub("[^0-9a-zA-Z]+", "", symbol.replace(Settings().base_asset,'')))
                     quantity = float(balance['free'])
                     break
@@ -37,7 +36,7 @@ class realcommands:
             counter=0
             while(True):
                 try:
-                    #Create the sell order with the whole quantity of asset
+                    # Create the sell order with the whole quantity of asset
                     order = self.broker.create_market_order(
                         symbol=symbol,
                         side='sell',
@@ -52,21 +51,21 @@ class realcommands:
                 except:
                     break
 
-            #Now wait for the order to be filled.
+            # Now wait for the order to be filled.
             while(True):
                 try:
                     print("Waiting for the order to be filled")
-                    #Get the quantity of fiat in balance
+                    # Get the quantity of fiat in balance
                     while(True):
                         try:
-                            #Get the quantity of fiat in balance
+                            # Get the quantity of fiat in balance
                             balance = self.broker.get_balances(Settings().base_asset)
                             quantity = float(balance['free'])
                             break
                         except Exception as error:
                             print(error)
                             time.sleep(1)
-                    #If we have recovery of fiat balance then it means sell is ok
+                    # If we have recovery of fiat balance then it means sell is ok
                     if quantity > 10:
                         print("Order filled")
                         break
@@ -77,14 +76,14 @@ class realcommands:
             return order
 
     def limit_open(self,symbol,backtesting):
-        #Checking connectivity
+        # Checking connectivity
         if backtesting:
             return
 
         print("getting the balance...")
         while(True):
             try:
-                #Get the quantity of fiat in balance
+                # Get the quantity of fiat in balance
                 balance = self.broker.get_balances(Settings().base_asset)
                 quantity = float(balance['free'])
                 break
@@ -96,7 +95,7 @@ class realcommands:
         counter=0
         while(True):
             try:
-                #Create the buy order with the whole quantity you can buy with balance
+                # Create the buy order with the whole quantity you can buy with balance
                 buy_order = self.broker.create_market_order(
                     symbol=symbol,
                     side='buy',
@@ -112,13 +111,13 @@ class realcommands:
                 break
 
         print("Waiting for the order to be filled")
-        #Now wait for the order to be filled.
+        # Now wait for the order to be filled.
         while(True):
             try:
                 
                 while(True):
                     try:
-                        #Get the quantity of fiat in balance
+                        # Get the quantity of fiat in balance
                         balance = self.broker.get_balances(Settings().base_asset)
                         quantity = float(balance['free'])
                         break
