@@ -1,7 +1,7 @@
 import os,time,re
 from settings import Settings
 
-class RealCommands:
+class realcommands:
     def __init__(self) -> None:
         self.broker = Settings().broker
         path = Settings().path

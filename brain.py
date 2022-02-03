@@ -1,20 +1,22 @@
 """Simple program which buys on Monday at 21:00 and Sells on Friday at 21:00"""
 
+import os,threading,time
 
-from datetime import datetime, timedelta
-import os
-import threading
-import time 
-from botExceptions import DrawdownException
+
+from datetime import timedelta
+from botExceptions import DrawdownException, ServerStopException
 from brokerconnection import RealCommands
 from database import Database
 from position import Position
 from settings import Settings
 
+
+
+
 def main():
     """Main method for the brain
     
-    Function to manage two positions on BTC and ETH simultaneously
+    Algorithme to manage one position
     """
 
     # Variables definition
@@ -42,7 +44,11 @@ def main():
                 # Entering into backtesting mode
                 backtesting = True
 
+
+            # Instantiating the position
             position = Position(backtesting,"BTC")
+            
+            # Log for server
             print('---Starting Trading---')
 
             #Looping into trading program
@@ -52,36 +58,23 @@ def main():
                 # Print program running time in console
                 print(f'running_time :{timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}')
                 try:
-                    """
-                    positions_yield = sum(
-                        position.yield_calculation()
-                        for position in list_of_positions
-                    )
-
-                    #Refreshing current total yield
-                    total_yield +=  (
-                        positions_yield - len(list_of_positions)
-                    ) / len(list_of_positions)
-
-
-
                     # If the program total risk is reached
-                    if highest_yield - total_yield+positions_yield > Settings().program_risk:
+                    if highest_yield - total_yield+position.current_effective_yield > Settings().program_risk:
                         raise DrawdownException
-                    """ 
+
                     
                     # Manage position
                     position.manage_position()
 
                     # If server asks to turnoff the program
                     if not Database().launch_program():
-                        break
+                        raise ServerStopException
 
-
-                except KeyboardInterrupt or DrawdownException :
-                    # Close every position
-                    
+                # If there is an interrupt 
+                except KeyboardInterrupt or DrawdownException :                    
+                    # And the position is currently opened
                     if position.is_open():
+                        # Close every position
                         position.close_position()
 
                     print("---Ending Trading--")

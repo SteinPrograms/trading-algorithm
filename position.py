@@ -25,7 +25,7 @@ class Position:
         self.total_yield = 1.0
         self.close_price=0.0
         self.time=0
-        self.effective_yield=0
+        self.current_effective_yield=0
         self.highest_yield = 1
         self.stop_loss = False
         self.backtesting = False
@@ -126,7 +126,7 @@ class Position:
             self.lowest_price = self.current_price
 
             # Calculating current effective_yield
-        current_effective_yield = self.effective_yield_calculation(
+        self.current_effective_yield = self.effective_yield_calculation(
             current_price=self.current_price,
             opening_price=self.open_price,
             fee=Settings().fee
@@ -134,7 +134,7 @@ class Position:
 
         # Stop loss
         # Close position :
-        if current_effective_yield < Settings().risk:
+        if self.current_effective_yield < Settings().risk:
             if self.back_testing:
                 self.close_price = self.open_price * Settings().risk
             else:
@@ -147,7 +147,7 @@ class Position:
 
         # Take profit on expected yield
         # Closing on take-profit : Check if the yield  is stronger  than the minimal yield considering fees and slippage
-        if current_effective_yield > Settings().expected_yield:
+        if self.current_effective_yield > Settings().expected_yield:
             if self.back_testing:
                 self.close_price = self.current_price
             else:
