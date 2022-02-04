@@ -33,3 +33,7 @@ class Database:
     def launch_program(self):
         request = self.database_request("SELECT status FROM program")
         return request[0]['status']==1
+    
+    def update_time(self):
+        request = self.database_request("UPDATE `program` SET`id` = '1',`start` = now(),`status` = CONV('0', 2, 10) + 0 WHERE `id` = '1' LIMIT 1;",commit=True)
+    

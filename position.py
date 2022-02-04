@@ -193,9 +193,6 @@ class Position:
         
         for data, value__ in statistics.items():
             print(data, ':', value__, '\n')
-
-        # We slow down the requests
-        time.sleep(0.2)
         
     def find_entry_point(self):
         """[summary]

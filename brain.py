@@ -32,6 +32,7 @@ def main():
         if Database().launch_program():
             ## Saving start time
             start_time = time.time()
+            Database().update_time()
             # Testing connection to broker
             if RealCommands().test_connection():
                 print("Connected to market")
