@@ -79,6 +79,10 @@ def main():
 
                     print("---Ending Trading--")
                     return
+                
+                except ServerStopException :
+                    print("Program paused")
+                    break
 
 
 if __name__ == '__main__':
