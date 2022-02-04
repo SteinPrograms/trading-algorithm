@@ -82,6 +82,10 @@ def main():
                     return
                 
                 except ServerStopException :
+                    # And the position is currently opened
+                    if position.is_open():
+                        # Close every position
+                        position.close_position()
                     print("Program paused")
                     break
 
