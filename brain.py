@@ -2,16 +2,12 @@
 
 import os,threading,time
 
-
 from datetime import timedelta
 from botExceptions import DrawdownException, ServerStopException
 from brokerconnection import RealCommands
 from database import Database
 from position import Position
 from settings import Settings
-
-
-
 
 def main():
     """Main method for the brain
