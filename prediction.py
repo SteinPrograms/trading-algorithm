@@ -71,6 +71,6 @@ class Prediction:
 
         else:
             return {
-                "signal": "neutral",
+                "signal": "buy",
                 "predicted_yield": predicted_yield,
             }
