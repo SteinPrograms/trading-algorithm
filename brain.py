@@ -41,10 +41,12 @@ def main():
                 # Entering into backtesting mode
                 backtesting = True
 
+            
 
             # Instantiating the position
             position = Position(backtesting,"BTC")
             
+            print(position.backtesting)
             # Log for server
             print('---Starting Trading---')
 

@@ -28,7 +28,7 @@ class Position:
         self.current_effective_yield=0
         self.highest_yield = 1
         self.stop_loss = False
-        self.backtesting = False
+        self.backtesting = backtesting
         self.start_time = 0
 
     
