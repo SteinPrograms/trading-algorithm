@@ -25,7 +25,7 @@ class Position:
         self.total_yield = 1.0
         self.close_price=0.0
         self.time=0
-        self.current_effective_yield=0
+        self.current_effective_yield=1
         self.highest_yield = 1
         self.stop_loss = False
         self.backtesting = backtesting
