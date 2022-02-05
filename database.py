@@ -35,5 +35,5 @@ class Database:
         return request[0]['status']==1
     
     def update_time(self):
-        request = self.database_request("UPDATE `program` SET `start` = now() WHERE `id` = '1' LIMIT 1;",commit=True)
+        self.database_request("UPDATE `program` SET `start` = now() WHERE `id` = '1' LIMIT 1;",commit=True)
     
