@@ -18,7 +18,7 @@ class Position:
         self.highest_price=0.0
         self.lowest_price=0.0
         self.status='close'
-        self.symbol=symbol
+        self.symbol=symbol+'/'+Settings().base_asset
         self.number=0
         self.close_mode=''
         self.current_price=0.0
