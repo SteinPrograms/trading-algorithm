@@ -61,7 +61,7 @@ def main():
                     if not Database().launch_program():
                         raise ServerStopException
                     # If the program total risk is reached
-                    if highest_yield - total_yield+position.current_effective_yield > Settings().program_risk:
+                    if position.current_effective_yield < Settings().program_risk:
                         raise DrawdownException
 
                     # Manage position
