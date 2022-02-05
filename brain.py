@@ -66,6 +66,7 @@ def main():
 
                     # Manage position
                     position.manage_position()
+                    time.sleep(0.2)
 
                 # If there is an interrupt 
                 except KeyboardInterrupt or DrawdownException :                    
