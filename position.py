@@ -77,6 +77,17 @@ class Position:
         return
 
 
+    def forced_close(self):
+        if self.back_testing:
+                self.close_price = self.open_price * Settings().risk
+        else:
+            order = RealCommands().limit_close(self.symbol, backtesting=self.back_testing)
+            self.close_price = float(order['price'])
+
+        self.close_mode = 'force-close'
+        self.close_position()
+        return
+    
     def save_position(self):
         """This function sends notification and add position information to database.
         
