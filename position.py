@@ -207,7 +207,7 @@ class Position:
         try:
             # We analyze the market with the signals defined inside prediction.py
             predict = Prediction().signal()
-
+            print(Settings().broker.price(self.symbol)['ask'])
             for values in predict:
                 print(values, ':', predict[values], '\n')
 
