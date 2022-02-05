@@ -10,7 +10,7 @@ class Telegram:
         pass
     
     
-    def program_notification(message):
+    def program_notification(self,message):
         try:
             telegram_data = Database().database_request(sql="""SELECT * FROM telegram""", fetchone=True)
             token = telegram_data["token"]
