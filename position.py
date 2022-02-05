@@ -48,6 +48,7 @@ class Position:
             self.open_price = float(order['order']['price'])
             current_price = Settings().broker.price(self.symbol)['ask']
         else:
+            # Simulation of opening position time by broker
             time.sleep(2)
             current_price = Settings().broker.price(self.symbol)['ask']
             self.open_price = current_price
@@ -211,9 +212,7 @@ class Position:
                 print(values, ':', predict[values], '\n')
 
             # If we get a buy signal then :
-            if predict['signal'] == 'buy' and self.open_position(
-                    self.symbol + '/' + Settings().base_asset
-            ):
+            if predict['signal'] == 'buy' and self.open_position():
                 Settings().expected_yield = predict['predicted_yield']
                 return predict
 

@@ -55,17 +55,15 @@ def main():
                 # Print program running time in console
                 print(f'running_time :{timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}')
                 try:
+                    # If server asks to turnoff the program
+                    if not Database().launch_program():
+                        raise ServerStopException
                     # If the program total risk is reached
                     if highest_yield - total_yield+position.current_effective_yield > Settings().program_risk:
                         raise DrawdownException
 
-                    
                     # Manage position
                     position.manage_position()
-
-                    # If server asks to turnoff the program
-                    if not Database().launch_program():
-                        raise ServerStopException
 
                 # If there is an interrupt 
                 except KeyboardInterrupt or DrawdownException :                    
