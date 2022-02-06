@@ -78,10 +78,10 @@ class Position:
 
 
     def force_position_close(self):
-        if self.back_testing:
+        if self.backtesting:
             self.close_price = self.open_price * Settings().risk
         else:
-            order = RealCommands().limit_close(self.symbol, backtesting=self.back_testing)
+            order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
             self.close_price = float(order['price'])
 
         self.close_mode = "force-close"
@@ -149,10 +149,10 @@ class Position:
         # Stop loss
         # Close position :
         if self.current_effective_yield < Settings().risk:
-            if self.back_testing:
+            if self.backtesting:
                 self.close_price = self.open_price * Settings().risk
             else:
-                order = RealCommands().limit_close(self.symbol, backtesting=self.back_testing)
+                order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
                 self.close_price = float(order['price'])
 
             self.close_mode = "stop-loss"
@@ -162,10 +162,10 @@ class Position:
         # Take profit on expected yield
         # Closing on take-profit : Check if the yield  is stronger  than the minimal yield considering fees and slippage
         if self.current_effective_yield > Settings().expected_yield:
-            if self.back_testing:
+            if self.backtesting:
                 self.close_price = self.current_price
             else:
-                order = RealCommands().limit_close(symbol=self.symbol, backtesting=self.back_testing)
+                order = RealCommands().limit_close(symbol=self.symbol, backtesting=self.backtesting)
                 self.close_price = float(order['price'])
 
             self.close_mode = "take-profit"
