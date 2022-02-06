@@ -73,7 +73,7 @@ def main():
                     # And the position is currently opened
                     if position.is_open():
                         # Close every position
-                        position.forced_close()
+                        position.force_position_close()
 
                     print("---Ending Trading--")
                     return

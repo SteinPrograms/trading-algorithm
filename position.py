@@ -77,7 +77,7 @@ class Position:
         return
 
 
-    def forced_close(self):
+    def force_position_close(self):
         if self.back_testing:
                 self.close_price = self.open_price * Settings().risk
         else:
@@ -184,8 +184,8 @@ class Position:
                 # We check if we have to do something with the current position, update current price highest price and
                 # lowest price
                 self.check_position()
-            except:
-                print("Unable to check position status")
+            except Exception as error:
+                print("Unable to check position status"+error)
             
             current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
             # Give information about the program
