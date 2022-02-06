@@ -63,7 +63,8 @@ class Prediction:
             resultin=Settings().prediction_time
         )
 
-        if predicted_yield > Settings().expected_yield:
+        # If the predicted yield is above the expected yield + fees (since we want to get expected yield (at least))
+        if predicted_yield > Settings().real_expected_yield:
             return {
                 "signal": "buy", 
                 "predicted_yield": predicted_yield,

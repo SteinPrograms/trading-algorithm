@@ -16,7 +16,8 @@ class Settings:
         broker = getattr(importlib.import_module('Python_Brokers_API'), '%s'%self.broker_name)
         self.broker = broker()
         self.path = self.broker_name +".key"
-        self.expected_yield = 1 + 2*self.fee 
+        self.expected_yield = 1 + 0.1/100
+        self.real_expected_yield = self.expected_yield + 2*self.fee 
         self.risk = 1 - 5/100
         self.program_risk = 10/100
         self.timeframe = 15
