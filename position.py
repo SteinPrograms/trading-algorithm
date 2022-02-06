@@ -185,7 +185,7 @@ class Position:
                 # lowest price
                 self.check_position()
             except Exception as error:
-                print("Unable to check position status"+error)
+                print("Unable to check position status",error)
             
             current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
             # Give information about the program
