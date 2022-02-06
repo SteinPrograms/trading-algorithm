@@ -79,14 +79,13 @@ class Position:
 
     def force_position_close(self):
         if self.backtesting:
-            self.close_price = self.open_price * Settings().risk
+            self.close_price = self.current_price
         else:
             order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
             self.close_price = float(order['price'])
 
         self.close_mode = "force-close"
         
-        Telegram().program_notification(message=self.close_mode+str(self.close_price))
         self.close_position()
         return
     
