@@ -68,7 +68,7 @@ class RealCommands:
                             print(error)
                             time.sleep(1)
                     # If we have recovery of fiat balance then it means sell is ok
-                    if quantity > 10:
+                    if quantity > 20:
                         print("Order filled")
                         break
                     time.sleep(0.2)
@@ -126,10 +126,18 @@ class RealCommands:
                     except Exception as error:
                         print(error)
                         time.sleep(0.2)
-                if quantity < 10:
+                if quantity < 20:
                     print("Order filled")
                     break
             except:
                 pass
 
         return {'error':False,'order':buy_order}
+
+
+
+if __name__ == '__main__':
+    # Testing brokerconnection with buy/sell orders
+    RealCommands().limit_open("BTC/USD",False)
+    RealCommands().limit_close("BTC/USD",False)
+    
