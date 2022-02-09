@@ -47,22 +47,24 @@ class Position:
                 return False
             self.open_price = float(order['order']['price'])
             current_price = Settings().broker.price(self.symbol)['ask']
-            print(order)
-            time.sleep(10)
-            Database().database_request(
-                sql=(
-                    "REPLACE INTO positions "
-                    "(asset,side,value,date)"
-                    " VALUES (%s,%s,%s,%s)"
-                ),
-                params=(
-                    self.symbol,
-                    "Buy",
-                    float(order['order']['size']),
-                    datetime.datetime.fromtimestamp(time.time()),
-                ),
-                commit=True
-            )
+            try:
+                time.sleep(10)
+                Database().database_request(
+                    sql=(
+                        "REPLACE INTO trading "
+                        "(asset,side,value,date)"
+                        " VALUES (%s,%s,%s,%s)"
+                    ),
+                    params=(
+                        self.symbol,
+                        "Buy",
+                        float(order['order']['size']),
+                        datetime.datetime.fromtimestamp(time.time()),
+                    ),
+                    commit=True
+                )
+            except Exception as e:
+                print(e)
         else:
             # Simulation of opening position time by broker
             time.sleep(2)
@@ -102,7 +104,7 @@ class Position:
             try:
                 Database().database_request(
                     sql=(
-                        "REPLACE INTO positions "
+                        "REPLACE INTO trading "
                         "(asset,side,value,date)"
                         " VALUES (%s,%s,%s,%s)"
                     ),
@@ -189,7 +191,7 @@ class Position:
                 try:
                     Database().database_request(
                         sql=(
-                            "REPLACE INTO positions "
+                            "REPLACE INTO trading "
                             "(asset,side,value,date)"
                             " VALUES (%s,%s,%s,%s)"
                         ),
@@ -219,7 +221,7 @@ class Position:
                 try:
                     Database().database_request(
                         sql=(
-                            "REPLACE INTO positions "
+                            "REPLACE INTO trading "
                             "(asset,side,value,date)"
                             " VALUES (%s,%s,%s,%s)"
                         ),
