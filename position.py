@@ -99,6 +99,7 @@ class Position:
             self.close_price = self.current_price
         else:
             order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
+            print(order)
             self.close_price = float(order['price'])
             try:
                 Database().database_request(
