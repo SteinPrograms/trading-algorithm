@@ -1,6 +1,12 @@
-"""Simple program which buys on Monday at 21:00 and Sells on Friday at 21:00"""
+#!/usr/bin/env python
 
-import os,threading,time
+"""
+Algorithm which runs when the database is online.
+Uses the prediction methode defined in prediction.py to manage a position defined in position.py
+"""
+
+
+import os,time
 
 from datetime import timedelta
 from botExceptions import DrawdownException, ServerStopException
@@ -8,6 +14,9 @@ from brokerconnection import RealCommands
 from database import Database
 from position import Position
 from settings import Settings
+
+
+__author__ = "Hugo Demenez"
 
 def main():
     """Main method for the brain

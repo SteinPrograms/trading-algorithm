@@ -47,6 +47,20 @@ class Position:
                 return False
             self.open_price = float(order['order']['price'])
             current_price = Settings().broker.price(self.symbol)['ask']
+            Database().database_request(
+                sql=(
+                    "REPLACE INTO positions "
+                    "(asset,side,value,date)"
+                    " VALUES (%s,%s,%s,%s)"
+                ),
+                params=(
+                    self.symbol,
+                    "Buy",
+                    float(order['order']['price'])*float(order['order']['quantity']),
+                    datetime.datetime.fromtimestamp(time.time()),
+                ),
+                commit=True
+            )
         else:
             # Simulation of opening position time by broker
             time.sleep(2)
@@ -83,6 +97,23 @@ class Position:
         else:
             order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
             self.close_price = float(order['price'])
+            try:
+                Database().database_request(
+                    sql=(
+                        "REPLACE INTO positions "
+                        "(asset,side,value,date)"
+                        " VALUES (%s,%s,%s,%s)"
+                    ),
+                    params=(
+                        self.symbol,
+                        "Sell",
+                        float(order['order']['price'])*float(order['order']['quantity']),
+                        datetime.datetime.fromtimestamp(time.time()),
+                    ),
+                    commit=True
+                )
+            except Exception as e:
+                print(e)
 
         self.close_mode = "force-close"
         
@@ -153,6 +184,23 @@ class Position:
             else:
                 order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
                 self.close_price = float(order['price'])
+                try:
+                    Database().database_request(
+                        sql=(
+                            "REPLACE INTO positions "
+                            "(asset,side,value,date)"
+                            " VALUES (%s,%s,%s,%s)"
+                        ),
+                        params=(
+                            self.symbol,
+                            "Sell",
+                            float(order['order']['price'])*float(order['order']['quantity']),
+                            datetime.datetime.fromtimestamp(time.time()),
+                        ),
+                        commit=True
+                    )
+                except Exception as e:
+                    print(e)
 
             self.close_mode = "stop-loss"
             self.close_position()
@@ -166,6 +214,23 @@ class Position:
             else:
                 order = RealCommands().limit_close(symbol=self.symbol, backtesting=self.backtesting)
                 self.close_price = float(order['price'])
+                try:
+                    Database().database_request(
+                        sql=(
+                            "REPLACE INTO positions "
+                            "(asset,side,value,date)"
+                            " VALUES (%s,%s,%s,%s)"
+                        ),
+                        params=(
+                            self.symbol,
+                            "Sell",
+                            float(order['order']['price'])*float(order['order']['quantity']),
+                            datetime.datetime.fromtimestamp(time.time()),
+                        ),
+                        commit=True
+                    )
+                except Exception as e:
+                    print(e)
 
             self.close_mode = "take-profit"
             self.close_position()
