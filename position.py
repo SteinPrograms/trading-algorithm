@@ -48,7 +48,6 @@ class Position:
             self.open_price = float(order['order']['price'])
             current_price = Settings().broker.price(self.symbol)['ask']
             try:
-                time.sleep(10)
                 Database().database_request(
                     sql=(
                         "REPLACE INTO trading "
