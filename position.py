@@ -57,7 +57,7 @@ class Position:
                     params=(
                         self.symbol[:3],
                         "Buy",
-                        float(order['order']['size']),
+                        round(float(order['order']['size']),2),
                         datetime.datetime.fromtimestamp(time.time()),
                     ),
                     commit=True

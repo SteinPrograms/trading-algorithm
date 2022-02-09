@@ -133,6 +133,22 @@ class RealCommands:
                 pass
 
         return {'error':False,'order':buy_order}
+    
+    def balance_check(self) -> float:
+        print("getting the balance...")
+        while(True):
+            try:
+                # Get the quantity of fiat in balance
+                balance = self.broker.get_balances(Settings().base_asset)
+                quantity = float(balance['free'])
+                # It is ok if quanity is high enough
+                if quantity > 20:
+                    return quantity
+                raise Exception("Balance is currently null")
+                
+            except Exception as error:
+                print(error)
+                time.sleep(0.2)
 
 
 
