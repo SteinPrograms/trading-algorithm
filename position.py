@@ -55,7 +55,7 @@ class Position:
                         " VALUES (%s,%s,%s,%s)"
                     ),
                     params=(
-                        self.symbol,
+                        self.symbol[:3],
                         "Buy",
                         float(order['order']['size']),
                         datetime.datetime.fromtimestamp(time.time()),
@@ -109,9 +109,9 @@ class Position:
                         " VALUES (%s,%s,%s,%s)"
                     ),
                     params=(
-                        self.symbol,
+                        self.symbol[:3],
                         "Sell",
-                        float(order['order']['size']),
+                        round(float(order['size'])*float(order['price']),2),
                         datetime.datetime.fromtimestamp(time.time()),
                     ),
                     commit=True
@@ -196,9 +196,9 @@ class Position:
                             " VALUES (%s,%s,%s,%s)"
                         ),
                         params=(
-                            self.symbol,
+                            self.symbol[:3],
                             "Sell",
-                            float(order['order']['size']),
+                            round(float(order['size'])*float(order['price']),2),
                             datetime.datetime.fromtimestamp(time.time()),
                         ),
                         commit=True
@@ -226,9 +226,9 @@ class Position:
                             " VALUES (%s,%s,%s,%s)"
                         ),
                         params=(
-                            self.symbol,
+                            self.symbol[:3],
                             "Sell",
-                            float(order['order']['size']),
+                            round(float(order['size'])*float(order['price']),2),
                             datetime.datetime.fromtimestamp(time.time()),
                         ),
                         commit=True

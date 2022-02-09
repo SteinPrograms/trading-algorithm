@@ -138,5 +138,6 @@ class RealCommands:
 
 if __name__ == '__main__':
     # Testing brokerconnection with buy/sell orders
+    RealCommands().limit_open("BTC/USD",False)
     RealCommands().limit_close("BTC/USD",False)
     
