@@ -58,7 +58,7 @@ class Position:
                 params=(
                     self.symbol,
                     "Buy",
-                    float(order['order']['price'])*float(order['order']['quantity']),
+                    float(order['order']['size']),
                     datetime.datetime.fromtimestamp(time.time()),
                 ),
                 commit=True
@@ -109,7 +109,7 @@ class Position:
                     params=(
                         self.symbol,
                         "Sell",
-                        float(order['order']['price'])*float(order['order']['quantity']),
+                        float(order['order']['size']),
                         datetime.datetime.fromtimestamp(time.time()),
                     ),
                     commit=True
@@ -196,7 +196,7 @@ class Position:
                         params=(
                             self.symbol,
                             "Sell",
-                            float(order['order']['price'])*float(order['order']['quantity']),
+                            float(order['order']['size']),
                             datetime.datetime.fromtimestamp(time.time()),
                         ),
                         commit=True
@@ -226,7 +226,7 @@ class Position:
                         params=(
                             self.symbol,
                             "Sell",
-                            float(order['order']['price'])*float(order['order']['quantity']),
+                            float(order['order']['size']),
                             datetime.datetime.fromtimestamp(time.time()),
                         ),
                         commit=True
