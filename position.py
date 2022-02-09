@@ -47,6 +47,8 @@ class Position:
                 return False
             self.open_price = float(order['order']['price'])
             current_price = Settings().broker.price(self.symbol)['ask']
+            print(order)
+            time.sleep(10)
             Database().database_request(
                 sql=(
                     "REPLACE INTO positions "
