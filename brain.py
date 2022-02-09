@@ -30,6 +30,10 @@ def main():
     highest_yield = 1
 
 
+
+    # Instantiating the position
+    position = Position("BTC")
+    
     #Looping/awaiting for instructions from database (filled through website)
     while True:
         time.sleep(1)
@@ -50,12 +54,9 @@ def main():
                 # Entering into backtesting mode
                 backtesting = True
 
+            # Adding control on position status
+            position.backtesting = backtesting
             
-
-            # Instantiating the position
-            position = Position(backtesting,"BTC")
-            
-            print(position.backtesting)
             # Log for server
             print('---Starting Trading---')
 
