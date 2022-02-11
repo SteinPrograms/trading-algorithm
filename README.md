@@ -2,7 +2,9 @@
 # base-python-architecture
 
 ## This is the initial program used to lead the project
+
 =======
+
 Base program in building phase since march 2020
 
 #Trading Program Architecture
