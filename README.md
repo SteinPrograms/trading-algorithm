@@ -1,14 +1,15 @@
 
 # base-python-architecture
 
-##This is the initial program used to lead the project
+## This is the initial program used to lead the project
 =======
-Base program built on the 8th Nov 2021
+Base program in building phase since march 2020
 
 #Trading Program Architecture
 
 The database structure must be as followed :
-> 
+
+![Structure](assets/structure.png)
 
 
 
