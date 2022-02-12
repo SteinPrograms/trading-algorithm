@@ -8,6 +8,11 @@ while(True):
     #Every day at 8AM
     if now.hour == 8 and now.minute == 0 and now.second == 0:
         try:
+            balance = RealCommands().balance_check()
+        except Exception as e :
+            print("Balance checking error",e)
+            
+        try:
             Database().database_request(
                 sql=(
                     "REPLACE INTO data "
@@ -17,10 +22,11 @@ while(True):
                 params=(
                     "Hugo",
                     dt.datetime.fromtimestamp(time.time()),
-                    RealCommands().balance_check(),
+                    balance,
                 ),
                 commit=True,
             )
-            time.sleep(60)
         except Exception as e :
-            print(e)
+            print("Database error",e)
+            
+        time.sleep(60)
