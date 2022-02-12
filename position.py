@@ -111,7 +111,7 @@ class Position:
                     params=(
                         self.symbol[:3],
                         "Sell",
-                        round(float(order['size'])*float(order['price']),2),
+                        round(RealCommands().balance_check(),2),
                         datetime.datetime.fromtimestamp(time.time()),
                     ),
                     commit=True
@@ -198,7 +198,7 @@ class Position:
                         params=(
                             self.symbol[:3],
                             "Sell",
-                            round(float(order['size'])*float(order['price']),2),
+                            round(RealCommands().balance_check(),2),
                             datetime.datetime.fromtimestamp(time.time()),
                         ),
                         commit=True
@@ -228,7 +228,7 @@ class Position:
                         params=(
                             self.symbol[:3],
                             "Sell",
-                            round(float(order['size'])*float(order['price']),2),
+                            round(RealCommands().balance_check(),2),
                             datetime.datetime.fromtimestamp(time.time()),
                         ),
                         commit=True
