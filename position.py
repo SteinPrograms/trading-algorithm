@@ -101,24 +101,6 @@ class Position:
             order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
             print(order)
             self.close_price = float(order['price'])
-            try:
-                Database().database_request(
-                    sql=(
-                        "REPLACE INTO trading "
-                        "(asset,side,value,date)"
-                        " VALUES (%s,%s,%s,%s)"
-                    ),
-                    params=(
-                        self.symbol[:3],
-                        "Sell",
-                        round(RealCommands().balance_check(),2),
-                        datetime.datetime.fromtimestamp(time.time()),
-                    ),
-                    commit=True
-                )
-            except Exception as e:
-                print(e)
-
         self.close_mode = "force-close"
         
         self.close_position()
@@ -154,6 +136,27 @@ class Position:
                 ),
                 commit=True
             )
+            
+            
+            # Saving balance state in database
+            try:
+                Database().database_request(
+                    sql=(
+                        "REPLACE INTO trading "
+                        "(asset,side,value,date)"
+                        " VALUES (%s,%s,%s,%s)"
+                    ),
+                    params=(
+                        self.symbol[:3],
+                        "Sell",
+                        round(RealCommands().balance_check(),2),
+                        datetime.datetime.fromtimestamp(time.time()),
+                    ),
+                    commit=True
+                )
+            except Exception as e:
+                print(e)
+                
             return
         except Exception as error:
             Telegram().program_notification(message=error)
@@ -188,24 +191,6 @@ class Position:
             else:
                 order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
                 self.close_price = float(order['price'])
-                try:
-                    Database().database_request(
-                        sql=(
-                            "REPLACE INTO trading "
-                            "(asset,side,value,date)"
-                            " VALUES (%s,%s,%s,%s)"
-                        ),
-                        params=(
-                            self.symbol[:3],
-                            "Sell",
-                            round(RealCommands().balance_check(),2),
-                            datetime.datetime.fromtimestamp(time.time()),
-                        ),
-                        commit=True
-                    )
-                except Exception as e:
-                    print(e)
-
             self.close_mode = "stop-loss"
             self.close_position()
             return
@@ -218,24 +203,6 @@ class Position:
             else:
                 order = RealCommands().limit_close(symbol=self.symbol, backtesting=self.backtesting)
                 self.close_price = float(order['price'])
-                try:
-                    Database().database_request(
-                        sql=(
-                            "REPLACE INTO trading "
-                            "(asset,side,value,date)"
-                            " VALUES (%s,%s,%s,%s)"
-                        ),
-                        params=(
-                            self.symbol[:3],
-                            "Sell",
-                            round(RealCommands().balance_check(),2),
-                            datetime.datetime.fromtimestamp(time.time()),
-                        ),
-                        commit=True
-                    )
-                except Exception as e:
-                    print(e)
-
             self.close_mode = "take-profit"
             self.close_position()
             return
