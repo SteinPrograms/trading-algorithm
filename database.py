@@ -13,7 +13,7 @@ class Database:
             )
             self.cursor = self.database.cursor(buffered=True, dictionary=True)
         except Exception as e:
-            raise Exception("Database connection failed")
+            raise Exception("Database connection failed") from e
 
     def database_request(self, sql, params=None, commit=False, fetchone=False):
         self.cursor.execute(sql, params)
