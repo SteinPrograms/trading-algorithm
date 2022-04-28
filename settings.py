@@ -1,19 +1,10 @@
-import importlib
-
-
+from broker import FTX
 class Settings:
 
     def __init__(self) -> None:
-        self.broker_name = 'ftx'
-
-        if self.broker_name == 'ftx':
-            self.ftx()
-        elif self.broker_name == 'binance':
-            self.binance()
-
         self.backtesting = False
         self.base_asset = 'USD'
-        broker = getattr(importlib.import_module('Python_Brokers_API'), '%s'%self.broker_name)
+
         self.broker = broker()
         self.path = f'{self.broker_name}.key'
         self.expected_yield = 1 + 0.05/100
@@ -31,10 +22,4 @@ class Settings:
             ]  
         self.fee = 0.07/100
         
-
-    def binance(self):
-        self.watchlist=[
-            'BTC','ETH',
-            ]
-        self.fee = 0.1/100
         

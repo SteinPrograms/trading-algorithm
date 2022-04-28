@@ -32,7 +32,7 @@ class RealCommands:
                     balance = self.broker.get_balances(re.sub("[^0-9a-zA-Z]+", "", symbol.replace(Settings().base_asset,'')))
                     quantity = float(balance['free'])
                     break
-                except:
+                except Exception:
                     time.sleep(0.2)
             print("Creating sell order")
             counter=0
@@ -50,31 +50,31 @@ class RealCommands:
                     counter+=1
                     if counter ==10:
                         return {'error':True}
-                except:
+                except Exception:
                     break
 
             # Now wait for the order to be filled.
             while(True):
-                try:
-                    print("Waiting for the order to be filled")
-                    # Get the quantity of fiat in balance
-                    while(True):
-                        try:
-                            # Get the quantity of fiat in balance
-                            balance = self.broker.get_balances(Settings().base_asset)
-                            quantity = float(balance['free'])
-                            break
-                        except Exception as error:
-                            print(error)
-                            time.sleep(1)
-                    # If we have recovery of fiat balance then it means sell is ok
-                    if quantity > 20:
-                        print("Order filled")
+                print("Waiting for the order to be filled")
+                while(True):
+                    try:
+                        # Get the quantity of fiat in balance
+                        balance = self.broker.get_balances(Settings().base_asset)
+                        quantity = float(balance['free'])
                         break
-                    time.sleep(0.2)
-                except:
-                    pass
-
+                    except Exception as error:
+                        print(error)
+                        time.sleep(1)
+                        
+                ### Get here once fiat balance is successfully retrieved
+                # If we have at least 20 $ free of fiat balance then it means sell is executed
+                if quantity > 20:
+                    print("Order filled")
+                    break
+                
+                ### Else it means the order is not executed yet
+                time.sleep(0.2)
+                    
             return order
 
     def limit_open(self,symbol,backtesting):
