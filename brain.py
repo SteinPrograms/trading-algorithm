@@ -8,7 +8,7 @@ Uses the prediction methode defined in prediction.py to manage a position define
 from botExceptions import DrawdownException
 from position import Position
 from settings import Settings
-from broker import RealCommands
+from brokerconnection import RealCommands
 import os,time
 from datetime import timedelta
 __author__ = "Hugo Demenez"
@@ -39,7 +39,7 @@ def main():
         # Clear console
         os.system('cls' if os.name == 'nt' else 'clear')
         # Print program running time in console
-        print(f'running_time :{timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}')
+        print(f'running_time :{timedelta(seconds=round(time.time(), 0) - round(start_time, 0))} \n')
         try:
             # If the program total risk is reached
             if position.current_effective_yield < Settings().risk:

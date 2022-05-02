@@ -13,8 +13,12 @@ class Position:
     def __init__(self,backtesting : bool = True,symbol : str = 'BTC',):
         self.symbol = f'{symbol}/{Settings().base_asset}'
         self.backtesting = backtesting
-        self.status=='close'
+        self.status='close'
+        self.current_effective_yield = 1
+        self.total_yield = 1
     
+    def is_open(self):
+        return self.status=='open'
     
     def open_position(self):
         """This function send an open order to the broker, with the opening price,
@@ -155,7 +159,7 @@ class Position:
         """
         try:
             # We analyze the market with the signals defined inside prediction.py
-            predict = Prediction().signal()
+            predict = Prediction().signal(self.symbol)
 
             for values in predict:
                 print(values, ':', predict[values], '\n')
