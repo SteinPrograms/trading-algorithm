@@ -1,3 +1,4 @@
+import contextlib
 import os,time,re
 from settings import Settings
 
@@ -9,22 +10,17 @@ class RealCommands:
         path = Settings().path
         if os.path.exists(path) == False:
             print("YOU MUST CREATE KEY FILE")
-            self.create_key_file()
+            self.broker.create_key_file()
         self.broker.connect_key(path)
 
     def test_connection(self,):
         return self.broker.test_order()
 
-    def create_key_file(self): 
-        API_KEY = str(input("Enter your API key :"))
-        SECRET_KEY = str(input("Enter your SECRET_KEY :"))
-        with open(Settings().path,"w") as file:
-            file.write(API_KEY+'\n')
-            file.write(SECRET_KEY)
-
     def limit_close(self,symbol,backtesting):
         # Checking connectivity
         print("checking connectivity")
+        
+        # Checking backtesting mode
         if not backtesting:
             while True:
                 try:
@@ -35,6 +31,8 @@ class RealCommands:
                 except Exception:
                     time.sleep(0.2)
             print("Creating sell order")
+            
+            # Initializing counter to overcome order issues
             counter=0
             while(True):
                 try:
@@ -95,7 +93,7 @@ class RealCommands:
 
         print("Creating buy order...")
         counter=0
-        while(True):
+        while True:
             try:
                 # Create the buy order with the whole quantity you can buy with balance
                 buy_order = self.broker.create_market_order(
@@ -109,14 +107,13 @@ class RealCommands:
                 counter+=1
                 if counter ==10:
                     return {'error':True}
-            except:
+            except Exception:
                 break
 
         print("Waiting for the order to be filled")
         # Now wait for the order to be filled.
-        while(True):
-            try:
-                
+        while True:
+            with contextlib.suppress(Exception):
                 while(True):
                     try:
                         # Get the quantity of fiat in balance
@@ -129,9 +126,6 @@ class RealCommands:
                 if quantity < 20:
                     print("Order filled")
                     break
-            except:
-                pass
-
         return {'error':False,'order':buy_order}
     
     def balance_check(self) -> float:

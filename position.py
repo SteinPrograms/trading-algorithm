@@ -1,12 +1,9 @@
 import datetime
 import time
 
-
 from brokerconnection import RealCommands
-from database import Database
 from prediction import Prediction
 from settings import Settings
-from notifications import Telegram
 
 class Position:
     '''This class is used to store all the data used to create orders and to make the calculation.
@@ -14,26 +11,9 @@ class Position:
     Defaults : backtesting is True and symbol is 'BTC'
     '''
     def __init__(self,backtesting : bool = True,symbol : str = 'BTC',):
-        self.open_price=0.0
-        self.highest_price=0.0
-        self.lowest_price=0.0
-        self.status='close'
         self.symbol = f'{symbol}/{Settings().base_asset}'
-        self.number=0
-        self.close_mode=''
-        self.current_price=0.0
-        self.total_yield = 1.0
-        self.close_price=0.0
-        self.time=0
-        self.current_effective_yield=1
-        self.highest_yield = 1
-        self.stop_loss = False
         self.backtesting = backtesting
-        self.start_time = 0
-
-    
-    def is_open(self):
-        return self.status=='open'
+        self.status=='close'
     
     
     def open_position(self):
@@ -47,35 +27,18 @@ class Position:
                 return False
             self.open_price = float(order['order']['price'])
             current_price = Settings().broker.price(self.symbol)['ask']
-            try:
-                Database().database_request(
-                    sql=(
-                        "REPLACE INTO trading "
-                        "(asset,side,value,date)"
-                        " VALUES (%s,%s,%s,%s)"
-                    ),
-                    params=(
-                        self.symbol[:3],
-                        "Buy",
-                        round(float(order['order']['size']),2),
-                        datetime.datetime.fromtimestamp(time.time()),
-                    ),
-                    commit=True
-                )
-            except Exception as e:
-                print(e)
         else:
             # Simulation of opening position time by broker
             time.sleep(2)
             current_price = Settings().broker.price(self.symbol)['ask']
             self.open_price = current_price
 
+
         self.current_price = current_price
         # Setting highest price and lowest price to the opening price
         self.highest_price = self.open_price
         self.lowest_price = self.open_price
         self.status = 'open'
-        self.number += 1
         self.time = time.time()
         return True
 
@@ -85,12 +48,10 @@ class Position:
         
         """
         self.status = 'close'
-        self.stop_loss = False
         self.effective_yield = self.effective_yield_calculation(self.close_price, self.open_price, Settings().fee)
         self.total_yield = round(self.total_yield * self.effective_yield, 5)
         if self.total_yield > self.highest_yield:
             self.highest_yield = self.total_yield
-        self.save_position()
         return
 
 
@@ -106,60 +67,7 @@ class Position:
         self.close_position()
         return
     
-    def save_position(self):
-        """This function sends notification and add position information to database.
-        
-        """
-        try:
-            date = time.time()
-            Telegram().program_notification("\nYield : " + str(round((self.total_yield - 1) * 100, 2)) + ' %')
-
-            # Saving position into database
-            Database().database_request(
-                sql=(
-                    "REPLACE INTO positions "
-                    "(opening_date,closing_date,duration,opening_price,closing_price,exit_way,highest_price,"
-                    "lowest_price,position_yield,total_yield) "
-                    " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-                ),
-                params=(
-                    datetime.datetime.fromtimestamp(self.time),
-                    datetime.datetime.fromtimestamp(date),
-                    str(datetime.timedelta(seconds=round(date, 0) - round(self.time, 0))),
-                    self.open_price,
-                    self.close_price,
-                    self.close_mode,
-                    self.highest_price,
-                    self.lowest_price,
-                    self.effective_yield,
-                    self.total_yield,
-                ),
-                commit=True
-            )
-            
-            
-            # Saving balance state in database
-            try:
-                Database().database_request(
-                    sql=(
-                        "REPLACE INTO trading "
-                        "(asset,side,value,date)"
-                        " VALUES (%s,%s,%s,%s)"
-                    ),
-                    params=(
-                        self.symbol[:3],
-                        "Sell",
-                        round(RealCommands().balance_check(),2),
-                        datetime.datetime.fromtimestamp(time.time()),
-                    ),
-                    commit=True
-                )
-            except Exception as e:
-                print(e)
-                
-            return
-        except Exception as error:
-            Telegram().program_notification(message=error)
+    
 
     def check_position(self):
         """ Function to update the current_price, the highest_price and the lowest price
@@ -211,11 +119,12 @@ class Position:
         """Manage position : look for selling or buying actions
         
         """
+
         statistics = {}
         
         if self.status == 'close':
             self.find_entry_point()
-        
+
         else:
             try:
                 # We check if we have to do something with the current position, update current price highest price and
@@ -223,23 +132,15 @@ class Position:
                 self.check_position()
             except Exception as error:
                 print("Unable to check position status",error)
-            
+
             current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
             # Give information about the program
-            statistics = {
-                'current_price': self.current_price,
-                'open_price': self.open_price,
-                'highest_price': self.highest_price,
-                'lowest_price': self.lowest_price,
-                'position_yield': str(round((current_effective_yield - 1) * 100, 2)) + ' %',
-                'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0))),
-                'stop-loss': self.stop_loss,
-            }
-            
+            statistics = {'current_price': self.current_price, 'open_price': self.open_price, 'highest_price': self.highest_price, 'lowest_price': self.lowest_price, 'position_yield': f'{str(round((current_effective_yield - 1) * 100, 2))} %', 'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0))), 'stop-loss': self.stop_loss}
+
+
         statistics['current_status'] = self.status
-        statistics['position_number']= self.number
-        statistics['total_yield']= str(round((self.total_yield - 1) * 100, 2)) + ' %'
-        
+        statistics['total_yield'] = f'{str(round((self.total_yield - 1) * 100, 2))} %'
+
         for data, value__ in statistics.items():
             print(data, ':', value__, '\n')
         
@@ -261,12 +162,10 @@ class Position:
 
             # If we get a buy signal then :
             if predict['signal'] == 'buy' and self.open_position():
-                Settings().expected_yield = predict['predicted_yield']
                 return predict
 
         except Exception as error:
-            print('error while predicting : %s' % error)
-
+            print(f'error while predicting : {error}')
         # Else pause program
         time.sleep(2)
         
@@ -274,6 +173,3 @@ class Position:
         r = float(current_price) / float(opening_price)
         f = float(fee)
         return r - (f + (1 - f) * r * f)
-    
-    def yield_calculation(self,):
-        return self.total_yield
