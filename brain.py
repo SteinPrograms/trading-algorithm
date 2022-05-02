@@ -9,7 +9,8 @@ from botExceptions import DrawdownException
 from position import Position
 from settings import Settings
 from broker import RealCommands
-
+import os,time
+from datetime import timedelta
 __author__ = "Hugo Demenez"
 
 def main():
@@ -26,7 +27,7 @@ def main():
         # Entering into backtesting mode
         backtesting = True
         
-
+    start_time = time.time()
     position = Position(backtesting=backtesting)
 
     
@@ -40,11 +41,11 @@ def main():
         # Print program running time in console
         print(f'running_time :{timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}')
         try:
-            # If server asks to turnoff the program
-            if not Database().launch_program():
-                raise ServerStopException
             # If the program total risk is reached
-            if position.current_effective_yield < Settings().program_risk:
+            if position.current_effective_yield < Settings().risk:
+                raise DrawdownException
+
+            if position.total_yield < Settings().drawdown:
                 raise DrawdownException
 
             # Manage position
@@ -61,13 +62,6 @@ def main():
             print("---Ending Trading--")
             return
         
-        except ServerStopException :
-            # And the position is currently opened
-            if position.is_open():
-                # Close every position
-                position.close_position()
-            print("Program paused")
-            break
 
 
 
