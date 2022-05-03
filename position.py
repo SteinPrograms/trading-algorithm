@@ -16,6 +16,7 @@ class Position:
         self.status='close'
         self.current_effective_yield = 1
         self.total_yield = 1
+        self.highest_yield=1
     
     def is_open(self):
         return self.status=='open'
@@ -144,7 +145,8 @@ class Position:
                           'highest_price': self.highest_price, 
                           'lowest_price': self.lowest_price, 
                           'position_yield': f'{str(round((current_effective_yield - 1) * 100, 2))} %', 
-                          'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0)))}
+                          'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0))),
+                          'expected_yield': self.expected_yield}
 
 
         statistics['current_status'] = self.status
