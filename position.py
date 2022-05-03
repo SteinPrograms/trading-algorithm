@@ -109,7 +109,7 @@ class Position:
 
         # Take profit on expected yield
         # Closing on take-profit : Check if the yield  is stronger  than the minimal yield considering fees and slippage
-        if self.current_effective_yield > Settings().expected_yield:
+        if self.current_effective_yield > self.expected_yield:
             if self.backtesting:
                 self.close_price = self.current_price
             else:
@@ -166,7 +166,8 @@ class Position:
 
             # If we get a buy signal then :
             if predict['signal'] == 'buy' and self.open_position():
-                return predict
+                self.expected_yield = predict['yield']
+                return
 
         except Exception as error:
             print(f'error while predicting : {error}')

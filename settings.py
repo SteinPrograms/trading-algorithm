@@ -15,4 +15,3 @@ class Settings:
             'BTC',
             ]
         self.fee = 0.07/100
-        self.expected_yield = 1 + 0.3/100 + 2*self.fee
