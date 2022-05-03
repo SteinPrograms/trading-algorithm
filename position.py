@@ -139,7 +139,12 @@ class Position:
 
             current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
             # Give information about the program
-            statistics = {'current_price': self.current_price, 'open_price': self.open_price, 'highest_price': self.highest_price, 'lowest_price': self.lowest_price, 'position_yield': f'{str(round((current_effective_yield - 1) * 100, 2))} %', 'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0))), 'stop-loss': self.stop_loss}
+            statistics = {'current_price': self.current_price, 
+                          'open_price': self.open_price, 
+                          'highest_price': self.highest_price, 
+                          'lowest_price': self.lowest_price, 
+                          'position_yield': f'{str(round((current_effective_yield - 1) * 100, 2))} %', 
+                          'current_position_time': str(datetime.timedelta(seconds=round(time.time(), 0) - round(self.time, 0)))}
 
 
         statistics['current_status'] = self.status
