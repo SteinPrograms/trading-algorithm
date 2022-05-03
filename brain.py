@@ -58,7 +58,7 @@ def main():
             if position.is_open():
                 # Close every position
                 position.force_position_close()
-
+                print("POSITION CLOSED")
             print("---Ending Trading--")
             return
         
