@@ -13,7 +13,7 @@ class Prediction:
         currentPrice = Settings().broker.price(symbol)["bid"]
         if round(currentPrice/10,0)==round(Database().get_target_value(symbol)/10,0):
             return {"signal":"buy",
-                    "yield":Database().get_target_value(symbol) - 2 * Settings().fee,
+                    "yield":Database().get_expected_yield(symbol) - 2 * Settings().fee,
                     }
         else:
             return {"signal":"neutral"}
