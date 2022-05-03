@@ -1,6 +1,5 @@
 import urllib.parse, re, time, hmac
 from typing import Optional, Dict, Any, List
-from ciso8601 import parse_datetime
 from requests import Request, Session, Response
 import requests
 
@@ -340,30 +339,6 @@ class FTX:
             'start_time': start_time,
             'end_time': end_time
         })
-
-    def get_all_trades(self,
-                       market: str,
-                       start_time: Optional[float] = None,
-                       end_time: Optional[float] = None) -> List:
-        ids = set()
-        limit = 100
-        results = []
-        while True:
-            response = self._get(f'markets/{self.symbol_format(market)}/trades', {
-                'end_time': end_time,
-                'start_time': start_time,
-            })
-            deduped_trades = [r for r in response if r['id'] not in ids]
-            results.extend(deduped_trades)
-            ids |= {r['id'] for r in deduped_trades}
-            print(f'Adding {len(response)} trades with end time {end_time}')
-            if len(response) == 0:
-                break
-            end_time = min(parse_datetime(t['time'])
-                           for t in response).timestamp()
-            if len(response) < limit:
-                break
-        return results
 
     def get_historical_data(self, market_name: str, resolution: int) -> dict:
         return self._get(
