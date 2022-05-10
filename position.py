@@ -1,6 +1,6 @@
 import datetime
 import time
-
+from database import Database
 from brokerconnection import RealCommands
 from prediction import Prediction
 from settings import Settings
@@ -154,6 +154,8 @@ class Position:
 
         for data, value__ in statistics.items():
             print(data, ':', value__, '\n')
+        
+        Database().publish_server_data(statistics)
         
     def find_entry_point(self):
         """[summary]
