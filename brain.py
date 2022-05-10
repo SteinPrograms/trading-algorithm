@@ -43,6 +43,9 @@ def main():
         timer = {'running_time':timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}
         for data, value__ in timer.items():
             print(data, ':', value__, '\n')
+            
+        Database().publish_server_data(timer)
+            
         try:
             # If the program total risk is reached
             if position.current_effective_yield < Settings().risk:
