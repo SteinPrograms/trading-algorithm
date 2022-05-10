@@ -22,7 +22,14 @@ class Database:
     def publish_server_data(self,data:dict) -> int:
         response = requests.post(f"{self.endpoint}serverData",data=data)
         return response.status_code
+
+    def get_server_data(self) -> dict:
+        try:
+            response = requests.get(f"{self.endpoint}getServerData")
+            return response.json()
         
+        except Exception:
+            return {'total_yield':1.0}
         
 
 print(Database().publish_server_data({'test':"test"}))

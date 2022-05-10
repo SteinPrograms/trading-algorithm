@@ -9,6 +9,7 @@ from botExceptions import DrawdownException
 from position import Position
 from settings import Settings
 from brokerconnection import RealCommands
+from database import Database
 import os,time
 from datetime import timedelta
 __author__ = "Hugo Demenez"
@@ -29,7 +30,7 @@ def main():
         
     start_time = time.time()
     position = Position(backtesting=backtesting)
-
+    position.total_yield = Database().get_server_data()['total_yield']
     
     # Log for server
     print('---Starting Trading---')
@@ -39,7 +40,9 @@ def main():
         # Clear console
         os.system('cls' if os.name == 'nt' else 'clear')
         # Print program running time in console
-        print(f'running_time :{timedelta(seconds=round(time.time(), 0) - round(start_time, 0))} \n')
+        timer = {'running_time':timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}
+        for data, value__ in timer.items():
+            print(data, ':', value__, '\n')
         try:
             # If the program total risk is reached
             if position.current_effective_yield < Settings().risk:
