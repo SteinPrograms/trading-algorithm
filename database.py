@@ -3,8 +3,8 @@ import requests,json
 
 class Database:
     def __init__(self):
-        #self.endpoint = "http://hugodemenez.fr/api/"
-        self.endpoint = "http://localhost:3000/api/"
+        self.endpoint = "http://hugodemenez.fr/api/"
+        #self.endpoint = "http://localhost:3000/api/"
         
     def get_target_value(self,symbol:str) -> float:
         
