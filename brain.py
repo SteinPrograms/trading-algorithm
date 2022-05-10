@@ -30,7 +30,7 @@ def main():
         
     start_time = time.time()
     position = Position(backtesting=backtesting)
-    position.total_yield = Database().get_server_data()['total_yield']
+    position.total_yield = float(Database().get_server_data()['total_yield'])
     
     # Log for server
     print('---Starting Trading---')
