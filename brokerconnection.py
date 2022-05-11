@@ -15,6 +15,10 @@ class RealCommands:
 
     def test_connection(self,):
         return self.broker.test_order()
+    
+    def get_order_status(self,id):
+        return self.broker.get_order_status(id)
+        
 
     def limit_close(self,symbol,backtesting):
         # Checking connectivity

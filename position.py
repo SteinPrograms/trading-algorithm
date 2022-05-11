@@ -30,6 +30,7 @@ class Position:
             order = RealCommands().limit_open(symbol=self.symbol, backtesting=self.backtesting)
             if order['error']:
                 return False
+            self.id = order['order']['id']
             self.open_price = float(order['order']['price'])
             current_price = Settings().broker.price(self.symbol)['ask']
         else:
@@ -57,6 +58,18 @@ class Position:
         self.total_yield = round(self.total_yield * self.effective_yield, 5)
         if self.total_yield > self.highest_yield:
             self.highest_yield = self.total_yield
+        
+        try:
+            order_data = RealCommands().get_order_status(self.id)
+            Database().publish_position_data(data={
+                'time':self.time,
+                'symbol':self.symbol,
+                'yield':self.effective_yield,
+                'walletValue':(order_data['avgFillPrice']*order_data['filledSize'])
+            })
+        except Exception as error:
+            print(error)
+            
         return
 
 
@@ -187,3 +200,8 @@ class Position:
         r = float(current_price) / float(opening_price)
         f = float(fee)
         return r - (f + (1 - f) * r * f)
+    
+if __name__ == '__main__':
+    position = Position(backtesting=False)
+    position.open_position()
+    position.force_position_close()

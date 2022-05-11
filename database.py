@@ -3,8 +3,8 @@ import requests,json
 
 class Database:
     def __init__(self):
-        self.endpoint = "http://hugodemenez.fr/api/"
-        #self.endpoint = "http://localhost:3000/api/"
+        #self.endpoint = "http://hugodemenez.fr/api/"
+        self.endpoint = "http://localhost:3000/api/"
         
     def get_target_value(self,symbol:str) -> float:
         
@@ -25,6 +25,7 @@ class Database:
             
         except Exception as error:
             print(error)
+            
 
     def get_server_data(self) -> dict:
         try:
@@ -34,5 +35,12 @@ class Database:
         except Exception:
             return {'total_yield':1.0}
         
+    def publish_position_data(self,data:dict) -> int:
+        try:
+            requests.post(f"{self.endpoint}positionData",data=data)
+            
+        except Exception as error:
+            print(error)
+        
 
-print(Database().publish_server_data({'test':"test"}))
+print(Database().publish_position_data({'test':"test"}))
