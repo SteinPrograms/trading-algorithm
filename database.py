@@ -20,8 +20,11 @@ class Database:
             return 0.0
         
     def publish_server_data(self,data:dict) -> int:
-        response = requests.post(f"{self.endpoint}serverData",data=data)
-        return response.status_code
+        try:
+            requests.post(f"{self.endpoint}serverData",data=data)
+            
+        except Exception as error:
+            print(error)
 
     def get_server_data(self) -> dict:
         try:
