@@ -11,7 +11,7 @@ class Prediction:
 
     def signal(self,symbol:str) ->dict[str]:
         currentPrice = Settings().broker.price(symbol)["bid"]
-        if round(currentPrice/10,0)==round(Database().get_target_value(symbol)/10,0):
+        if round(currentPrice/100,0)==round(Database().get_target_value(symbol)/100,0):
             return {"signal":"buy",
                     "yield":Database().get_expected_yield(symbol) - 2 * Settings().fee,
                     }
