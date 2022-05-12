@@ -9,8 +9,8 @@ class Settings:
         self.base_asset = 'USD'
         self.path = "ftx.key"
         self.broker = FTX()
-        self.drawdown = 1 - 20/100
-        self.risk = 1 - 5/100
+        self.drawdown = 1 - 100/100
+        self.risk = 1 - 100/100
         self.watchlist=[
             'BTC',
             ]
