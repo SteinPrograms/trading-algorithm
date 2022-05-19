@@ -48,6 +48,7 @@ class RealCommands:
                         )
                     #We test if there is a code error
                     print("SellingOrderApproval",order["msg"])
+                    print(order)
                     time.sleep(0.2)
                     counter+=1
                     if counter ==10:
