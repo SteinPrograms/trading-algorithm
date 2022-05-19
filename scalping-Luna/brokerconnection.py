@@ -108,7 +108,7 @@ class RealCommands:
                     )
                 #We test if there is a code error
                 print("BuyOrderApproval",buy_order["msg"])
-                print(order)
+                print(buy_order)
                 time.sleep(0.2)
                 counter+=1
                 if counter ==10:
