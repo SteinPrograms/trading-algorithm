@@ -29,7 +29,7 @@ def main():
         backtesting = True
         
     start_time = time.time()
-    position = Position(backtesting=backtesting)
+    position = Position('LUNA',backtesting=backtesting)
     position.total_yield = 1+float(Database().get_server_data()['total_yield'].replace('%','').replace(' ',''))/100
     
     # Log for server
