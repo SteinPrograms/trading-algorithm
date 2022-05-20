@@ -21,7 +21,7 @@ class Database:
         
     def publish_server_data(self,data:dict) -> int:
         try:
-            requests.post(f"{self.endpoint}serverData",data=data)
+            requests.post(f"{self.endpoint}postServerData",data=data)
             
         except Exception as error:
             print(error)
@@ -37,7 +37,7 @@ class Database:
         
     def publish_position_data(self,data:dict) -> int:
         try:
-            requests.post(f"{self.endpoint}positionData",data=data)
+            requests.post(f"{self.endpoint}postPositionData",data=data)
             
         except Exception as error:
             print(error)
