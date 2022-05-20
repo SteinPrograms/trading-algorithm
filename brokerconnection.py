@@ -48,6 +48,7 @@ class RealCommands:
                         )
                     #We test if there is a code error
                     print("SellingOrderApproval",order["msg"])
+                    print(order)
                     time.sleep(0.2)
                     counter+=1
                     if counter ==10:
@@ -100,13 +101,14 @@ class RealCommands:
         while True:
             try:
                 # Create the buy order with the whole quantity you can buy with balance
-                buy_order = self.broker.create_market_order(
+                order = self.broker.create_market_order(
                     symbol=symbol,
                     side='buy',
                     quantity=quantity,
                     )
                 #We test if there is a code error
-                print("BuyOrderApproval",buy_order["msg"])
+                print("BuyOrderApproval",order["msg"])
+                print(order)
                 time.sleep(0.2)
                 counter+=1
                 if counter ==10:
@@ -130,7 +132,7 @@ class RealCommands:
                 if quantity < 20:
                     print("Order filled")
                     break
-        return {'error':False,'order':buy_order}
+        return {'error':False,'order':order}
     
     def balance_check(self) -> float:
         print("getting the balance...")
