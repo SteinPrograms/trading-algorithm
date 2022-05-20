@@ -95,7 +95,9 @@ class Position:
         
         ## If the price is falling we have to lower the expected yield by the same ratio
         if self.current_price > current_price:
-            self.expected_yield += current_price/self.current_price - 1
+            # Max lowest yield is break heaven
+            if self.expected_yield > 1 + Settings().fee*2:
+                self.expected_yield += current_price/self.current_price - 1
         
         self.current_price = current_price
         
