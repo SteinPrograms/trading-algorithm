@@ -32,15 +32,11 @@ class Position:
             if order['error']:
                 return False
             self.id = order['order']['id']
-            self.open_price = float(order['order']['price'])
-            current_price = Settings().broker.price(self.symbol)['ask']
         else:
             # Simulation of opening position time by broker
             time.sleep(2)
-            current_price = Settings().broker.price(self.symbol)['ask']
-            self.open_price = current_price
-
-
+        current_price = Settings().broker.price(self.symbol)['ask']
+        self.open_price = current_price
         self.current_price = current_price
         # Setting highest price and lowest price to the opening price
         self.highest_price = self.open_price
@@ -124,8 +120,8 @@ class Position:
             if self.backtesting:
                 self.close_price = self.open_price * Settings().risk
             else:
-                order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
-                self.close_price = float(order['price'])
+                RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
+                self.close_price = current_price
             self.close_mode = "stop-loss"
             self.close_position()
             return
@@ -136,8 +132,8 @@ class Position:
             if self.backtesting:
                 self.close_price = self.current_price
             else:
-                order = RealCommands().limit_close(symbol=self.symbol, backtesting=self.backtesting)
-                self.close_price = float(order['price'])
+                RealCommands().limit_close(symbol=self.symbol, backtesting=self.backtesting)
+                self.close_price = current_price
             self.close_mode = "take-profit"
             self.close_position()
             return

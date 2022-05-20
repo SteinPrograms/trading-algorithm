@@ -70,7 +70,7 @@ class RealCommands:
 
                 ### Else it means the order is not executed yet
                 time.sleep(0.2)                    
-            return order
+            return {'error':False,'order':order}
 
     def limit_open(self,symbol,backtesting):
         # Checking connectivity
@@ -95,10 +95,11 @@ class RealCommands:
                 # Create the buy order with the whole quantity you can buy with balance
                 try:
                     order = self.broker.place_order("BTC/USD","buy",0,(quantity-5)/self.broker.price("BTC/USD")['bid'],'market')
+
                 except Exception as error:
                     print(error)
-                #We test if there is a code error
-                
+
+                #We test if there is a code error  
                 print("BuyOrderApproval",order["msg"])
                 time.sleep(0.2)
                 counter+=1
@@ -146,7 +147,7 @@ class RealCommands:
 if __name__ == '__main__':
    #print(RealCommands().broker.place_order("BTC/USD","sell",0,0.000556,'market'))
     # Testing brokerconnection with buy/sell orders
-    RealCommands().limit_open("BTC/USD",False)
-    RealCommands().limit_close("BTC/USD",False)
+    print(RealCommands().limit_open("BTC/USD",False))
+    print(RealCommands().limit_close("BTC/USD",False))
     
     
