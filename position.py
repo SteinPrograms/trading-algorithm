@@ -1,3 +1,4 @@
+from calendar import c
 import datetime
 import time
 from database import Database
@@ -92,8 +93,16 @@ class Position:
         Then checks if it has to close the position
         
         """
-        self.current_price = Settings().broker.price(self.symbol)['bid']
-
+        
+        
+        current_price = Settings().broker.price(self.symbol)['bid']
+        
+        ## If the price is falling we have to lower the expected yield by the same ratio
+        if self.current_price > current_price:
+            self.expected_yield += current_price/self.current_price - 1
+        
+        self.current_price = current_price
+        
         # Updating highest_price
         if self.current_price > self.highest_price:
             self.highest_price = self.current_price
