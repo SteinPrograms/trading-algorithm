@@ -179,57 +179,7 @@ class FTX:
                 'clientId': client_id,
             })
 
-    @authentication_required
-    def place_conditional_order(self,
-                                market: str,
-                                side: str,
-                                size: float,
-                                type: str,
-                                limit_price: Optional[float] = None,
-                                reduce_only: bool = False,
-                                cancel: bool = True,
-                                trigger_price: Optional[float] = None,
-                                trail_value: Optional[float] = None) -> dict:
-        """
-        To send a Stop Market order, set type='stop' and supply a trigger_price
-        To send a Stop Limit order, also supply a limit_price
-        To send a Take Profit Market order, set type='trailing_stop' and supply a trigger_price
-        To send a Trailing Stop order, set type='trailing_stop' and supply a trail_value
-        """
-        assert type in {'stop', 'take_profit', 'trailing_stop'}
-        assert type not in ('stop', 'take_profit') or trigger_price is not None, \
-            'Need trigger prices for stop losses and take profits'
-        assert type not in ('trailing_stop',) or (trigger_price is None and trail_value is not None), \
-            'Trailing stops need a trail value and cannot take a trigger price'
-
-        return self._post(
-            'conditional_orders', {
-                'market': self.symbol_format(market),
-                'side': side,
-                'triggerPrice': trigger_price,
-                'size': size,
-                'reduceOnly': reduce_only,
-                'type': type,
-                'cancelLimitOnTrigger': cancel,
-                'orderPrice': limit_price
-            })
-
-    @authentication_required
-    def cancel_order(self, order_id: str) -> dict:
-        return self._delete(f'orders/{order_id}')
-
-    @authentication_required
-    def cancel_orders(self,
-                      market_name: Optional[str] = None,
-                      conditional_orders: bool = False,
-                      limit_orders: bool = False) -> dict:
-        return self._delete(
-            'orders', {
-                'market': self.symbol_format(market_name),
-                'conditionalOrdersOnly': conditional_orders,
-                'limitOrdersOnly': limit_orders,
-            })
-
+    
     @authentication_required
     def get_fills(self) -> List[dict]:
         return self._get('fills')
@@ -326,36 +276,6 @@ class FTX:
     def get_market(self, market: str) -> dict:
         return self._get(f'markets/{market}')
 
-    def get_orderbook(self, market: str, depth: Optional[int] = None) -> dict:
-        return self._get(f'markets/{market}/orderbook', {'depth': depth})
-
-    def get_trades(self,
-                   market: str,
-                   limit: int = 100,
-                   start_time: Optional[float] = None,
-                   end_time: Optional[float] = None) -> dict:
-        return self._get(f'markets/{market}/trades', {
-            'limit': limit,
-            'start_time': start_time,
-            'end_time': end_time
-        })
-
-    def get_historical_data(self, market_name: str, resolution: int) -> dict:
-        return self._get(
-            f'markets/{market_name}/candles',
-            dict(resolution=resolution))
-
-    def get_future_stats(self, future_name) -> List[dict]:
-        return self._get(f'futures/{future_name}/stats',
-                         {'future_name': future_name})
-
-    def get_funding_rates(self, future: Optional[str] = None,
-                                start_time: Optional[float] = None,
-                                end_time: Optional[float] = None) -> List[dict]:
-        return self._get('funding_rates',
-            dict(future=future,
-                start_time=start_time,
-                end_time=end_time))
 
 
 
@@ -392,24 +312,6 @@ class FTX:
             return('unable to get server time')
 
 
-    def get_price_precision(self,symbol):
-        symbol = self.symbol_format(symbol)
-        try:
-            info = self.get_exchange_info()['result']
-            return next((pair["priceIncrement"] for pair in info if pair['name'] == symbol), {'error': 'No matching symbol'})
-
-        except Exception as e:
-            return e
-
-    def get_quantity_precision(self,symbol):
-        symbol = self.symbol_format(symbol)
-        try:
-            info = self.get_exchange_info()['result']
-            return next((pair["sizeIncrement"] for pair in info if pair['name'] == symbol), {'error': 'No matching symbol'})
-
-        except Exception as e:
-            return e
-
     def price(self,symbol):
         symbol = self.symbol_format(symbol)
         try:
@@ -419,13 +321,6 @@ class FTX:
         except Exception as e:
             return e
 
-    def prices(self,watchlist):
-        try:
-            info = self.get_exchange_info()['result']
-            return [{'symbol': pair['name'], 'bid': pair["bid"], 'ask': pair["ask"]} for pair in info if pair['name'] in watchlist]
-
-        except Exception as e:
-            return e
     
     def get_balances(self,asset) -> dict:
         response = self._get('wallet/balances')
@@ -437,60 +332,6 @@ class FTX:
             return 
 
 
-    def create_market_order(self,symbol,side,quantity):
-        symbol = self.symbol_format(symbol)
-        try:
-            order = self.place_order(symbol,side,0,quantity,"market")
-            order['price']=self.get_order_status(order["id"])["avgFillPrice"]
-            return order
-        except Exception:
-            return {'msg':Exception}
-
-
-    def create_stop_loss_order(self,symbol,quantity,stopPrice):
-        symbol = self.symbol_format(symbol)
-        try:
-            return self.place_conditional_order(symbol,"sell",quantity,"stop",trigger_price=stopPrice)
-        except Exception:
-            return {'msg':Exception}
-
-    
-    def get_klines_data(self,
-                        symbol:str,
-                        interval:int
-                        ):
-        symbol = self.symbol_format(symbol)
-        """Function to get information from candles of 1minute interval
-        <time>, <open>, <high>, <low>, <close>, <volume>
-        since (1hour for minutes or 1week for days)
-        max timeframe is 12hours for minute interval 
-        max timeframe is 30 days for hour interval
-        max timeframe is 100 weeks for day interval
-        """
-        if interval=='day':
-            interval=86400
-        elif interval=='hour':
-            interval=3600
-        elif interval=='minute':
-            interval=60
-        else:
-            return ('wrong interval')
-
-        limit = 720
-
-        url = f'{self._base_url}/markets/{symbol}/candles?resolution={interval}&limit={limit}'
-
-        response = requests.get(url).json()
-        return response["result"] if response['success']==True else response['error']
-
-    def cancel_all_orders(self,
-                          symbol:str
-                          ):
-        symbol = self.symbol_format(symbol)
-        try:
-            return self.cancel_orders(symbol,True)
-        except Exception:
-            return {"msg":Exception}
 
     def test_order(self):
         try:
@@ -498,3 +339,6 @@ class FTX:
             return True
         except Exception:
             return False
+        
+        
+    

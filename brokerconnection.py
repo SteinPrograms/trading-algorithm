@@ -3,8 +3,6 @@ import os,time,re
 from settings import Settings
 
 class RealCommands:
-    
-    
     def __init__(self) -> None:
         self.broker = Settings().broker
         path = Settings().path
@@ -41,14 +39,9 @@ class RealCommands:
             while(True):
                 try:
                     # Create the sell order with the whole quantity of asset
-                    order = self.broker.create_market_order(
-                        symbol=symbol,
-                        side='sell',
-                        quantity=quantity,
-                        )
+                    order = self.broker.place_order("BTC/USD","sell",0,quantity,'market')
                     #We test if there is a code error
                     print("SellingOrderApproval",order["msg"])
-                    print(order)
                     time.sleep(0.2)
                     counter+=1
                     if counter ==10:
@@ -74,10 +67,9 @@ class RealCommands:
                 if quantity > 20:
                     print("Order filled")
                     break
-                
+
                 ### Else it means the order is not executed yet
-                time.sleep(0.2)
-                    
+                time.sleep(0.2)                    
             return order
 
     def limit_open(self,symbol,backtesting):
@@ -101,14 +93,13 @@ class RealCommands:
         while True:
             try:
                 # Create the buy order with the whole quantity you can buy with balance
-                order = self.broker.create_market_order(
-                    symbol=symbol,
-                    side='buy',
-                    quantity=quantity,
-                    )
+                try:
+                    order = self.broker.place_order("BTC/USD","buy",0,(quantity-5)/self.broker.price("BTC/USD")['bid'],'market')
+                except Exception as error:
+                    print(error)
                 #We test if there is a code error
+                
                 print("BuyOrderApproval",order["msg"])
-                print(order)
                 time.sleep(0.2)
                 counter+=1
                 if counter ==10:
@@ -150,10 +141,12 @@ class RealCommands:
                 print(error)
                 time.sleep(0.2)
 
-
+    
 
 if __name__ == '__main__':
+   #print(RealCommands().broker.place_order("BTC/USD","sell",0,0.000556,'market'))
     # Testing brokerconnection with buy/sell orders
     RealCommands().limit_open("BTC/USD",False)
     RealCommands().limit_close("BTC/USD",False)
+    
     
