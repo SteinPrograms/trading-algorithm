@@ -76,7 +76,7 @@ class Position:
         else:
             order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
             print(order)
-            self.close_price = float(order['price'])
+            self.close_price = Settings().broker.price(self.symbol)['ask']
         self.close_mode = "force-close"
         
         self.close_position()
