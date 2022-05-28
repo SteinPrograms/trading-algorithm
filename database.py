@@ -99,7 +99,6 @@ class Database:
                 db.Positions.insert_one(data)
             except Exception as error:
                 print(error)
-        print(db.Positions.find_one({}))
 
 
 print(Database().publish_position_data({'hugo':'man'}))
