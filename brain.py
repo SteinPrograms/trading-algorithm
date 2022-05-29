@@ -42,7 +42,7 @@ def main():
             # Clear console
             os.system('cls' if os.name == 'nt' else 'clear')
             # Print program running time in console
-            timer = {'running_time':timedelta(seconds=round(time.time(), 0) - round(start_time, 0))}
+            timer = {'running_time':str(timedelta(seconds=round(time.time(), 0) - round(start_time, 0)))}
             for data, value__ in timer.items():
                 print(data, ':', value__, '\n')
             Database().publish_server_data(timer)
