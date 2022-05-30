@@ -39,7 +39,7 @@ class RealCommands:
             while(True):
                 try:
                     # Create the sell order with the whole quantity of asset
-                    order = self.broker.place_order("BTC/USD","sell",0,quantity,'market')
+                    order = self.broker.place_order(symbol,"sell",0,quantity,'market')
                     #We test if there is a code error
                     print("SellingOrderApproval",order["msg"])
                     time.sleep(0.2)
@@ -94,7 +94,7 @@ class RealCommands:
             try:
                 # Create the buy order with the whole quantity you can buy with balance
                 try:
-                    order = self.broker.place_order("BTC/USD","buy",0,(quantity-5)/self.broker.price("BTC/USD")['bid'],'market')
+                    order = self.broker.place_order(symbol,"buy",0,(quantity-5)/self.broker.price(symbol)['bid'],'market')
 
                 except Exception as error:
                     print(error)
