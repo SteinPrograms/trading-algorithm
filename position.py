@@ -147,6 +147,12 @@ class Position:
 
         statistics = {}
         
+        try:
+            self.expected_yield = Database().get_expected_yield(self.symbol) - 2 * Settings().fee
+
+        except Exception as e:
+            print(e)
+            
         if self.status == 'close':
             self.find_entry_point()
 
