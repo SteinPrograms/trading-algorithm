@@ -1,4 +1,3 @@
-from calendar import c
 import datetime
 import time
 from database import Database
@@ -8,7 +7,6 @@ from settings import Settings
 
 class Position:
     '''This class is used to store all the data used to create orders and to make the calculation.
-    
     Defaults : backtesting is True and symbol is 'BTC'
     '''
     def __init__(self,backtesting : bool = True,symbol : str = 'BTC',):
@@ -92,15 +90,13 @@ class Position:
         
         
         current_price = Settings().broker.price(self.symbol)['bid']
-        
+
         ## If the price is falling we have to lower the expected yield by the same ratio
-        if self.current_price > current_price:
-            # Max lowest yield is break heaven
-            if self.expected_yield > 1 + Settings().fee*2:
-                self.expected_yield += current_price/self.current_price - 1
-        
+        if self.current_price > current_price and self.expected_yield > 1 + Settings().fee * 2:
+            self.expected_yield += current_price/self.current_price - 1
+
         self.current_price = current_price
-        
+
         # Updating highest_price
         if self.current_price > self.highest_price:
             self.highest_price = self.current_price
