@@ -46,7 +46,7 @@ class Database:
             print(error)
 """
 
-
+from routine import Routine
 import pymongo
 
 class Database:
@@ -54,7 +54,16 @@ class Database:
         password = "Manonhugo147"
         username = "hugodemenez"
         self.uri = f"mongodb+srv://{username}:{password}@test.yqzxd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+        self.send_program_data()
+        self._data = None
 
+    @Routine(10)
+    def send_program_data(self):
+        self.publish_server_data(self._data)
+
+    def update_data(self,data):
+        for key in data.keys():
+            self._data[key] = data[key]
         
     def get_target_value(self,symbol:str) -> float:
         with pymongo.MongoClient(self.uri) as client:

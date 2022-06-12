@@ -27,13 +27,16 @@ def main():
     else:
         # Entering into backtesting mode
         backtesting = True
-        
+    
+    database = Database()
     start_time = time.time()
-    position = Position(backtesting=backtesting,symbol='ETH')
-    position.total_yield = 1+float(Database().get_server_data()['total_yield'].replace('%','').replace(' ',''))/100
+    position = Position(backtesting=backtesting,symbol='ETH',database=database)
+    position.total_yield = 1+float(database.get_server_data()['total_yield'].replace('%','').replace(' ',''))/100
     
     # Log for server
     print('---Starting Trading---')
+
+    
 
     #Looping into trading program
     while True:
@@ -45,7 +48,8 @@ def main():
             timer = {'running_time':str(timedelta(seconds=round(time.time(), 0) - round(start_time, 0)))}
             for data, value__ in timer.items():
                 print(data, ':', value__, '\n')
-            Database().publish_server_data(timer)
+
+            database.update_data(timer)
             
             
             # If the program total risk is reached
@@ -57,7 +61,6 @@ def main():
 
             # Manage position
             position.manage_position()
-            time.sleep(0.2)
 
         # If there is an interrupt 
         except KeyboardInterrupt or DrawdownException :                    

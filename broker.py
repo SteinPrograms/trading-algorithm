@@ -277,7 +277,8 @@ class FTX:
         return self._get(f'markets/{market}')
 
 
-
+    def get_historical_prices(self,market:str)->dict:
+        return self._get(f'markets/{market}/candles?resolution=60')
 
     def connect_key(self,
                     path:str) -> str:
@@ -330,6 +331,7 @@ class FTX:
                     return balance
         except Exception:
             return 
+
 
 
 

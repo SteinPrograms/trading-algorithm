@@ -9,13 +9,14 @@ class Position:
     '''This class is used to store all the data used to create orders and to make the calculation.
     Defaults : backtesting is True and symbol is 'BTC'
     '''
-    def __init__(self,backtesting : bool = True,symbol : str = 'BTC',):
+    def __init__(self,backtesting : bool = True,symbol : str = 'BTC',database: Database=Database()):
         self.symbol = f'{symbol}/{Settings().base_asset}'
         self.backtesting = backtesting
         self.status='close'
         self.current_effective_yield = 1
         self.total_yield = 1
         self.highest_yield=1
+        self.database = database
     
     def is_open(self):
         return self.status=='open'
@@ -56,7 +57,7 @@ class Position:
         
         try:
             order_data = RealCommands().get_order_status(self.id)
-            Database().publish_position_data(data={
+            self.database.publish_position_data(data={
                 'time':self.time,
                 'symbol':self.symbol,
                 'yield':self.effective_yield,
@@ -144,7 +145,7 @@ class Position:
         statistics = {}
         
         try:
-            self.expected_yield = Database().get_expected_yield(self.symbol) - 2 * Settings().fee
+            self.expected_yield = self.database.get_expected_yield(self.symbol) - 2 * Settings().fee
 
         except Exception as e:
             print(e)
@@ -177,7 +178,7 @@ class Position:
         for data, value__ in statistics.items():
             print(data, ':', value__, '\n')
         
-        Database().publish_server_data(statistics)
+        self.database.update_data(statistics)
         
     def find_entry_point(self):
         """[summary]
