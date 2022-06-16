@@ -1,17 +1,16 @@
-from app.broker.broker import FTX
+from broker.broker import FTX
 
 
 
 
-class Settings:
-    def __init__(self) -> None:
-        self.backtesting = False
-        self.base_asset = 'USD'
-        self.path = "ftx.key"
-        self.broker = FTX()
-        self.drawdown = 1 - 100/100
-        self.risk = 1 - 100/100
-        self.watchlist=[
+class Settings: 
+    backtesting = False
+    base_asset = 'USD'
+    path = "ftx.key"
+    broker = FTX()
+    drawdown = 1 - 100/100
+    risk = 1 - 100/100
+    watchlist=[
             'BTC',
             ]
-        self.fee = 0.07/100
+    fee = 0.07/100

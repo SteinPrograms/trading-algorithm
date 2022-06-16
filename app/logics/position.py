@@ -1,9 +1,8 @@
-import datetime
-import time
-from app.database.database import Database
-from app.broker.brokerconnection import RealCommands
-from app.logics.prediction import Prediction
-from app.logics.settings import Settings
+import datetime,time
+from database.database import Database
+from broker.brokerconnection import RealCommands
+from logics.prediction import Prediction
+from logics.settings import Settings
 
 class Position:
     '''This class is used to store all the data used to create orders and to make the calculation.

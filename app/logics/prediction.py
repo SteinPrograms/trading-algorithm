@@ -1,8 +1,8 @@
 
     
-from app.routine import Routine
-from app.logics.settings import Settings
-from app.database.database import Database
+from routine import Routine
+from logics.settings import Settings
+from database.database import Database
 
 def mean(array : list)->float:
     return sum(array)/len(array)
@@ -15,7 +15,7 @@ class Prediction:
         self.database = database
 
     def fetch_levels(self,):
-
+        pass
 
     def signal(self,symbol:str) ->dict[str]:
         currentPrice = Settings().broker.price(symbol)["bid"]
