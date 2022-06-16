@@ -1,9 +1,9 @@
 import datetime
 import time
-from database import Database
-from brokerconnection import RealCommands
-from prediction import Prediction
-from settings import Settings
+from app.database.database import Database
+from app.broker.brokerconnection import RealCommands
+from app.logics.prediction import Prediction
+from app.logics.settings import Settings
 
 class Position:
     '''This class is used to store all the data used to create orders and to make the calculation.
@@ -145,7 +145,7 @@ class Position:
         statistics = {}
         
         try:
-            self.expected_yield = self.database.get_expected_yield(self.symbol) - 2 * Settings().fee
+            self.expected_yield = self.database.levels._yield(self.symbol) - 2 * Settings().fee
 
         except Exception as e:
             print(e)
@@ -203,8 +203,6 @@ class Position:
 
         except Exception as error:
             print(f'error while predicting : {error}')
-        # Else pause program
-        time.sleep(2)
         
     def effective_yield_calculation(self,current_price, opening_price, fee):
         r = float(current_price) / float(opening_price)

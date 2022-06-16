@@ -1,6 +1,6 @@
 import contextlib
 import os,time,re
-from settings import Settings
+from app.logics.settings import Settings
 
 class RealCommands:
     def __init__(self) -> None:

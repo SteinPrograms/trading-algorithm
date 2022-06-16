@@ -1,4 +1,4 @@
-from settings import Settings
+from app.logics.settings import Settings
 from csv import DictWriter
 
 data = Settings().broker.get_historical_prices("ETH/USD")

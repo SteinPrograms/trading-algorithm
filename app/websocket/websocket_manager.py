@@ -2,7 +2,7 @@ import json
 import time
 from threading import Thread, Lock
 from websocket import WebSocketApp
-from botExceptions import WebsocketException
+from app.exceptions.botExceptions import WebsocketException
 
 class WebsocketManager:
     _CONNECT_TIMEOUT_S = 5

@@ -1,7 +1,7 @@
 import contextlib
 from operator import indexOf
 from pprint import pprint
-from settings import Settings
+from app.logics.settings import Settings
 import matplotlib.pyplot as plt
 import numpy as np
 

@@ -1,4 +1,4 @@
-from broker import FTX
+from app.broker.broker import FTX
 
 
 

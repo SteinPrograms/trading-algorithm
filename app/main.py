@@ -5,20 +5,31 @@ Algorithm which runs when the database is online.
 Uses the prediction methode defined in prediction.py to manage a position defined in position.py
 """
 
-from botExceptions import DrawdownException
-from position import Position
-from settings import Settings
-from brokerconnection import RealCommands
-from database import Database
+import logging
+from app.exceptions.botExceptions import DrawdownException
+from app.logics.position import Position
+from app.logics.settings import Settings
+from app.broker.brokerconnection import RealCommands
+from app.database.database import Database
 import os,time
 from datetime import timedelta
+from app.routine import Routine
+
 __author__ = "Hugo Demenez"
 
+@Routine(3600)
+def testing_connection():
+    if not RealCommands().test_connection():
+        logging.error("Connection failed")
+        exit()
+
 def main():
-    
-    
+
+    logging.basicConfig(filename='output.log', encoding='utf-8', level=logging.DEBUG)
+
     if RealCommands().test_connection():
-        print("Connected to market")
+        logging.info("Connected to market")
+        testing_connection()
         # Not in backtesting mode
         backtesting = False
 
@@ -28,13 +39,20 @@ def main():
         # Entering into backtesting mode
         backtesting = True
     
+    # Starting routines inside a database instance to update program data to mongodb
     database = Database()
+
+    # Register the starting date
     start_time = time.time()
+
+    # Initializing the position 
     position = Position(backtesting=backtesting,symbol='ETH',database=database)
+
+    # Recover the previous yield to update the total yield
     position.total_yield = 1+float(database.get_server_data()['total_yield'].replace('%','').replace(' ',''))/100
     
-    # Log for server
-    print('---Starting Trading---')
+    # Logs
+    logging.info(f'Started program at : {time.time()}')
 
     
 
@@ -49,15 +67,14 @@ def main():
             for data, value__ in timer.items():
                 print(data, ':', value__, '\n')
 
+            # Update the data which gets posted to the database
             database.update_data(timer)
             
             
-            # If the program total risk is reached
-            if position.current_effective_yield < Settings().risk:
+            # Risky zone
+            if position.current_effective_yield < Settings().risk or position.total_yield < Settings().drawdown:
                 raise DrawdownException
 
-            if position.total_yield < Settings().drawdown:
-                raise DrawdownException
 
             # Manage position
             position.manage_position()
@@ -68,8 +85,8 @@ def main():
             if position.is_open():
                 # Close every position
                 position.force_position_close()
-                print("POSITION CLOSED")
-            print("---Ending Trading--")
+                logging.warning('Position closed : on program exit')
+            logging.info(f'Ended program at : {time.time()}')
             return
         
 
