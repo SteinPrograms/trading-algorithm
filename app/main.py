@@ -5,13 +5,12 @@ Algorithm which runs when the database is online.
 Uses the prediction methode defined in prediction.py to manage a position defined in position.py
 """
 
-import logging
+import logging,os,time
 from exceptions.botExceptions import DrawdownException
 from logics.position import Position
 from logics.settings import Settings
 from broker.brokerconnection import RealCommands
 from database.database import Database
-import os,time
 from datetime import timedelta
 from routine import Routine
 
