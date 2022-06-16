@@ -6,14 +6,14 @@ Uses the prediction methode defined in prediction.py to manage a position define
 """
 
 import logging
-from app.exceptions.botExceptions import DrawdownException
-from app.logics.position import Position
-from app.logics.settings import Settings
-from app.broker.brokerconnection import RealCommands
-from app.database.database import Database
+from exceptions.botExceptions import DrawdownException
+from logics.position import Position
+from logics.settings import Settings
+from broker.brokerconnection import RealCommands
+from database.database import Database
 import os,time
 from datetime import timedelta
-from app.routine import Routine
+from routine import Routine
 
 __author__ = "Hugo Demenez"
 

@@ -18,4 +18,4 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Finally running the script
-CMD ["bash", "-c", "python3 /usr/app/main.py"]
+CMD ["bash", "-c", "python3 main.py"]
