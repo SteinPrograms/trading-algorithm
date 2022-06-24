@@ -2,9 +2,6 @@ import logging,pymongo
 from routine import Routine
 
 class Levels:
-    def __init__(self,):
-        pass
-
     def update(self,data:dict) :
         try:
             self._yield = data['yield']

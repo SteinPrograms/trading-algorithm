@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 Algorithm which runs when the database is online.
 Uses the prediction methode defined in prediction.py to manage a position defined in position.py
@@ -24,34 +23,32 @@ def testing_connection():
 
 def main():
 
-    logging.basicConfig(filename='output.log', encoding='utf-8', level=logging.DEBUG)
-
     if RealCommands().test_connection():
-        logging.info("Connected to market")
+        logging.info("MARKET CONNECTION COMPLETE")
         testing_connection()
         # Not in backtesting mode
-        backtesting = False
+        BACKTESTING = False
 
     elif input("Unable to connect to market, run in back-testing mode? Y/N : ").upper() == 'N':
         return
     else:
         # Entering into backtesting mode
-        backtesting = True
+        BACKTESTING = True
     
     # Starting routines inside a database instance to update program data to mongodb
     database = Database()
 
     # Register the starting date
-    start_time = time.time()
+    START_TIME = time.time()
 
     # Initializing the position 
-    position = Position(backtesting=backtesting,symbol='ETH',database=database)
+    position = Position(backtesting=BACKTESTING,symbol='ETH',database=database)
 
     # Recover the previous yield to update the total yield
     position.total_yield = 1+float(database.get_server_data()['total_yield'].replace('%','').replace(' ',''))/100
     
     # Logs
-    logging.info(f'Started program at : {time.time()}')
+    logging.info(f'STARTED AT : {START_TIME}')
 
     
 
@@ -62,7 +59,7 @@ def main():
             # Clear console
             os.system('cls' if os.name == 'nt' else 'clear')
             # Print program running time in console
-            timer = {'running_time':str(timedelta(seconds=round(time.time(), 0) - round(start_time, 0)))}
+            timer = {'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))}
             for data, value__ in timer.items():
                 print(data, ':', value__, '\n')
 
@@ -78,18 +75,19 @@ def main():
             # Manage position
             position.manage_position()
 
-        # If there is an interrupt 
-        except KeyboardInterrupt or DrawdownException :                    
+        # If there is an interrupt
+        except (KeyboardInterrupt, DrawdownException):                    
             # And the position is currently opened
             if position.is_open():
                 # Close every position
                 position.force_position_close()
-                logging.warning('Position closed : on program exit')
-            logging.info(f'Ended program at : {time.time()}')
+                logging.warning('POSITION CLOSED : EXIT')
+            logging.info(f'ENDED AT : {time.time()}')
             return
         
 
 
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='output.log', encoding='utf-8', level=logging.DEBUG)
     main()

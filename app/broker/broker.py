@@ -3,7 +3,6 @@ from typing import Optional, Dict, Any, List
 from requests import Request, Session, Response
 import requests
 
-
 class FTX:
     def __init__(
         self,
