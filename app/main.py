@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """
-Algorithm which runs when the database is online.
-Uses the prediction methode defined in prediction.py to manage a position defined in position.py
+Crypto-Currencies trading algorithm using :
+    - logics defined in the corresponding package under the prediction.py script
+    - docker container hosting the postgres database, python3 instance, and the web interface for monitoring purposes
 """
 
 import logging,os,time
@@ -22,20 +23,21 @@ def testing_connection():
         exit()
 
 def main():
+    # Entering into backtesting mode by default
+    BACKTESTING = True
 
+    # Checking broker connectivity
     if RealCommands().test_connection():
         logging.info("MARKET CONNECTION COMPLETE")
+        # Starting connectivity check routine
         testing_connection()
         # Not in backtesting mode
         BACKTESTING = False
 
     elif input("Unable to connect to market, run in back-testing mode? Y/N : ").upper() == 'N':
         return
-    else:
-        # Entering into backtesting mode
-        BACKTESTING = True
-    
-    # Starting routines inside a database instance to update program data to mongodb
+        
+    # Starting routines inside a database instance to update program data
     database = Database()
 
     # Register the starting date
@@ -49,8 +51,6 @@ def main():
     
     # Logs
     logging.info(f'STARTED AT : {START_TIME}')
-
-    
 
     #Looping into trading program
     while True:
@@ -66,11 +66,9 @@ def main():
             # Update the data which gets posted to the database
             database.update_data(timer)
             
-            
             # Risky zone
             if position.current_effective_yield < Settings().risk or position.total_yield < Settings().drawdown:
                 raise DrawdownException
-
 
             # Manage position
             position.manage_position()
@@ -84,9 +82,6 @@ def main():
                 logging.warning('POSITION CLOSED : EXIT')
             logging.info(f'ENDED AT : {time.time()}')
             return
-        
-
-
 
 if __name__ == '__main__':
     logging.basicConfig(filename='output.log', encoding='utf-8', level=logging.DEBUG)

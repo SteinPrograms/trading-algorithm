@@ -1,4 +1,4 @@
-import logging,pymongo
+import logging,psycopg2
 from routine import Routine
 
 class Levels:
@@ -11,9 +11,12 @@ class Levels:
 
 class Database:
     def __init__(self):
-        password = "Manonhugo147"
-        username = "hugodemenez"
-        self.uri = f"mongodb+srv://{username}:{password}@test.yqzxd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+        self.conn = psycopg2.connect(
+            host="localhost",
+            database="suppliers",
+            user="postgres",
+            password="Abcd1234"
+        )
         self.send_program_data()
         self._server_data = {}
         self.levels = Levels()
@@ -45,13 +48,18 @@ class Database:
             - update program data to db
             - update position data to db
             - get new levels from db"""
-        with pymongo.MongoClient(self.uri) as client:
-            try:
-                client.Trading.Server.update_one(filter={},update={'$set':self._server_data},upsert=True)
-            except Exception as error:
-                logging.error(error)
-            try:
-                self._levels.update(client.Trading.Target.find_one({}))
-            except Exception as error:
-                logging.error(error)
+        try:	
+            # create a cursor
+            cur = self.conn.cursor()
             
+            cur.execute('SELECT version()')
+
+            db_version = cur.fetchone().copy()
+
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if self.conn is not None:
+                self.conn.close()
+        return db_version
