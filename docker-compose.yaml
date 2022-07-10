@@ -12,6 +12,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:?err}
     volumes:
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    ports:
+     - "5432:5432"
     
   adminer:
     image: adminer

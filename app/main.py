@@ -6,13 +6,13 @@ Crypto-Currencies trading algorithm using :
 """
 
 import logging,os,time
-from exceptions.botExceptions import DrawdownException
-from logics.position import Position
-from logics.settings import Settings
-from broker.brokerconnection import RealCommands
-from database.database import Database
+from src.botExceptions import DrawdownException
+from src.position import Position
+from src.settings import Settings
+from src.brokerconnection import RealCommands
+from src.database import Database
 from datetime import timedelta
-from routine import Routine
+from src.routine import Routine
 
 __author__ = "Hugo Demenez"
 

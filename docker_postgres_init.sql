@@ -1,5 +1,5 @@
 CREATE TABLE positions (
-    position_id INT PRIMARY KEY NOT NULL,
+    position_id SERIAL PRIMARY KEY,
     time VARCHAR (255) NOT NULL,
     symbol VARCHAR (255) NOT NULL,
     yield VARCHAR (255) NOT NULL,

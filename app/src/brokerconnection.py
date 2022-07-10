@@ -1,6 +1,6 @@
 import contextlib
 import os,time,re
-from logics.settings import Settings
+from settings import Settings
 
 class RealCommands:
     def __init__(self) -> None:
@@ -18,29 +18,44 @@ class RealCommands:
         return self.broker.get_order_status(id)
         
 
+    def get_quantity_crypto(self,symbol):
+        while True:
+            try:
+                # Get the quantity of crypto in balance
+                quantity = float(self.broker.get_balances(re.sub("[^0-9a-zA-Z]+", "", symbol.replace(Settings().base_asset,''))).get("free",None))
+                break
+            except Exception:
+                time.sleep(0.2)
+        return quantity
+
+    def get_quantity_fiat(self):
+        while(True):
+            try:
+                # Get the quantity of fiat in balance
+                quantity = float(self.broker.get_balances(Settings().base_asset)['free'])
+                break
+            except Exception as error:
+                print(error)
+                time.sleep(1)
+        return quantity
+
     def limit_close(self,symbol,backtesting):
         # Checking connectivity
         print("checking connectivity")
-        
         # Checking backtesting mode
         if not backtesting:
-            while True:
-                try:
-                    # Get the quantity of crypto in balance
-                    balance = self.broker.get_balances(re.sub("[^0-9a-zA-Z]+", "", symbol.replace(Settings().base_asset,'')))
-                    quantity = float(balance['free'])
-                    break
-                except Exception:
-                    time.sleep(0.2)
-            print("Creating sell order")
+            # Getting quantity of free balance
+            quantity_crypto = self.get_quantity_crypto(symbol)
             
+            print("Creating sell order")
             # Initializing counter to overcome order issues
             counter=0
             while(True):
                 try:
+                    print(f"Attempt n° : {counter}")
                     # Create the sell order with the whole quantity of asset
-                    order = self.broker.place_order(symbol,"sell",0,quantity,'market')
-                    #We test if there is a code error
+                    order = self.broker.place_order(symbol,"sell",0,quantity_crypto,'market')
+                    # If there is no msg it means the order is sent
                     print("SellingOrderApproval",order["msg"])
                     time.sleep(0.2)
                     counter+=1
@@ -52,19 +67,11 @@ class RealCommands:
             # Now wait for the order to be filled.
             while(True):
                 print("Waiting for the order to be filled")
-                while(True):
-                    try:
-                        # Get the quantity of fiat in balance
-                        balance = self.broker.get_balances(Settings().base_asset)
-                        quantity = float(balance['free'])
-                        break
-                    except Exception as error:
-                        print(error)
-                        time.sleep(1)
-                        
+                quantity_fiat = self.get_quantity_fiat()
                 ### Get here once fiat balance is successfully retrieved
+                
                 # If we have at least 20 $ free of fiat balance then it means sell is executed
-                if quantity > 20:
+                if quantity_fiat > 20:
                     print("Order filled")
                     break
 
