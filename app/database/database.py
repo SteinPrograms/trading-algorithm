@@ -1,4 +1,4 @@
-import logging,psycopg2
+import logging,psycopg2,os
 from routine import Routine
 
 class Levels:
@@ -13,9 +13,9 @@ class Database:
     def __init__(self):
         self.conn = psycopg2.connect(
             host="localhost",
-            database="suppliers",
-            user="postgres",
-            password="Abcd1234"
+            database="trading",
+            user=os.getenv('POSTGRES_USER'),
+            password=os.getenv('POSTGRES_PASSWORD')
         )
         self.send_program_data()
         self._server_data = {}

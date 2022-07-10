@@ -64,8 +64,6 @@ class Position:
             })
         except Exception as error:
             print(error)
-            
-        return
 
 
     def force_position_close(self):
