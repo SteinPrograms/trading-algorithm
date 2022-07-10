@@ -1,15 +1,16 @@
 import datetime,time
-from database.database import Database
-from broker.brokerconnection import RealCommands
-from logics.prediction import Prediction
-from logics.settings import Settings
+from database import Database
+from brokerconnection import RealCommands
+from prediction import Prediction
+import settings
+
 
 class Position:
     '''This class is used to store all the data used to create orders and to make the calculation.
     Defaults : backtesting is True and symbol is 'BTC'
     '''
     def __init__(self,*,backtesting : bool = True,symbol : str = 'BTC',database: Database=Database()):
-        self.symbol = f'{symbol}/{Settings().base_asset}'
+        self.symbol = f'{symbol}/{settings.BASE_ASSET}'
         self.backtesting = backtesting
         self.status='close'
         self.current_effective_yield = 1
@@ -33,7 +34,7 @@ class Position:
         else:
             # Simulation of opening position time by broker
             time.sleep(2)
-        current_price = Settings().broker.price(self.symbol)['ask']
+        current_price = settings.broker.price(self.symbol)['ask']
         self.open_price = current_price
         self.current_price = current_price
         # Setting highest price and lowest price to the opening price
@@ -49,7 +50,7 @@ class Position:
         
         """
         self.status = 'close'
-        self.effective_yield = self.effective_yield_calculation(self.close_price, self.open_price, Settings().fee)
+        self.effective_yield = self.effective_yield_calculation(self.close_price, self.open_price, settings.FEE)
         self.total_yield = round(self.total_yield * self.effective_yield, 5)
         if self.total_yield > self.highest_yield:
             self.highest_yield = self.total_yield
@@ -72,11 +73,10 @@ class Position:
         else:
             order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
             print(order)
-            self.close_price = Settings().broker.price(self.symbol)['ask']
+            self.close_price = settings.broker.price(self.symbol)['ask']
         self.close_mode = "force-close"
-        
         self.close_position()
-        return
+
     
     
 
@@ -87,10 +87,10 @@ class Position:
         """
         
         
-        current_price = Settings().broker.price(self.symbol)['bid']
+        current_price = settings.broker.price(self.symbol)['bid']
 
         ## If the price is falling we have to lower the expected yield by the same ratio
-        if self.current_price > current_price and self.expected_yield > 1 + Settings().fee * 2:
+        if self.current_price > current_price and self.expected_yield > 1 + settings.FEE * 2:
             self.expected_yield += current_price/self.current_price - 1
 
         self.current_price = current_price
@@ -107,14 +107,14 @@ class Position:
         self.current_effective_yield = self.effective_yield_calculation(
             current_price=self.current_price,
             opening_price=self.open_price,
-            fee=Settings().fee
+            fee=settings.FEE
         )
 
         # Stop loss
         # Close position :
-        if self.current_effective_yield < Settings().risk:
+        if self.current_effective_yield < settings.RISK:
             if self.backtesting:
-                self.close_price = self.open_price * Settings().risk
+                self.close_price = self.open_price * settings.RISK
             else:
                 RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
                 self.close_price = current_price
@@ -142,7 +142,7 @@ class Position:
         statistics = {}
         
         try:
-            self.expected_yield = self.database.levels._yield(self.symbol) - 2 * Settings().fee
+            self.expected_yield = self.database.levels._yield(self.symbol) - 2 * settings.FEE
 
         except Exception as e:
             print(e)
@@ -158,7 +158,7 @@ class Position:
             except Exception as error:
                 print("Unable to check position status",error)
 
-            current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, Settings().fee)
+            current_effective_yield = self.effective_yield_calculation(self.current_price, self.open_price, settings.FEE)
             # Give information about the program
             statistics = {'current_price': self.current_price, 
                           'open_price': self.open_price, 

@@ -24,4 +24,4 @@ ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Finally running the script
-CMD ["bash", "-c", "python3 main.py"]
+CMD ["python","-u","main.py"]

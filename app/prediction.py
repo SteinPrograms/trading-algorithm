@@ -12,9 +12,6 @@ class Prediction:
         self.database = database
         settings.DRAWDOWN
 
-    def fetch_levels(self,):
-        pass
-
     def signal(self,symbol:str) ->dict[str]:
         current_price = settings.broker.price(symbol)["bid"]
         if round(current_price/100,0)==round(Database().get_target_value(symbol)/100,0):

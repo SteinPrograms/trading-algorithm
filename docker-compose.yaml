@@ -2,24 +2,47 @@
 version: '3.1'
 
 services:
-
   db:
     image: postgres
     restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:?err}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
-      POSTGRES_DB: ${POSTGRES_DB:?err}
+    env_file:
+      - .env
     volumes:
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
     ports:
      - "5432:5432"
-    
-  adminer:
-    image: adminer
-    restart: always
+
+  prisma-postgres-api:
+    stdin_open: true
+    build:
+      context: ./prisma/
+      dockerfile: Dockerfile
+    container_name: prisma-postgres-api
+    depends_on:
+      - db
     ports:
-      - 8080:8080
+      - "3000:3000"
+    restart: always
 
   algorithm:
-    build: .
+    env_file:
+      - .env
+    container_name: algorithm
+    build:
+      dockerfile: algorithm.Dockerfile
+    depends_on:
+      - db
+
+  next-app:
+    container_name: next-app
+    build:
+      context: ./nextjs-docker-compose/next-app
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./nextjs-docker-compose/next-app/src:/app/src
+      - ./nextjs-docker-compose/next-app/public:/app/public
+    restart: always
+    ports:
+      - 3001:3000
+    depends_on:
+      - prisma-postgres-api

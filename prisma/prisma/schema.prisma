@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model positions {
+  position_id  Int    @id @default(autoincrement())
+  time         String @db.VarChar(255)
+  symbol       String @db.VarChar(255)
+  yield        String @db.VarChar(255)
+  wallet_value String @db.VarChar(255)
+}
+
+model server {
+  id             Int    @id
+  current_status String @db.VarChar(255)
+  total_yield    String @db.VarChar(255)
+  running_time   String @db.VarChar(255)
+}
+
+model target {
+  id         Int    @id
+  symbol     String @db.VarChar(255)
+  buy_price  String @db.VarChar(255)
+  sell_price String @db.VarChar(255)
+}

@@ -5,14 +5,13 @@ Crypto-Currencies trading algorithm using :
     - docker container hosting the postgres database, python3 instance, and the web interface for monitoring purposes
 """
 
-import logging,os,time
-from src.botExceptions import DrawdownException
-from src.position import Position
-from src.settings import Settings
-from src.brokerconnection import RealCommands
-from src.database import Database
+import logging,os,time,settings
+from botExceptions import DrawdownException
+from position import Position
+from brokerconnection import RealCommands
+from database import Database
 from datetime import timedelta
-from src.routine import Routine
+from routine import Routine
 
 __author__ = "Hugo Demenez"
 
@@ -67,7 +66,7 @@ def main():
             database.update_data(timer)
             
             # Risky zone
-            if position.current_effective_yield < Settings().risk or position.total_yield < Settings().drawdown:
+            if position.current_effective_yield < settings.RISK or position.total_yield < settings.DRAWDOWN:
                 raise DrawdownException
 
             # Manage position
@@ -85,4 +84,4 @@ def main():
 
 if __name__ == '__main__':
     logging.basicConfig(filename='output.log', encoding='utf-8', level=logging.DEBUG)
-    main()
+    # main()
