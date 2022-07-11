@@ -1,5 +1,5 @@
 from broker import FTX
-
+import os
 BACKTESTING = False
 BASE_ASSET = 'USD'
 PATH = "ftx.key"
@@ -9,4 +9,7 @@ FEE = 0.07/100
 WATCH_LIST=[
         'BTC',
 ]
-broker = FTX()
+broker = FTX(
+        api_key= os.getenv('BROKER_API'),
+        api_secret= os.getenv('BROKER_SECRET')
+)

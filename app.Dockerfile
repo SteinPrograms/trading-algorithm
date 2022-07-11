@@ -1,5 +1,5 @@
-# Using python 3.10 docker image
-FROM python:3.10
+# Using python latest docker image
+FROM python
 
 # Defining the working directory
 WORKDIR /usr/src

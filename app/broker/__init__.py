@@ -1,4 +1,4 @@
-import urllib.parse, re, time, hmac
+import urllib.parse, re, time, hmac,os
 from typing import Optional, Dict, Any, List
 from requests import Request, Session, Response
 import requests
@@ -6,6 +6,7 @@ import requests
 class FTX:
     def __init__(
         self,
+        *,
         base_url: str = "https://ftx.com/api/",
         api_key: Optional[str] = None,
         api_secret: Optional[str] = None,
@@ -278,30 +279,6 @@ class FTX:
 
     def get_historical_prices(self,market:str)->dict:
         return self._get(f'markets/{market}/candles?resolution=60')
-
-    def connect_key(self,
-                    path:str) -> str:
-        try:
-            with open(path, 'r') as f:
-                self._api_key = f.readline().strip()
-                self._api_secret = f.readline().strip()
-            return ("Successfuly connected your keys")
-        except Exception:
-            return ("Unable to read .key file")
-
-    def create_key_file(self)->bool:
-        _api_key = str(input("Enter your API key :"))
-        _api_secret = str(input("Enter your SECRET_KEY :"))
-        
-        try:
-            with open("ftx.key","w") as file:
-                file.write(_api_key+'\n')
-                file.write(_api_secret)
-            return True
-        
-        except Exception:
-            return False
-
 
 
     def get_exchange_info(self):
