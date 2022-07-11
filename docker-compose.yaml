@@ -12,37 +12,19 @@ services:
     ports:
      - "5432:5432"
 
-  prisma-postgres-api:
-    stdin_open: true
-    build:
-      context: ./prisma/
-      dockerfile: Dockerfile
-    container_name: prisma-postgres-api
-    depends_on:
-      - db
-    ports:
-      - "3000:3000"
-    restart: always
-
   algorithm:
     env_file:
       - .env
-    container_name: algorithm
     build:
-      dockerfile: algorithm.Dockerfile
+      dockerfile: app.Dockerfile
     depends_on:
       - db
 
   next-app:
-    container_name: next-app
     build:
-      context: ./nextjs-docker-compose/next-app
-      dockerfile: dev.Dockerfile
-    volumes:
-      - ./nextjs-docker-compose/next-app/src:/app/src
-      - ./nextjs-docker-compose/next-app/public:/app/public
+      dockerfile: frontend.Dockerfile
     restart: always
     ports:
       - 3001:3000
     depends_on:
-      - prisma-postgres-api
+      - prisma

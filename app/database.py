@@ -5,12 +5,15 @@ from routine import Routine
 
 class Database:
     def __init__(self):
-        self.conn = psycopg2.connect(
-            host="db",
-            database=os.getenv('POSTGRES_DB'),
-            user=os.getenv('POSTGRES_USER'),
-            password=os.getenv('POSTGRES_PASSWORD')
-        )
+        try:
+            self.conn = psycopg2.connect(
+                host="db",
+                database=os.getenv('POSTGRES_DB'),
+                user=os.getenv('POSTGRES_USER'),
+                password=os.getenv('POSTGRES_PASSWORD')
+            )
+        except Exception:
+            logging.error('Could not connect to database')
 
     def select(self,*,query: str):
         with self.conn.cursor() as cursor:
@@ -34,8 +37,6 @@ Test script
 """
 if __name__ == "__main__":
     from datetime import datetime
-    import time
-
     Database().add_position(time=datetime.now(),symbol="BTC/USD",yield_value='2.31%',wallet_value='1,000,000.00$')
     Database().select(query="SELECT * FROM positions")
     print("ALIVE")

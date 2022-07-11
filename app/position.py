@@ -9,7 +9,7 @@ class Position:
     '''This class is used to store all the data used to create orders and to make the calculation.
     Defaults : backtesting is True and symbol is 'BTC'
     '''
-    def __init__(self,*,backtesting : bool = True,symbol : str = 'BTC',database: Database=Database()):
+    def __init__(self,*,backtesting : bool = True,symbol : str = 'BTC',database: Database):
         self.symbol = f'{symbol}/{settings.BASE_ASSET}'
         self.backtesting = backtesting
         self.status='close'

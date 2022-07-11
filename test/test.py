@@ -1,8 +1,7 @@
 from time import sleep
+from app.routine import Routine
 
-from routines import Routine
-
-from websocket.websocket_client import FtxWebsocketClient
+from app.websocket.websocket_client import FtxWebsocketClient
 
 
 class Testing:

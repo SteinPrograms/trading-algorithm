@@ -2,10 +2,10 @@
 FROM python:3.10
 
 # Defining the working directory
-WORKDIR /usr/src/app
+WORKDIR /usr/src
 
 # Adding files
-ADD ./app ./
+ADD ./app ./app
 COPY ./requirements.txt ./
 
 # Upgrading pip
@@ -24,4 +24,4 @@ ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Finally running the script
-CMD ["python","-u","main.py"]
+CMD [ "python", "app" ]

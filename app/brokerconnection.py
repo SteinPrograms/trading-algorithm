@@ -5,7 +5,7 @@ from botExceptions import NullBalanceException
 class RealCommands:
     def __init__(self) -> None:
         self.broker = settings.broker
-        path = settings.path
+        path = settings.PATH
         if os.path.exists(path) == False:
             print("YOU MUST CREATE KEY FILE")
             self.broker.create_key_file()
@@ -25,7 +25,7 @@ class RealCommands:
         while True:
             try:
                 # Get the quantity of crypto in balance
-                quantity = float(self.broker.get_balances(re.sub("[^0-9a-zA-Z]+", "", symbol.replace(settings.base_asset,''))).get("free",None))
+                quantity = float(self.broker.get_balances(re.sub("[^0-9a-zA-Z]+", "", symbol.replace(settings.BASE_ASSET,''))).get("free",None))
                 break
             except Exception:
                 time.sleep(0.2)
@@ -39,7 +39,7 @@ class RealCommands:
         while(True):
             try:
                 # Get the quantity of fiat in balance
-                quantity = float(self.broker.get_balances(settings.base_asset)['free'])
+                quantity = float(self.broker.get_balances(settings.BASE_ASSET)['free'])
                 break
             except Exception as error:
                 print(error)
@@ -130,7 +130,7 @@ class RealCommands:
         while(True):
             try:
                 # Get the quantity of fiat in balance
-                balance = self.broker.get_balances(settings.base_asset)
+                balance = self.broker.get_balances(settings.BASE_ASSET)
                 quantity = float(balance['free'])
                 # It is ok if quanity is high enough
                 if quantity > 20:
