@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  check-python-files:
+  check-python-syntax:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,11 +26,11 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py') --exit-zero
+        pylint $(git ls-files '*.py') --fail-under 5
 
 
   build:
-    needs: check-python-files
+    needs: check-python-syntax
     runs-on: ubuntu-latest
 
     steps:
