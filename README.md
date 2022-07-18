@@ -7,6 +7,7 @@ until now it has been a crypto trading algorithm following rules passed inside a
 
 
 To get the variable on local systems use :
+
 ```
 export $(grep -v '^#' .env | xargs)
 ```

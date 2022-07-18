@@ -27,7 +27,7 @@ class Position:
         
         """
         if not self.backtesting:
-            order = RealCommands().limit_open(symbol=self.symbol, backtesting=self.backtesting)
+            order = RealCommands().market_open(symbol=self.symbol, backtesting=self.backtesting)
             if order['error']:
                 return False
             self.id = order['order']['id']
@@ -71,7 +71,7 @@ class Position:
         if self.backtesting:
             self.close_price = self.current_price
         else:
-            order = RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
+            order = RealCommands().market_close(self.symbol, backtesting=self.backtesting)
             print(order)
             self.close_price = settings.broker.price(self.symbol)['ask']
         self.close_mode = "force-close"
@@ -116,7 +116,7 @@ class Position:
             if self.backtesting:
                 self.close_price = self.open_price * settings.RISK
             else:
-                RealCommands().limit_close(self.symbol, backtesting=self.backtesting)
+                RealCommands().market_close(self.symbol, backtesting=self.backtesting)
                 self.close_price = current_price
             self.close_mode = "stop-loss"
             self.close_position()
@@ -128,7 +128,7 @@ class Position:
             if self.backtesting:
                 self.close_price = self.current_price
             else:
-                RealCommands().limit_close(symbol=self.symbol, backtesting=self.backtesting)
+                RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
                 self.close_price = current_price
             self.close_mode = "take-profit"
             self.close_position()

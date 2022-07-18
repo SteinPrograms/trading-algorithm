@@ -19,12 +19,3 @@ services:
       dockerfile: app.Dockerfile
     depends_on:
       - db
-
-  next-app:
-    build:
-      dockerfile: frontend.Dockerfile
-    restart: always
-    ports:
-      - 3001:3000
-    depends_on:
-      - prisma

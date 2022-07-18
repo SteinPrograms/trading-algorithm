@@ -24,4 +24,4 @@ ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Finally running the script
-CMD [ "python", "app" ]
+CMD [ "python", "app/database.py" ]

@@ -1,2 +1,3 @@
 ./notebooks
 ./tmp
+__pycache__
