@@ -4,8 +4,8 @@ from datetime import datetime
 import os
 import psycopg2
 
-from logs import logger
 from bot_exceptions import DatabaseException
+from logs import logger
 
 
 
@@ -19,11 +19,11 @@ class Database:
                         host="db",
                         database=os.getenv('POSTGRES_DB'),
                         user=os.getenv('POSTGRES_USER'),
-                        password=os.getenv('POSTGRES_PASSWORD')
+                        password=os.getenv('POSTGRES_PASSWORD'),
                     )
                 break
             except DatabaseException as error:
-                logger.error('Could not connect to database')
+                logger.error('Could not connect to database %s',error)
                 if attempts==9:
                     raise error
 
@@ -56,7 +56,8 @@ class Database:
             time,
             symbol,
             yield_value,
-            wallet_value):
+            wallet_value,
+        ):
         """Add position data into database"""
         self.insert(
             query=("INSERT INTO positions(time,symbol,yield,wallet_value)"
@@ -72,8 +73,8 @@ class Database:
         )
 
     def update_server_data(
-        self,
-        data: dict
+            self,
+            data: dict,
         ):
         """Update server data to the queue for routine database upload"""
         self.data = data

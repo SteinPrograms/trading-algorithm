@@ -10,7 +10,7 @@ class Prediction:
         self.database = database
         self.drawdown = settings.DRAWDOWN
 
-    def signal(self,symbol:str) -> Dict[str]:
+    async def signal(self,symbol:str) -> Dict[str]:
         """Give the buy signal"""
         current_price = settings.broker.price(symbol)["bid"]
         if round(current_price/100,0)==round(self.database.get_target_value(symbol)/100,0):

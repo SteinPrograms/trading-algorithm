@@ -1,5 +1,9 @@
-from broker import FTX
+"""Global Settings"""
+
 import os
+from broker import FTX
+
+
 BACKTESTING = False
 BASE_ASSET = 'USD'
 PATH = "ftx.key"
@@ -10,6 +14,6 @@ WATCH_LIST=[
         'BTC',
 ]
 broker = FTX(
-        api_key= os.getenv('BROKER_API'),
-        api_secret= os.getenv('BROKER_SECRET')
+                api_key= os.getenv('BROKER_API'),
+                api_secret= os.getenv('BROKER_SECRET'),
 )

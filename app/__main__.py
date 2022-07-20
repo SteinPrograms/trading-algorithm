@@ -58,7 +58,7 @@ def main():
     database = Database()
 
 
-    # Initializing the position 
+    # Initializing the position
     position = Position(backtesting=backtesting,symbol='ETH',database=database)
 
     # Recover the previous yield to update the total yield
@@ -83,7 +83,7 @@ def main():
                 print(data, ':', value__, '\n')
 
             # Update the data which gets posted to the database
-            database.update_data(timer)
+            database.update_server_data(timer)
 
             # Risky zone
             if (position.current_effective_yield < settings.RISK or

@@ -1,3 +1,4 @@
+import os
 import contextlib
 import hmac
 import json
@@ -8,7 +9,7 @@ from itertools import zip_longest
 from typing import DefaultDict, Deque, List, Dict, Tuple, Optional
 from gevent.event import Event
 
-from app.websocket.websocket_manager import WebsocketManager
+from websocket_manager import WebsocketManager
 
 
 class FtxWebsocketClient(WebsocketManager):
@@ -18,10 +19,8 @@ class FtxWebsocketClient(WebsocketManager):
         super().__init__()
         self._trades: DefaultDict[str, Deque] = defaultdict(lambda: deque([], maxlen=10000))
         self._fills: Deque = deque([], maxlen=10000)
-        with contextlib.suppress(Exception):
-            with open('ftx.key', 'r') as f:
-                self._api_key = f.readline().strip()
-                self._api_secret = f.readline().strip()
+        self._api_key= os.getenv('BROKER_API'),
+        self._api_secret= os.getenv('BROKER_SECRET')
         self._orderbook_update_events: DefaultDict[str, Event] = defaultdict(Event)
         self._reset_data()
 
