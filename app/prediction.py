@@ -19,7 +19,6 @@ class Prediction:
                     }
         else:
             return {"signal":"neutral"}
-        
-        
+
 if __name__ == "__main__":
     print(settings.broker.price("ETH/USD"))
