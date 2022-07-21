@@ -5,8 +5,8 @@ import os
 import psycopg2
 
 from bot_exceptions import DatabaseException
-from logs import logger
 from routine import Routine
+from logs import logger
 
 
 class Database:
@@ -26,6 +26,8 @@ class Database:
                 logger.error('Could not connect to database %s',error)
                 if attempts==9:
                     raise error
+        # start routine
+        self.routine_server_data_update()
 
     def select(
             self,
@@ -78,6 +80,16 @@ class Database:
         ):
         """Update server data to the queue for routine database upload"""
         self.data = data
+
+    @Routine(5)
+    def routine_server_data_update(self):
+        """Update server data very 5sec"""
+        self.insert(
+            query="INSERT INTO server(current_status,total_yield,running_time) values("
+            f"'{self.data.get('current_status',None)}',"
+            f"'{self.data.get('total_yield',None)}',"
+            f"'{self.data.get('running_time',None)}'"
+        )
 
 
 if __name__ == "__main__":
