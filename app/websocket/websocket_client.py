@@ -9,7 +9,7 @@ from itertools import zip_longest
 from typing import DefaultDict, Deque, List, Dict, Tuple, Optional
 from gevent.event import Event
 
-from websocket_manager import WebsocketManager
+from .websocket_manager import WebsocketManager
 
 
 class FtxWebsocketClient(WebsocketManager):
@@ -19,7 +19,7 @@ class FtxWebsocketClient(WebsocketManager):
         super().__init__()
         self._trades: DefaultDict[str, Deque] = defaultdict(lambda: deque([], maxlen=10000))
         self._fills: Deque = deque([], maxlen=10000)
-        self._api_key= os.getenv('BROKER_API'),
+        self._api_key= os.getenv('BROKER_API')
         self._api_secret= os.getenv('BROKER_SECRET')
         self._orderbook_update_events: DefaultDict[str, Event] = defaultdict(Event)
         self._reset_data()

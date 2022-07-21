@@ -10,7 +10,7 @@ __author__ = "Hugo Demenez"
 import os
 import sys
 import time
-
+import threading
 from datetime import timedelta
 
 # Custom imports
@@ -37,6 +37,21 @@ def testing_connection():
     if not RealCommands().test_connection():
         logging.error("Connection failed")
         sys.exit()
+
+
+def time_updater(database:Database):
+    """Update server running time to console and database"""
+    # Clear console
+    os.system('cls' if os.name == 'nt' else 'clear')
+    # Print program running time in console
+    timer = {
+        'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
+    }
+    for data, value__ in timer.items():
+        print(data, ':', value__, '\n')
+
+    # Update the data which gets posted to the database
+    database.update_server_data(timer)
 
 def main():
     """Main loop"""
@@ -69,21 +84,15 @@ def main():
     # Logs
     logger.info('STARTED AT : %s',START_TIME)
 
+    # Start time updated
+    timer_thread = threading.Thread(target=time_updater, args=(database,))
+    timer_thread.start()
+
     #Looping into trading program
     while True:
         # Must put everything under try block to correctly handle the exception
         try:
-            # Clear console
-            os.system('cls' if os.name == 'nt' else 'clear')
-            # Print program running time in console
-            timer = {
-                'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
-            }
-            for data, value__ in timer.items():
-                print(data, ':', value__, '\n')
 
-            # Update the data which gets posted to the database
-            database.update_server_data(timer)
 
             # Risky zone
             if (position.current_effective_yield < settings.RISK or

@@ -6,7 +6,7 @@ import psycopg2
 
 from bot_exceptions import DatabaseException
 from logs import logger
-
+from routine import Routine
 
 
 class Database:
