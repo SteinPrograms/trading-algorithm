@@ -1,4 +1,4 @@
-name: Python Syntax Check and Docker Image
+name: Build
 
 on:
   pull_request:
