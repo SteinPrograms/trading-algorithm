@@ -2,30 +2,23 @@
 from datetime import datetime
 
 import os
+from time import sleep
 import psycopg2
-
 from bot_exceptions import DatabaseException
 from routine import Routine
 from logs import logger
 
+# DEV ENV
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
 
 class Database:
     """Database SDK"""
     def __init__(self):
         self.data = {}
-        for attempts in range(10):
-            try:
-                self.conn = psycopg2.connect(
-                        host="db",
-                        database=os.getenv('POSTGRES_DB'),
-                        user=os.getenv('POSTGRES_USER'),
-                        password=os.getenv('POSTGRES_PASSWORD'),
-                    )
-                break
-            except DatabaseException as error:
-                logger.error('Could not connect to database %s',error)
-                if attempts==9:
-                    raise error
         # start routine
         self.routine_server_data_update()
 
@@ -35,10 +28,16 @@ class Database:
             query: str,
         ):
         """Select data from the database"""
-        with self.conn.cursor() as cursor:
-            cursor.execute(query)
-            result = cursor.fetchall().copy()
-        self.conn.close()
+        with psycopg2.connect(
+            host="db",
+            database=os.getenv('POSTGRES_DB'),
+            user=os.getenv('POSTGRES_USER'),
+            password=os.getenv('POSTGRES_PASSWORD'),
+            ) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                result = cursor.fetchall().copy()
+
         return result
 
     def insert(
@@ -47,10 +46,15 @@ class Database:
             query: str,
         ):
         """Insert a query into the database"""
-        with self.conn.cursor() as cursor:
-            cursor.execute(query)
-        self.conn.commit()
-        self.conn.close()
+        with psycopg2.connect(
+            host="db",
+            database=os.getenv('POSTGRES_DB'),
+            user=os.getenv('POSTGRES_USER'),
+            password=os.getenv('POSTGRES_PASSWORD'),
+        ) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+            conn.commit()
 
     def add_position(
             self,
@@ -89,16 +93,11 @@ class Database:
             f"'{self.data.get('current_status',None)}',"
             f"'{self.data.get('total_yield',None)}',"
             f"'{self.data.get('running_time',None)}'"
+            ")"
         )
 
 
 if __name__ == "__main__":
-    Database().add_position(
-        time=datetime.now(),
-        symbol="BTC/USD",
-        yield_value='2.31%',
-        wallet_value='1,000,000.00$',
-    )
-    print(Database().select(
-        query="SELECT * FROM positions",
-    ))
+    Database()
+    while True:
+        pass

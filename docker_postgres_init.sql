@@ -7,7 +7,7 @@ CREATE TABLE positions (
 );
 
 CREATE TABLE server (
-    id INT PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
     current_status VARCHAR (255) NOT NULL,
     total_yield VARCHAR (255) NOT NULL,
     running_time VARCHAR (255) NOT NULL
@@ -15,7 +15,7 @@ CREATE TABLE server (
 
 CREATE TABLE target 
 (
-    id INT PRIMARY KEY NOT NULL ,
+    id SERIAL PRIMARY KEY,
     symbol VARCHAR (255) NOT NULL,
     buy_price VARCHAR (255) NOT NULL,
     sell_price VARCHAR (255) NOT NULL
