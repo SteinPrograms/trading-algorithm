@@ -16,9 +16,10 @@ class Position:
     def __init__(self,*,backtesting : bool = True,symbol : str = 'BTC',database: Database):
         self.symbol = f'{symbol}/{settings.BASE_ASSET}'
         self.backtesting = backtesting
-        self.status='close'
+        self.current_status='close'
         self.current_effective_yield = 1
         self.highest_yield=1
+        self.expected_yield = settings.EXPECTED_YIELD
         self.database = database
         self.identifier = None
         self.open_price = None
@@ -30,7 +31,6 @@ class Position:
         self.total_yield = None
         self.close_mode = None
         self.close_price = None
-        self.expected_yield = None
         self.statistics = {}
         self.websocket = FtxWebsocketClient()
         while True:
@@ -39,10 +39,11 @@ class Position:
                 # Initializing close price at starting program price
                 self.close_price = current_data.get('bid')
                 logger.info("Initialized price at : %s",self.close_price)
+                break
 
     def is_open(self):
         """Return true if position is open"""
-        return self.status=='open'
+        return self.current_status=='open'
 
     def open_position(self):
         """This function send an open order to the broker, with the opening price,
@@ -56,13 +57,11 @@ class Position:
         else:
             # Simulation of opening position time by broker
             time.sleep(2)
-        current_price = settings.broker.price(self.symbol)['ask']
-        self.open_price = current_price
-        self.current_price = current_price
+        self.open_price = self.current_price
         # Setting highest price and lowest price to the opening price
         self.highest_price = self.open_price
         self.lowest_price = self.open_price
-        self.status = 'open'
+        self.current_status = 'open'
         self.opening_time = time.time()
         return True
 
@@ -71,35 +70,35 @@ class Position:
         """This function send a close market order to the broker
         save the database inside the database
         """
-        self.status = 'close'
+        self.current_status = 'close'
         self.effective_yield = self.effective_yield_calculation(
                                     self.close_price,
                                     self.open_price,
                                     settings.FEE,
                                 )
-        if self.database.total_yield*self.effective_yield > self.highest_yield:
-            self.highest_yield = self.database.total_yield*self.effective_yield
+        self.total_yield = self.total_yield*self.effective_yield
+        if  self.total_yield > self.highest_yield:
+            self.highest_yield = self.total_yield
 
-        try:
-            order_data = RealCommands().get_order_status(self.identifier)
-            self.database.add_position(data={
-                'time':self.opening_time,
-                'symbol':self.symbol,
-                'yield':self.effective_yield,
-                'walletValue':order_data.get('avgFillPrice',0)*order_data.get('filledSize',0),
-            })
-        except DatabaseException as error:
-            logger.error(error)
+        if not self.backtesting:
+            try:
+                order_data = RealCommands().get_order_status(self.identifier)
+                self.database.add_position(data={
+                    'time':self.opening_time,
+                    'symbol':self.symbol,
+                    'yield':self.effective_yield,
+                    'walletValue':order_data.get('avgFillPrice',0)*order_data.get('filledSize',0),
+                })
+            except DatabaseException as error:
+                logger.error(error)
 
 
     def force_position_close(self):
         """Force position to close at marketprice"""
-        if self.backtesting:
-            self.close_price = self.current_price
-        else:
+        self.close_price = self.current_price
+        if not self.backtesting:
             order = RealCommands().market_close(self.symbol, backtesting=self.backtesting)
             logger.debug(order)
-            self.close_price = settings.broker.price(self.symbol)['ask']
         self.close_mode = "force-close"
         self.close_position()
 
@@ -137,7 +136,7 @@ class Position:
         # Take profit on expected yield
         # Closing on take-profit :
         #   -> Check if the yield  is stronger  than the minimal yield considering fees and slippage
-        if self.current_effective_yield > self.expected_yield:
+        if self.current_effective_yield > 1+self.expected_yield:
             self.close_price = self.current_price
             if not self.backtesting:
                 RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
@@ -153,9 +152,17 @@ class Position:
                 self.current_price = current_data.get('bid')
                 break
 
+
+
+
+        self.statistics['symbol'] = self.symbol
+        self.statistics['current_price'] = self.current_price
+        self.statistics['current_status'] = self.current_status
+        self.statistics['total_yield'] = f'{str(round((self.total_yield - 1) * 100, 2))} %'
+
         # When the position is closed
         # looks for entry point
-        if self.status == 'close':
+        if self.current_status == 'close':
             self.find_entry_point()
 
         else:
@@ -168,26 +175,20 @@ class Position:
                 logger.error("Unable to check position status : %s",error)
 
             current_effective_yield = self.effective_yield_calculation(
-                                        self.current_price,
-                                        self.open_price,
-                                        settings.FEE,
-                                    )
+                self.current_price,
+                self.open_price,
+                settings.FEE,
+            )
+
             # Give information about the program
-            self.statistics = {
-                'current_price': self.current_price,
-                'open_price': self.open_price,
-                'highest_price': self.highest_price,
-                'lowest_price': self.lowest_price,
-                'position_yield': f'{str(round((current_effective_yield - 1) * 100, 2))} %',
-                'current_position_time': str(
-                    datetime.timedelta(seconds=round(time.time(), 0) - round(self.opening_time, 0))
-                ),
-                'expected_yield': self.expected_yield,
-            }
+            self.statistics['current_position_time'] = datetime.timedelta(
+                seconds=round(time.time(), 0)
+                - round(self.opening_time, 0)
+            )
+            self.statistics['current_yield'] = f'{str(round((current_effective_yield - 1) * 100, 2))} %'
 
 
-        self.statistics['current_status'] = self.status
-        self.statistics['total_yield'] = f'{str(round((self.total_yield - 1) * 100, 2))} %'
+
 
     def find_entry_point(self):
         """[summary]
@@ -200,7 +201,7 @@ class Position:
         """
         try:
             # The price dropped by the expected yield (it should recover ?)
-            if self.current_price/self.close_price<1-settings.EXPECTED_YIELD :
+            if self.current_price/self.close_price<=1:
                 if self.open_position():
                     return
 

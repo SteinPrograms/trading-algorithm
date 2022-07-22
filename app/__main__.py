@@ -10,7 +10,6 @@ __author__ = "Hugo Demenez"
 import sys
 import time
 import threading
-import curses
 from datetime import timedelta
 
 # Custom imports
@@ -38,37 +37,35 @@ def testing_connection():
         logging.error("Connection failed")
         sys.exit()
 
+# create a shared event
+event = threading.Event()
 
-def time_updater(database:Database,position:Position,stdscr):
+
+def time_updater(database:Database,position:Position):
     """Update server running time to console and database"""
-    while True:
+    while not event.is_set():
         # Clear console
         # os.system('cls' if os.name == 'nt' else 'clear')
-        stdscr.clear()
         output = str()
         # Print program running time in console
         timer = {
             'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
         }
         for data, value__ in timer.items():
-            output+=f"{data} : {value__}\n"
+            output += f"{data} : {value__} | "
 
         for data, value__ in position.statistics.items():
-            output+=f"{data} : {value__}\n"
+            output+=f"{data} : {value__} | "
 
-        stdscr.addstr(output)
-        stdscr.refresh()
-        curses.echo()
+        print(output,end='\r')
         # Update the data which gets posted to the database
         database.update_server_data(timer)
 
 
 
+
 def main():
     """Main loop"""
-
-    # Initialize terminal screen
-    stdscr = curses.initscr()
 
     # Entering into backtesting mode by default
     backtesting = True
@@ -98,7 +95,7 @@ def main():
     logger.info('PROGRAM START')
 
     # Start time updated
-    timer_thread = threading.Thread(target=time_updater, args=(database,position,stdscr))
+    timer_thread = threading.Thread(target=time_updater, args=(database,position))
     timer_thread.start()
 
     #Looping into trading program
@@ -115,6 +112,8 @@ def main():
 
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
+            event.set()
+            print('\n')
             # And the position is currently opened
             if position.is_open():
                 # Close every position

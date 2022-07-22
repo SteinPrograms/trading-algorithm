@@ -101,8 +101,6 @@ class Database:
             f"total_yield = {self.data.get('total_yield',1)},"
             f"running_time = '{self.data.get('running_time')}';"
         )
-        logger.info("SERVER DATA UPDATED")
-
 
 if __name__ == "__main__":
     db = Database()
