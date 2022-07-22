@@ -81,7 +81,7 @@ def main():
     database = Database()
 
     # Initializing the position
-    position = Position(backtesting=backtesting,symbol='SRM',database=database)
+    position = Position(backtesting=backtesting,symbol='SOL',database=database)
 
     # Recover the previous yield to update the total yield
     position.total_yield=1
