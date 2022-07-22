@@ -84,8 +84,12 @@ class Database:
             data: dict,
         ):
         """Update server data to the queue for routine database upload"""
-        for data, value__ in data.items():
-            self.data[data] = value__
+        try:
+            for data, value__ in data.items():
+                self.data[data] = value__
+        except RuntimeError:
+            # Could be raised if data is changed during update
+            pass
 
     @Routine(5)
     def routine_server_data_update(self):
