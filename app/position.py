@@ -53,6 +53,7 @@ class Position:
             order = RealCommands().market_open(symbol=self.symbol, backtesting=self.backtesting)
             if order['error']:
                 return False
+            logger.info("Open order success : %s",order)
             self.identifier = order['order']['id']
         else:
             # Simulation of opening position time by broker
@@ -83,6 +84,7 @@ class Position:
         try:
             if not self.backtesting:
                 order_data = RealCommands().get_order_status(self.identifier)
+                logger.info("Close order success : %s",order_data)
                 self.database.add_position(
                     time=self.opening_time,
                     symbol=self.symbol,
@@ -166,7 +168,7 @@ class Position:
         self.statistics['symbol'] = self.symbol
         self.statistics['current_price'] = self.current_price
         self.statistics['current_status'] = self.current_status
-        self.statistics['total_yield'] = f'{str(round((self.total_yield - 1) * 100, 2))} %'
+        self.statistics['total_yield'] = self.total_yield 
 
         # When the position is closed
         # looks for entry point
@@ -193,7 +195,8 @@ class Position:
                 seconds=round(time.time(), 0)
                 - round(self.opening_time, 0)
             )
-            self.statistics['current_yield'] = f'{str(round((current_effective_yield - 1) * 100, 2))} %'
+            self.statistics['open_price'] = self.open_price
+            self.statistics['current_yield'] = current_effective_yield
 
 
 

@@ -57,14 +57,11 @@ def time_updater(database:Database,position:Position):
         for data, value__ in position.statistics.items():
             output+=f"{data} : {value__} | "
 
-        print(output,end='\r')
+        # print(output,end='\r')
 
         # Update the data which gets posted to the database
         database.update_server_data(timer)
-        database.update_server_data({
-            'total_yield':position.total_yield,
-            'current_status':position.current_status,
-        })
+        database.update_server_data(position.statistics)
 
 
 
