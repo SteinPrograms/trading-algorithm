@@ -1,5 +1,5 @@
 # Using python latest docker image
-FROM python:alpine3.15
+FROM python
 
 # Defining the working directory
 WORKDIR /usr/src
@@ -7,10 +7,6 @@ WORKDIR /usr/src
 # Adding files
 ADD ./app ./app
 COPY ./requirements.txt ./
-
-
-RUN apk add build-base
-RUN apk add libffi-dev
 
 # Creating virtual environment
 ENV VIRTUAL_ENV=/opt/venv
