@@ -33,15 +33,12 @@ class Position:
         self.expected_yield = None
         self.statistics = {}
         self.websocket = FtxWebsocketClient()
-        self.websocket.get_ticker(self.symbol)
         while True:
-            current_data = self.websocket._tickers.get(self.symbol)
+            current_data = self.websocket.get_ticker(self.symbol)
             if 'bid' in current_data:
-                break
-        # Initializing close price at starting program price
-        self.close_price = current_data.get('bid')
-        logger.info("Initialized price at : %s",self.close_price)
-
+                # Initializing close price at starting program price
+                self.close_price = current_data.get('bid')
+                logger.info("Initialized price at : %s",self.close_price)
 
     def is_open(self):
         """Return true if position is open"""
@@ -151,7 +148,7 @@ class Position:
     def manage_position(self):
         """Manage position : look for selling or buying actions"""
         while True:
-            current_data = self.websocket._tickers.get(self.symbol,None)
+            current_data = self.websocket.get_ticker(self.symbol)
             if 'bid' in current_data:
                 self.current_price = current_data.get('bid')
                 break

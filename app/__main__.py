@@ -7,12 +7,11 @@ Crypto-Currencies trading algorithm using :
 __author__ = "Hugo Demenez"
 
 # Common imports
-import os
 import sys
 import time
 import threading
 import curses
-from datetime import timedelta,datetime
+from datetime import timedelta
 
 # Custom imports
 import logging
@@ -85,12 +84,10 @@ def main():
     # Starting routines inside a database instance to update program data
     database = Database()
 
-
     # Initializing the position
     position = Position(backtesting=backtesting,symbol='ETH',database=database)
 
     # Recover the previous yield to update the total yield
-    print(database.get_server_data())
     position.total_yield=1
     if database.get_server_data():
         total_yield = database.get_server_data()[0].get('total_yield')
@@ -104,12 +101,10 @@ def main():
     timer_thread = threading.Thread(target=time_updater, args=(database,position,stdscr))
     timer_thread.start()
 
-
     #Looping into trading program
     while True:
         # Must put everything under try block to correctly handle the exception
         try:
-
             # Risky zone
             if (position.current_effective_yield < settings.RISK or
                 position.total_yield < settings.DRAWDOWN):
