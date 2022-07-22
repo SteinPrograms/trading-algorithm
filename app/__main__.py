@@ -61,7 +61,10 @@ def time_updater(database:Database,position:Position):
 
         # Update the data which gets posted to the database
         database.update_server_data(timer)
-        database.update_server_data(position.statistics)
+        database.update_server_data({
+            'total_yield':position.total_yield,
+            'current_status':position.current_status,
+        })
 
 
 

@@ -86,7 +86,7 @@ class Database:
         """Update server data to the queue for routine database upload"""
         for data, value__ in data.items():
             self.data[data]=value__
-        
+
 
     @Routine(5)
     def routine_server_data_update(self):
