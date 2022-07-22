@@ -2,8 +2,9 @@
 from datetime import datetime
 
 import os
-from time import sleep
+import time
 import psycopg2
+import psycopg2.extras
 from bot_exceptions import DatabaseException
 from routine import Routine
 from logs import logger
@@ -29,12 +30,12 @@ class Database:
         ):
         """Select data from the database"""
         with psycopg2.connect(
-            host="db",
+            host=os.getenv('POSTGRES_HOST'),
             database=os.getenv('POSTGRES_DB'),
             user=os.getenv('POSTGRES_USER'),
             password=os.getenv('POSTGRES_PASSWORD'),
             ) as conn:
-            with conn.cursor() as cursor:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
                 cursor.execute(query)
                 result = cursor.fetchall().copy()
 
@@ -47,7 +48,7 @@ class Database:
         ):
         """Insert a query into the database"""
         with psycopg2.connect(
-            host="db",
+            host=os.getenv('POSTGRES_HOST'),
             database=os.getenv('POSTGRES_DB'),
             user=os.getenv('POSTGRES_USER'),
             password=os.getenv('POSTGRES_PASSWORD'),
@@ -89,15 +90,21 @@ class Database:
     def routine_server_data_update(self):
         """Update server data very 5sec"""
         self.insert(
-            query="INSERT INTO server(current_status,total_yield,running_time) values("
-            f"'{self.data.get('current_status',None)}',"
-            f"'{self.data.get('total_yield',None)}',"
-            f"'{self.data.get('running_time',None)}'"
-            ")"
+            query="INSERT INTO server(id,current_status,total_yield,running_time) values("
+            "'1',"
+            f"'{self.data.get('current_status','close')}',"
+            f"{self.data.get('total_yield',1)},"
+            f"'{self.data.get('running_time')}'"
+            ") "
+            "ON CONFLICT (id) DO UPDATE "
+            f"SET current_status = '{self.data.get('current_status')}', "
+            f"total_yield = {self.data.get('total_yield',1)},"
+            f"running_time = '{self.data.get('running_time')}';"
         )
+        logger.info("SERVER DATA UPDATED")
 
 
 if __name__ == "__main__":
-    Database()
+    db = Database()
     while True:
-        pass
+        db.update_server_data({"running_time":time.time()})

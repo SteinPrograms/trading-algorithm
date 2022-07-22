@@ -20,3 +20,6 @@ class OrderException(Exception):
 
 class DatabaseException(Exception):
     """Exception raised on database error"""
+
+class DataSizeException(Exception):
+    """Exception raised on when size of data is too short"""

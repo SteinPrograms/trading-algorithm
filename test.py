@@ -2,7 +2,7 @@ from time import sleep
 
 from app.routine import Routine
 
-from app.websocket.websocket_client import FtxWebsocketClient
+from app.local_websocket.websocket_client import FtxWebsocketClient
 import asyncio
 
 class Testing:

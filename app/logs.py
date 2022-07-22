@@ -53,7 +53,7 @@ stdout_handler.setFormatter(CustomFormatter(fmt))
 today = datetime.datetime.now()
 file_handler = logging.FileHandler((
     f"./{LOG_DIRECTORY}/"
-    f'{today.strftime("%d_%m_%Y_%H_%M")}'
+    f'{today.strftime("%d_%m_%Y")}'
     f".log"
 ))
 

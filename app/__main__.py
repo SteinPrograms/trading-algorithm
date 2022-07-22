@@ -11,7 +11,8 @@ import os
 import sys
 import time
 import threading
-from datetime import timedelta
+import curses
+from datetime import timedelta,datetime
 
 # Custom imports
 import logging
@@ -39,22 +40,37 @@ def testing_connection():
         sys.exit()
 
 
-def time_updater(database:Database):
+def time_updater(database:Database,position:Position,stdscr):
     """Update server running time to console and database"""
-    # Clear console
-    os.system('cls' if os.name == 'nt' else 'clear')
-    # Print program running time in console
-    timer = {
-        'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
-    }
-    for data, value__ in timer.items():
-        print(data, ':', value__, '\n')
+    while True:
+        # Clear console
+        # os.system('cls' if os.name == 'nt' else 'clear')
+        stdscr.clear()
+        output = str()
+        # Print program running time in console
+        timer = {
+            'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
+        }
+        for data, value__ in timer.items():
+            output+=f"{data} : {value__}\n"
 
-    # Update the data which gets posted to the database
-    database.update_server_data(timer)
+        for data, value__ in position.statistics.items():
+            output+=f"{data} : {value__}\n"
+
+        stdscr.addstr(output)
+        stdscr.refresh()
+        curses.echo()
+        # Update the data which gets posted to the database
+        database.update_server_data(timer)
+
+
 
 def main():
     """Main loop"""
+
+    # Initialize terminal screen
+    stdscr = curses.initscr()
+
     # Entering into backtesting mode by default
     backtesting = True
 
@@ -66,9 +82,6 @@ def main():
         # Not in backtesting mode
         backtesting = False
 
-    elif input("Unable to connect to market, run in back-testing mode? Y/N : ").upper() == 'N':
-        return
-
     # Starting routines inside a database instance to update program data
     database = Database()
 
@@ -77,22 +90,25 @@ def main():
     position = Position(backtesting=backtesting,symbol='ETH',database=database)
 
     # Recover the previous yield to update the total yield
-    position.total_yield = 1+float(database.get_server_data().get('total_yield',0).
-        replace('%','').
-        replace(' ',''))/100
+    print(database.get_server_data())
+    position.total_yield=1
+    if database.get_server_data():
+        total_yield = database.get_server_data()[0].get('total_yield')
+        if total_yield is not None:
+            position.total_yield = float(total_yield)
 
     # Logs
-    logger.info('STARTED AT : %s',START_TIME)
+    logger.info('PROGRAM START')
 
     # Start time updated
-    timer_thread = threading.Thread(target=time_updater, args=(database,))
+    timer_thread = threading.Thread(target=time_updater, args=(database,position,stdscr))
     timer_thread.start()
+
 
     #Looping into trading program
     while True:
         # Must put everything under try block to correctly handle the exception
         try:
-
 
             # Risky zone
             if (position.current_effective_yield < settings.RISK or
@@ -103,13 +119,13 @@ def main():
             position.manage_position()
 
         # If there is an interrupt
-        except (KeyboardInterrupt, DrawdownException):                    
+        except (KeyboardInterrupt, DrawdownException):
             # And the position is currently opened
             if position.is_open():
                 # Close every position
                 position.force_position_close()
                 logging.warning('POSITION CLOSED : EXIT')
-            logger.info('ENDED AT : %s',time.time())
+            logger.info('PROGRAM END')
             return
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ CREATE TABLE positions (
 CREATE TABLE server (
     id SERIAL PRIMARY KEY,
     current_status VARCHAR (255) NOT NULL,
-    total_yield VARCHAR (255) NOT NULL,
+    total_yield REAL NOT NULL,
     running_time VARCHAR (255) NOT NULL
 );
 

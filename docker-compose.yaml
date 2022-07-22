@@ -14,7 +14,7 @@ services:
 
   algorithm:
     env_file:
-      - .env
+      - .docker.env
     restart: always
     build:
       dockerfile: app.Dockerfile

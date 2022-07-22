@@ -2,7 +2,6 @@ import json
 import time
 from threading import Thread, Lock
 from websocket import WebSocketApp
-from ..bot_exceptions import WebsocketException
 
 class WebsocketManager:
     _CONNECT_TIMEOUT_S = 5
@@ -52,14 +51,14 @@ class WebsocketManager:
                 try:
                     f(ws, *args, **kwargs)
                 except:
-                    raise WebsocketException
+                    raise Exception
         return wrapped_f
 
     def _run_websocket(self, ws):
         try:
             ws.run_forever()
         except:
-            raise WebsocketException
+            raise Exception
         finally:
             self._reconnect(ws)
 
