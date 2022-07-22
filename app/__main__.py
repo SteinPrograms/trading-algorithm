@@ -58,9 +58,13 @@ def time_updater(database:Database,position:Position):
             output+=f"{data} : {value__} | "
 
         print(output,end='\r')
+
         # Update the data which gets posted to the database
         database.update_server_data(timer)
-
+        database.update_server_data({
+            'total_yield':position.total_yield,
+            'current_status':position.current_status,
+        })
 
 
 
@@ -82,7 +86,7 @@ def main():
     database = Database()
 
     # Initializing the position
-    position = Position(backtesting=backtesting,symbol='ETH',database=database)
+    position = Position(backtesting=backtesting,symbol='SRM',database=database)
 
     # Recover the previous yield to update the total yield
     position.total_yield=1
