@@ -80,17 +80,25 @@ class Position:
         if  self.total_yield > self.highest_yield:
             self.highest_yield = self.total_yield
 
-        if not self.backtesting:
-            try:
+        try:
+            if not self.backtesting:
                 order_data = RealCommands().get_order_status(self.identifier)
-                self.database.add_position(data={
-                    'time':self.opening_time,
-                    'symbol':self.symbol,
-                    'yield':self.effective_yield,
-                    'walletValue':order_data.get('avgFillPrice',0)*order_data.get('filledSize',0),
-                })
-            except DatabaseException as error:
-                logger.error(error)
+                self.database.add_position(
+                    time=self.opening_time,
+                    symbol=self.symbol,
+                    yield_value=self.effective_yield,
+                    wallet_value=order_data.get('avgFillPrice',0)*order_data.get('filledSize',0),
+                )
+            else:
+                self.database.add_position(
+                    time=self.opening_time,
+                    symbol=self.symbol,
+                    yield_value=self.effective_yield,
+                    wallet_value=0,
+                )
+        except DatabaseException as error:
+            logger.error(error)
+        
 
 
     def force_position_close(self):
@@ -201,7 +209,7 @@ class Position:
         """
         try:
             # The price dropped by the expected yield (it should recover ?)
-            if self.current_price/self.close_price<=1:
+            if self.current_price/self.close_price<=1-self.expected_yield:
                 if self.open_position():
                     return
 

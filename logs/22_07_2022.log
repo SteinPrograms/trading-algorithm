@@ -56,3 +56,16 @@
 2022-07-22 15:29:23,822 |     INFO | Starting trading algorithm
 2022-07-22 15:29:25,351 |     INFO | Initialized price at : 1597.8
 2022-07-22 15:29:25,386 |     INFO | PROGRAM START
+2022-07-22 15:37:55,959 |     INFO | PROGRAM END
+2022-07-22 15:37:58,220 |     INFO | Starting trading algorithm
+2022-07-22 15:37:59,654 |     INFO | Initialized price at : 1599.2
+2022-07-22 15:37:59,697 |     INFO | PROGRAM START
+2022-07-22 15:41:47,048 |    ERROR | Unable to check position status : add_position() got an unexpected keyword argument 'data'
+2022-07-22 15:45:04,046 |     INFO | Starting trading algorithm
+2022-07-22 15:45:05,508 |     INFO | Initialized price at : 1603.8
+2022-07-22 15:45:05,540 |     INFO | PROGRAM START
+2022-07-22 15:45:15,244 |    ERROR | Unable to check position status : add_position() got an unexpected keyword argument 'walletValue'
+2022-07-22 15:45:35,992 |     INFO | Starting trading algorithm
+2022-07-22 15:45:37,322 |     INFO | Initialized price at : 1606.0
+2022-07-22 15:45:37,366 |     INFO | PROGRAM START
+2022-07-22 15:51:43,781 |     INFO | PROGRAM END
