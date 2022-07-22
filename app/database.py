@@ -91,7 +91,7 @@ class Database:
             # Could be raised if data is changed during update
             pass
 
-    @Routine(5)
+    @Routine(0.2)
     def routine_server_data_update(self):
         """Update server data very 5sec"""
         self.insert(
