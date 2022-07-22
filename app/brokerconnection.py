@@ -67,8 +67,10 @@ class RealCommands:
                     logger.info("Attempt n° : %s",counter)
                     # Create the sell order with the whole quantity of asset
                     order = self.broker.place_order(symbol,"sell",0,quantity_crypto,'market')
-                    # If there is no msg it means the order is sent
-                    logger.info("SellingOrderApproval %s",order["msg"])
+                    if not "msg" in order:
+                        # If there is no msg it means the order is sent
+                        logger.info("SellingOrderApproval %s",order)
+                        raise OrderException()
                     time.sleep(0.2)
                     counter+=1
                     if counter ==10:
@@ -119,7 +121,7 @@ class RealCommands:
                 logger.info(error)
 
             # We test if there is a code error
-            if not order.get("msg",None):
+            if not "msg" in order:
                 break
 
             # If there is a code error, we log it and retry in 0.2s
