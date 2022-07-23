@@ -160,9 +160,3 @@ class RealCommands:
             except Exception as error:
                 logger.info(error)
                 time.sleep(0.2)
-
-if __name__ == '__main__':
-   #logger.info(RealCommands().broker.place_order("BTC/USD","sell",0,0.000556,'market'))
-    # Testing brokerconnection with buy/sell orders
-    logger.info(RealCommands().market_open("BTC/USD",False))
-    logger.info(RealCommands().market_close("BTC/USD",False))
