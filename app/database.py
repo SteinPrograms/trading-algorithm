@@ -115,7 +115,7 @@ class Database:
             f"{self.data.get('current_price',0)},"
             f"{self.data.get('open_price',0)},"
             f"{self.data.get('current_yield',0)},"
-            f"{self.data.get('decision',0)}"
+            f"'{self.data.get('decision',0)}'"
             ") "
             "ON CONFLICT (id) DO UPDATE "
             f"SET "
@@ -127,6 +127,6 @@ class Database:
             f"current_price={self.data.get('current_price',0)},"
             f"open_price={self.data.get('open_price',0)},"
             f"current_yield={self.data.get('current_yield',0)},"
-            f"decision={self.data.get('decision',0)}"
+            f"decision='{self.data.get('decision',0)}'"
             ";"
         )
