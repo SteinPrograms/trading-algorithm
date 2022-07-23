@@ -1,7 +1,7 @@
 # python
 .venv
 __pycache__
-
+*.log
 # misc
 .DS_Store
 
@@ -10,6 +10,3 @@ __pycache__
 .env.test.local
 .env.production.local
 .env
-
-# logs
-logs/*
