@@ -266,7 +266,9 @@ class Position:
                 # remove time metric
                 previous_data.pop("time")
                 break
+
         from __main__ import event
+        logger.info("Successfuly started momentum analysis")
         while not event.is_set():
             current_data = self.websocket.get_ticker(self.symbol).copy()
             if 'bid' in current_data:
@@ -280,10 +282,10 @@ class Position:
                         metric = metrics(last_x_trades)
                         try:
                             # current positive gap is stronger the usual one => Strong buys
-                            if metric > history.get_highest_increase() and len(history.values)>100:
+                            if metric > history.get_highest_increase() and len(history.values)>1000:
                                 self.decision = "buy"
                             # current negative gap is stronger the usual one => Strong sells
-                            elif metric < history.get_highest_decrease() and len(history.values)>100:
+                            elif metric < history.get_highest_decrease() and len(history.values)>1000:
                                 self.decision = "sell"
                             else:
                                 self.decision = "hodle"

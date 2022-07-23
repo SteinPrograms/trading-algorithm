@@ -27,17 +27,19 @@ class Database:
             query: str,
         ):
         """Select data from the database"""
-        with psycopg2.connect(
-            host=os.getenv('POSTGRES_HOST'),
-            database=os.getenv('POSTGRES_DB'),
-            user=os.getenv('POSTGRES_USER'),
-            password=os.getenv('POSTGRES_PASSWORD'),
-            ) as conn:
-            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
-                cursor.execute(query)
-                result = cursor.fetchall().copy()
-
-        return result
+        try:
+            with psycopg2.connect(
+                host=os.getenv('POSTGRES_HOST'),
+                database=os.getenv('POSTGRES_DB'),
+                user=os.getenv('POSTGRES_USER'),
+                password=os.getenv('POSTGRES_PASSWORD'),
+                ) as conn:
+                with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
+                    cursor.execute(query)
+                    result = cursor.fetchall().copy()
+            return result
+        except psycopg2.OperationalError as error:
+            logger.error("Database error : %s",error)
 
     def insert(
             self,
@@ -45,15 +47,18 @@ class Database:
             query: str,
         ):
         """Insert a query into the database"""
-        with psycopg2.connect(
-            host=os.getenv('POSTGRES_HOST'),
-            database=os.getenv('POSTGRES_DB'),
-            user=os.getenv('POSTGRES_USER'),
-            password=os.getenv('POSTGRES_PASSWORD'),
-        ) as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-            conn.commit()
+        try:
+            with psycopg2.connect(
+                host=os.getenv('POSTGRES_HOST'),
+                database=os.getenv('POSTGRES_DB'),
+                user=os.getenv('POSTGRES_USER'),
+                password=os.getenv('POSTGRES_PASSWORD'),
+            ) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query)
+                conn.commit()
+        except psycopg2.OperationalError as error:
+            logger.error("Database error : %s",error)
 
     def add_position(
             self,

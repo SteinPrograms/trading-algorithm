@@ -25,11 +25,7 @@ from routine import Routine
 from logs import logger
 
 
-def docker_container_terminating():
-    """Defining exception raised on keyboard interrupt"""
-    raise KeyboardInterrupt()
 
-signal.signal(signal.SIGTERM, docker_container_terminating)
 
 
 # Register the starting date
@@ -72,6 +68,17 @@ def time_updater(database:Database,position:Position):
 
 def main():
     """Main loop"""
+    def exit_gracefully(num, stack):
+        """Defining exception raised on keyboard interrupt, sigterm and drawdown"""
+        event.set()
+        # And the position is currently opened
+        if position.is_open():
+            # Close every position
+            position.force_position_close()
+            logging.warning('POSITION CLOSED : EXIT')
+        logger.info('PROGRAM END')
+
+    signal.signal(signal.SIGTERM, exit_gracefully)
 
     # Entering into backtesting mode by default
     backtesting = True
@@ -122,13 +129,7 @@ def main():
 
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
-            event.set()
-            # And the position is currently opened
-            if position.is_open():
-                # Close every position
-                position.force_position_close()
-                logging.warning('POSITION CLOSED : EXIT')
-            logger.info('PROGRAM END')
+            exit_gracefully(1,1)
             return
 
 if __name__ == '__main__':
