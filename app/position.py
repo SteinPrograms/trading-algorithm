@@ -255,7 +255,7 @@ class Position:
                 history = self.get_sorted_decreased_history()
                 return history[int((len(history)-1)*0.05)]
 
-        DATA_LENGTH = 10
+        DATA_LENGTH = 20
         last_x_trades = deque(maxlen=DATA_LENGTH)
         history = History()
 
