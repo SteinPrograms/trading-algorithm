@@ -44,27 +44,22 @@ event = threading.Event()
 def time_updater(database:Database,position:Position):
     """Update server running time to console and database"""
     while not event.is_set():
-        # Clear console
-        # os.system('cls' if os.name == 'nt' else 'clear')
         output = str()
         # Print program running time in console
         timer = {
             'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
         }
-        for data, value__ in timer.items():
-            output += f"{data} : {value__} | "
+        # for data, value__ in timer.items():
+        #     output += f"{data} : {value__} | "
 
-        for data, value__ in position.statistics.items():
-            output+=f"{data} : {value__} | "
+        # for data, value__ in position.statistics.items():
+        #     output+=f"{data} : {value__} | "
 
-        print(output,end='\r')
+        # print(output,end='\r')
 
         # Update the data which gets posted to the database
         database.update_server_data(timer)
-        database.update_server_data({
-            'total_yield':position.total_yield,
-            'current_status':position.current_status,
-        })
+        database.update_server_data(position.statistics)
 
 
 
@@ -86,7 +81,7 @@ def main():
     database = Database()
 
     # Initializing the position
-    position = Position(backtesting=backtesting,symbol='SRM',database=database)
+    position = Position(backtesting=backtesting,symbol='SOL',database=database)
 
     # Recover the previous yield to update the total yield
     position.total_yield=1

@@ -84,27 +84,48 @@ class Database:
             data: dict,
         ):
         """Update server data to the queue for routine database upload"""
-        for data, value__ in data.items():
-            self.data[data]=value__
+        try:
+            for data, value__ in data.items():
+                self.data[data] = value__
+        except RuntimeError:
+            # Could be raised if data is changed during update
+            pass
 
-
-    @Routine(5)
+    @Routine(1)
     def routine_server_data_update(self):
         """Update server data very 5sec"""
         self.insert(
-            query="INSERT INTO server(id,current_status,total_yield,running_time) values("
+            query=""
+            "INSERT INTO server("
+            "id,"
+            "current_status,"
+            "total_yield,"
+            "running_time,"
+            "symbol,"
+            "current_position_time,"
+            "current_price,"
+            "open_price,"
+            "current_yield"
+            ") values("
             "'1',"
             f"'{self.data.get('current_status','close')}',"
             f"{self.data.get('total_yield',1)},"
-            f"'{self.data.get('running_time')}'"
+            f"'{self.data.get('running_time')}',"
+            f"'{self.data.get('symbol',None)}',"
+            f"'{self.data.get('current_position_time',None)}',"
+            f"{self.data.get('current_price',0)},"
+            f"{self.data.get('open_price',0)},"
+            f"{self.data.get('current_yield',0)}"
             ") "
             "ON CONFLICT (id) DO UPDATE "
-            f"SET current_status = '{self.data.get('current_status')}', "
-            f"total_yield = {self.data.get('total_yield',1)},"
-            f"running_time = '{self.data.get('running_time')}';"
+            f"SET "
+            f"current_status = '{self.data.get('current_status')}', "
+            f"total_yield = {self.data.get('total_yield',1)}, "
+            f"running_time = '{self.data.get('running_time')}', "
+            f"symbol='{self.data.get('symbol',None)}',"
+            f"current_position_time='{self.data.get('current_position_time',None)}',"
+            f"current_price={self.data.get('current_price',0)},"
+            f"open_price={self.data.get('open_price',0)},"
+            f"current_yield={self.data.get('current_yield',0)}"
+            ";"
         )
-
-if __name__ == "__main__":
-    db = Database()
-    while True:
-        db.update_server_data({"running_time":time.time()})

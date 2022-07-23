@@ -18,5 +18,7 @@ services:
     restart: always
     build:
       dockerfile: app.Dockerfile
+    volumes:
+      - ./logs:/usr/src/logs
     depends_on:
       - db

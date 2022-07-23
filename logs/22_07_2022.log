@@ -1,0 +1,105 @@
+2022-07-22 18:37:21,033 |     INFO | Starting trading algorithm
+2022-07-22 18:37:22,518 |     INFO | Initialized price at : 1.001
+2022-07-22 18:38:16,800 |     INFO | Starting trading algorithm
+2022-07-22 18:38:18,872 |     INFO | Initialized price at : 1.001
+2022-07-22 18:38:31,105 |     INFO | Starting trading algorithm
+2022-07-22 18:38:32,886 |     INFO | Initialized price at : 1.003
+2022-07-22 18:38:32,937 |     INFO | PROGRAM START
+2022-07-22 18:47:07,611 |     INFO | PROGRAM END
+2022-07-22 19:05:19,454 |     INFO | Starting trading algorithm
+2022-07-22 19:05:21,004 |     INFO | Initialized price at : 0.999
+2022-07-22 19:05:21,074 |     INFO | PROGRAM START
+2022-07-22 19:05:29,217 |     INFO | PROGRAM END
+2022-07-22 19:13:46,305 |     INFO | Starting trading algorithm
+2022-07-22 19:13:47,903 |     INFO | Initialized price at : 1.0
+2022-07-22 19:14:21,690 |     INFO | Starting trading algorithm
+2022-07-22 19:14:23,908 |     INFO | Initialized price at : 1.0
+2022-07-22 19:14:36,359 |     INFO | Starting trading algorithm
+2022-07-22 19:14:38,272 |     INFO | Initialized price at : 1.0
+2022-07-22 19:15:21,992 |     INFO | Starting trading algorithm
+2022-07-22 19:15:24,352 |     INFO | Initialized price at : 1.001
+2022-07-22 19:18:48,499 |     INFO | Starting trading algorithm
+2022-07-22 19:18:49,973 |     INFO | Initialized price at : 1.0
+2022-07-22 19:20:10,009 |     INFO | Starting trading algorithm
+2022-07-22 19:20:11,513 |     INFO | Initialized price at : 1.001
+2022-07-22 19:20:57,034 |     INFO | Starting trading algorithm
+2022-07-22 19:20:59,306 |     INFO | Initialized price at : 1.0
+2022-07-22 19:20:59,368 |     INFO | PROGRAM START
+2022-07-22 19:21:00,873 |     INFO | PROGRAM END
+2022-07-22 20:27:13,702 |     INFO | Starting trading algorithm
+2022-07-22 20:27:15,825 |     INFO | Initialized price at : 1.001
+2022-07-22 20:27:16,209 |     INFO | Starting trading algorithm
+2022-07-22 20:27:17,883 |     INFO | Initialized price at : 1.001
+2022-07-22 20:27:18,373 |     INFO | Starting trading algorithm
+2022-07-22 20:27:19,920 |     INFO | Initialized price at : 1.001
+2022-07-22 20:27:20,661 |     INFO | Starting trading algorithm
+2022-07-22 20:27:22,257 |     INFO | Initialized price at : 1.001
+2022-07-22 20:27:23,437 |     INFO | Starting trading algorithm
+2022-07-22 20:27:25,059 |     INFO | Initialized price at : 1.001
+2022-07-22 20:27:27,002 |     INFO | Starting trading algorithm
+2022-07-22 20:27:28,754 |     INFO | Initialized price at : 1.001
+2022-07-22 20:27:32,301 |     INFO | Starting trading algorithm
+2022-07-22 20:27:33,971 |     INFO | Initialized price at : 1.001
+2022-07-22 20:27:40,717 |     INFO | Starting trading algorithm
+2022-07-22 20:27:42,446 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:02,201 |     INFO | Starting trading algorithm
+2022-07-22 20:29:04,146 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:04,543 |     INFO | Starting trading algorithm
+2022-07-22 20:29:06,180 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:06,684 |     INFO | Starting trading algorithm
+2022-07-22 20:29:08,164 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:08,903 |     INFO | Starting trading algorithm
+2022-07-22 20:29:11,301 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:12,451 |     INFO | Starting trading algorithm
+2022-07-22 20:29:14,371 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:16,358 |     INFO | Starting trading algorithm
+2022-07-22 20:29:18,377 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:21,946 |     INFO | Starting trading algorithm
+2022-07-22 20:29:23,592 |     INFO | Initialized price at : 1.001
+2022-07-22 20:29:30,346 |     INFO | Starting trading algorithm
+2022-07-22 20:29:31,834 |     INFO | Initialized price at : 1.001
+2022-07-22 20:30:42,028 |     INFO | Starting trading algorithm
+2022-07-22 20:30:44,043 |     INFO | Initialized price at : 1.001
+2022-07-22 20:30:44,140 |     INFO | PROGRAM START
+2022-07-22 21:43:47,954 |     INFO | Starting trading algorithm
+2022-07-22 21:43:49,532 |     INFO | Initialized price at : 0.977
+2022-07-22 21:43:49,702 |     INFO | PROGRAM START
+2022-07-22 21:45:07,936 |     INFO | Starting trading algorithm
+2022-07-22 21:45:09,476 |     INFO | Initialized price at : 0.977
+2022-07-22 21:45:09,637 |     INFO | PROGRAM START
+2022-07-22 21:49:02,486 |     INFO | Starting trading algorithm
+2022-07-22 21:49:04,072 |     INFO | Initialized price at : 0.975
+2022-07-22 21:49:05,213 |     INFO | Starting trading algorithm
+2022-07-22 21:49:06,844 |     INFO | Initialized price at : 0.976
+2022-07-22 21:49:08,058 |     INFO | Starting trading algorithm
+2022-07-22 21:49:09,657 |     INFO | Initialized price at : 0.979
+2022-07-22 21:49:11,086 |     INFO | Starting trading algorithm
+2022-07-22 21:49:12,544 |     INFO | Initialized price at : 0.978
+2022-07-22 21:49:14,429 |     INFO | Starting trading algorithm
+2022-07-22 21:49:16,321 |     INFO | Initialized price at : 0.979
+2022-07-22 21:49:18,969 |     INFO | Starting trading algorithm
+2022-07-22 21:49:20,639 |     INFO | Initialized price at : 0.979
+2022-07-22 21:49:24,846 |     INFO | Starting trading algorithm
+2022-07-22 21:49:26,485 |     INFO | Initialized price at : 0.978
+2022-07-22 21:49:33,979 |     INFO | Starting trading algorithm
+2022-07-22 21:49:35,638 |     INFO | Initialized price at : 0.978
+2022-07-22 21:49:49,495 |     INFO | Starting trading algorithm
+2022-07-22 21:49:50,957 |     INFO | Initialized price at : 0.977
+2022-07-22 21:50:29,352 |     INFO | Starting trading algorithm
+2022-07-22 21:50:30,924 |     INFO | Initialized price at : 0.978
+2022-07-22 21:50:31,019 |     INFO | PROGRAM START
+2022-07-22 21:52:13,356 |     INFO | Starting trading algorithm
+2022-07-22 21:52:15,211 |     INFO | Initialized price at : 0.974
+2022-07-22 21:52:15,312 |     INFO | PROGRAM START
+2022-07-22 21:53:26,736 |     INFO | Starting trading algorithm
+2022-07-22 21:53:28,278 |     INFO | Initialized price at : 0.973
+2022-07-22 21:53:28,373 |     INFO | PROGRAM START
+2022-07-22 21:54:35,348 |     INFO | Starting trading algorithm
+2022-07-22 21:54:37,239 |     INFO | Initialized price at : 0.974
+2022-07-22 21:54:37,335 |     INFO | PROGRAM START
+2022-07-22 21:58:16,318 |     INFO | Starting trading algorithm
+2022-07-22 21:58:17,769 |     INFO | Initialized price at : 0.971
+2022-07-22 21:58:17,867 |     INFO | PROGRAM START
+2022-07-22 22:00:25,068 |     INFO | Starting trading algorithm
+2022-07-22 22:00:26,644 |     INFO | Initialized price at : 0.976
+2022-07-22 22:00:26,739 |     INFO | PROGRAM START

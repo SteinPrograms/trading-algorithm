@@ -67,8 +67,12 @@ class RealCommands:
                     logger.info("Attempt n° : %s",counter)
                     # Create the sell order with the whole quantity of asset
                     order = self.broker.place_order(symbol,"sell",0,quantity_crypto,'market')
-                    # If there is no msg it means the order is sent
-                    logger.info("SellingOrderApproval %s",order["msg"])
+                    if not "msg" in order:
+                        # If there is no msg it means the order is sent
+                        raise OrderException()
+                    
+
+                    logger.info("SellingOrderApproval error : %s",order["msg"])
                     time.sleep(0.2)
                     counter+=1
                     if counter ==10:
@@ -119,11 +123,11 @@ class RealCommands:
                 logger.info(error)
 
             # We test if there is a code error
-            if not order.get("msg",None):
+            if not "msg" in order:
                 break
 
             # If there is a code error, we log it and retry in 0.2s
-            logger.info("BuyOrderApproval",order["msg"])
+            logger.info("BuyOrderApproval error : %s",order["msg"])
             time.sleep(0.2)
 
             # If we exceed the maximum attempts without getting order approval
@@ -156,9 +160,3 @@ class RealCommands:
             except Exception as error:
                 logger.info(error)
                 time.sleep(0.2)
-
-if __name__ == '__main__':
-   #logger.info(RealCommands().broker.place_order("BTC/USD","sell",0,0.000556,'market'))
-    # Testing brokerconnection with buy/sell orders
-    logger.info(RealCommands().market_open("BTC/USD",False))
-    logger.info(RealCommands().market_close("BTC/USD",False))
