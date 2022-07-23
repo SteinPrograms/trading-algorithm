@@ -1,7 +1,11 @@
 """Module used for position management"""
 
+# Standard import
 import datetime
 import time
+from collections import deque
+
+# Local imports
 import settings
 from database import Database
 from brokerconnection import RealCommands
@@ -32,6 +36,7 @@ class Position:
         self.close_mode = None
         self.close_price = None
         self.statistics = {}
+        self.decision = "hodle"
         self.websocket = FtxWebsocketClient()
         while True:
             current_data = self.websocket.get_ticker(self.symbol)
@@ -134,7 +139,7 @@ class Position:
 
         # Stop loss
         # Close position :
-        if self.current_effective_yield < settings.RISK:
+        if self.current_effective_yield < 1-settings.RISK:
             self.close_price = self.open_price * settings.RISK
             if not self.backtesting:
                 RealCommands().market_close(self.symbol, backtesting=self.backtesting)
@@ -142,16 +147,17 @@ class Position:
             self.close_position()
             return
 
-        # Take profit on expected yield
+        # Take profit on expected yield and sell decision
         # Closing on take-profit :
         #   -> Check if the yield  is stronger  than the minimal yield considering fees and slippage
-        if self.current_effective_yield > 1+self.expected_yield:
-            self.close_price = self.current_price
-            if not self.backtesting:
-                RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
-            self.close_mode = "take-profit"
-            self.close_position()
-            return
+        if self.decision == "sell":
+            if self.current_effective_yield > 1+self.expected_yield:
+                self.close_price = self.current_price
+                if not self.backtesting:
+                    RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
+                self.close_mode = "take-profit"
+                self.close_position()
+                return
 
     def manage_position(self):
         """Manage position : look for selling or buying actions"""
@@ -162,12 +168,11 @@ class Position:
                 break
 
 
-
-
         self.statistics['symbol'] = self.symbol
         self.statistics['current_price'] = self.current_price
         self.statistics['current_status'] = self.current_status
-        self.statistics['total_yield'] = self.total_yield 
+        self.statistics['total_yield'] = self.total_yield
+        self.statistics['decision'] = self.decision
 
         # When the position is closed
         # looks for entry point
@@ -197,9 +202,6 @@ class Position:
             self.statistics['open_price'] = self.open_price
             self.statistics['current_yield'] = current_effective_yield
 
-
-
-
     def find_entry_point(self):
         """[summary]
 
@@ -210,8 +212,8 @@ class Position:
             [type]: [description]
         """
         try:
-            # The price dropped by the expected yield (it should recover ?)
-            if self.current_price/self.trigger_price<=1-self.expected_yield:
+            # Strong pump means buy decision
+            if self.decision == "buy":
                 if self.open_position():
                     return
 
@@ -220,6 +222,71 @@ class Position:
 
     def effective_yield_calculation(self,current_price, opening_price, fee):
         """Calculate the real yield considering fees and current price"""
-        r = float(current_price) / float(opening_price)
-        f = float(fee)
-        return r - (f + (1 - f) * r * f)
+        slope = float(current_price) / float(opening_price)
+        fee = float(fee)
+        return slope - (fee + (1 - fee) * slope * fee)
+
+    def market_memory(self):
+        """Should run in thread for market memory it updates the decision"""
+        def metrics(trades:deque):
+            """Gives volatilty for deque"""
+            prices = [trade['last'] for trade in trades]
+            return prices[-1]/prices[0]
+
+        class History:
+            """Class create to increase speed"""
+            values = deque(maxlen=50000)
+
+            def get_sorted_increased_history(self):
+                """Give back the history with pump (value>1) in sorted list"""
+                return sorted([value for value in self.values if value>1])
+
+            def get_sorted_decreased_history(self):
+                """Give back the history with dump (value<1) in sorted list"""
+                return sorted([value for value in self.values if value<1])
+
+            def get_highest_increase(self):
+                """Give back the high fork (95% biggest) of the pump list"""
+                history = self.get_sorted_increased_history()
+                return history[int((len(history)-1)*0.95)]
+
+            def get_highest_decrease(self):
+                """Give back the high fork (95% biggest) of the dump list"""
+                history = self.get_sorted_decreased_history()
+                return history[int((len(history)-1)*0.05)]
+
+        DATA_LENGTH = 10
+        last_x_trades = deque(maxlen=DATA_LENGTH)
+        history = History()
+
+        # Initialize the first data
+        while True:
+            previous_data  = self.websocket.get_ticker(self.symbol).copy()
+            if 'bid' in previous_data:
+                # remove time metric
+                previous_data.pop("time")
+                break
+        from __main__ import event
+        while not event.is_set():
+            current_data = self.websocket.get_ticker(self.symbol).copy()
+            if 'bid' in current_data:
+                # remove time metric
+                current_data.pop("time")
+                if previous_data.get("last") != current_data.get("last"):
+                    last_x_trades.append(current_data)
+                    previous_data = current_data
+                    # fully loaded
+                    if len(last_x_trades)==DATA_LENGTH:
+                        metric = metrics(last_x_trades)
+                        try:
+                            # current positive gap is stronger the usual one => Strong buys
+                            if metric > history.get_highest_increase() and len(history.values)>100:
+                                self.decision = "buy"
+                            # current negative gap is stronger the usual one => Strong sells
+                            elif metric < history.get_highest_decrease() and len(history.values)>100:
+                                self.decision = "sell"
+                            else:
+                                self.decision = "hodle"
+                        except IndexError:
+                            pass
+                        history.values.append(metrics(last_x_trades))

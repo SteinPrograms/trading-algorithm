@@ -10,6 +10,7 @@ __author__ = "Hugo Demenez"
 import sys
 import time
 import threading
+import signal
 from datetime import timedelta
 
 # Custom imports
@@ -22,6 +23,13 @@ from brokerconnection import RealCommands
 from database import Database
 from routine import Routine
 from logs import logger
+
+
+def docker_container_terminating():
+    """Defining exception raised on keyboard interrupt"""
+    raise KeyboardInterrupt()
+
+signal.signal(signal.SIGTERM, docker_container_terminating)
 
 
 # Register the starting date
@@ -96,6 +104,10 @@ def main():
     timer_thread = threading.Thread(target=time_updater, args=(database,position))
     timer_thread.start()
 
+    # Start position indicator
+    timer_thread = threading.Thread(target=position.market_memory, args=())
+    timer_thread.start()
+
     #Looping into trading program
     while True:
         # Must put everything under try block to correctly handle the exception
@@ -111,7 +123,6 @@ def main():
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
             event.set()
-            print('\n')
             # And the position is currently opened
             if position.is_open():
                 # Close every position

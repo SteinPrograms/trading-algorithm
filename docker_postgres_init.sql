@@ -15,13 +15,6 @@ CREATE TABLE server (
     current_position_time VARCHAR (255),
     current_price REAL NOT NULL,
     open_price REAL,
-    current_yield REAL
-);
-
-CREATE TABLE target 
-(
-    id SERIAL PRIMARY KEY,
-    symbol VARCHAR (255) NOT NULL,
-    buy_price REAL NOT NULL,
-    sell_price REAL NOT NULL
+    current_yield REAL,
+    decision VARCHAR (255)
 );
