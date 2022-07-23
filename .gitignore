@@ -1,7 +1,7 @@
 # python
 .venv
 __pycache__
-*.log
+logs
 # misc
 .DS_Store
 
