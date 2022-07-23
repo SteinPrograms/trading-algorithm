@@ -36,9 +36,9 @@ class Position:
         while True:
             current_data = self.websocket.get_ticker(self.symbol)
             if 'bid' in current_data:
-                # Initializing close price at starting program price
-                self.close_price = current_data.get('bid')
-                logger.info("Initialized price at : %s",self.close_price)
+                # Initializing the trigger_price at initialization price
+                self.trigger_price = current_data.get('bid')
+                logger.info("Initialized price at : %s",self.trigger_price)
                 break
 
     def is_open(self):
@@ -100,7 +100,6 @@ class Position:
                 )
         except DatabaseException as error:
             logger.error(error)
-        
 
 
     def force_position_close(self):
@@ -212,7 +211,7 @@ class Position:
         """
         try:
             # The price dropped by the expected yield (it should recover ?)
-            if self.current_price/self.close_price<=1-self.expected_yield:
+            if self.current_price/self.trigger_price<=1-self.expected_yield:
                 if self.open_position():
                     return
 

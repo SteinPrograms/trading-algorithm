@@ -63,3 +63,4 @@ file_handler.setFormatter(logging.Formatter(fmt))
 # Add both handlers to the logger
 logger.addHandler(stdout_handler)
 logger.addHandler(file_handler)
+logger.propagate = False
