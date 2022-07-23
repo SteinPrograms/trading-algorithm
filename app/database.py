@@ -1,8 +1,6 @@
 """SDK for the postgres database"""
-from datetime import datetime
 
 import os
-import time
 import psycopg2
 import psycopg2.extras
 from bot_exceptions import DatabaseException
@@ -13,7 +11,7 @@ from logs import logger
 try:
     from dotenv import load_dotenv
     load_dotenv()
-except:
+except ModuleNotFoundError:
     pass
 
 class Database:

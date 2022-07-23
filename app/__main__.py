@@ -44,7 +44,6 @@ event = threading.Event()
 def time_updater(database:Database,position:Position):
     """Update server running time to console and database"""
     while not event.is_set():
-        output = str()
         # Print program running time in console
         timer = {
             'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))

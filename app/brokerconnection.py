@@ -70,7 +70,6 @@ class RealCommands:
                     if not "msg" in order:
                         # If there is no msg it means the order is sent
                         raise OrderException()
-                    
 
                     logger.info("SellingOrderApproval error : %s",order["msg"])
                     time.sleep(0.2)
@@ -81,7 +80,7 @@ class RealCommands:
                     break
 
             # Now wait for the order to be filled.
-            while(True):
+            while True:
                 logger.info("Waiting for the order to be filled")
                 quantity_fiat = self.get_quantity_fiat()
                 ### Get here once fiat balance is successfully retrieved
