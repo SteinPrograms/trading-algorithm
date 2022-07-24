@@ -16,3 +16,7 @@ Entry and exit explanation :
     Calculation of the variation between trade 1 and trade final on agregation price change
     If there is a higher price change than usual in long positions (in the top 95% of the volatitlty registered) -> buy entry
     If there is ____ in short positions -> exit trigger
+
+What doesn't work : 
+    Momentum (no difference between positive and negative momentum)
+    
