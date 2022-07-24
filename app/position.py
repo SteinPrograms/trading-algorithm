@@ -157,7 +157,7 @@ class Position:
             if self.current_effective_yield > 1+self.expected_yield:
                 self.close_price = self.current_price
                 if not self.backtesting:
-                    RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
+                    order = RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
                     avg_fill_price = order.get('order',{}).get('avgFillPrice',None)
                     if not avg_fill_price is None:
                         self.close_price = avg_fill_price
