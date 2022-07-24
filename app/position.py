@@ -3,6 +3,7 @@
 # Standard import
 import datetime
 import time
+import numpy as np
 from collections import deque
 
 # Local imports
@@ -235,31 +236,30 @@ class Position:
     def market_memory(self):
         """Should run in thread for market memory it updates the decision"""
         def metrics(trades:deque):
-            """Gives volatilty for deque"""
+            """Gives volatilty for given trades"""
             prices = [trade['last'] for trade in trades]
-            return prices[-1]/prices[0]
+            volatilty = np.sqrt(
+                            np.mean([
+                                np.power(prices[index]-prices[index+1],2)
+                                for index in range(len(prices)-1)
+                            ])
+                        )
+            return prices[-1]/prices[0],volatilty
 
         class History:
             """Class create to increase speed"""
             values = deque(maxlen=50000)
 
-            def get_sorted_increased_history(self):
-                """Give back the history with pump (value>1) in sorted list"""
-                return sorted([value for value in self.values if value>1])
+            def get_sorted_momentum_history(self):
+                """Give back the sorted history of momentum records inside values"""
+                return sorted([momentum for _,momentum in self.values])
 
-            def get_sorted_decreased_history(self):
-                """Give back the history with dump (value<1) in sorted list"""
-                return sorted([value for value in self.values if value<1])
-
-            def get_highest_increase(self):
-                """Give back the high fork (95% biggest) of the pump list"""
-                history = self.get_sorted_increased_history()
+            def get_highest_momentum(self):
+                """Give back the high fork (95% biggest) of the momentum records"""
+                history = self.get_sorted_momentum_history()
                 return history[int((len(history)-1)*0.95)]
 
-            def get_highest_decrease(self):
-                """Give back the high fork (95% biggest) of the dump list"""
-                history = self.get_sorted_decreased_history()
-                return history[int((len(history)-1)*0.05)]
+
 
         DATA_LENGTH = 20
         last_x_trades = deque(maxlen=DATA_LENGTH)
@@ -285,13 +285,17 @@ class Position:
                     previous_data = current_data
                     # fully loaded
                     if len(last_x_trades)==DATA_LENGTH:
-                        metric = metrics(last_x_trades)
+                        gap,momentum = metrics(last_x_trades)
                         try:
                             # current positive gap is stronger the usual one => Strong buys
-                            if metric > history.get_highest_increase() and len(history.values)>1000:
+                            if (momentum > history.get_highest_momentum() and
+                                len(history.values)>1000 and
+                                    gap > 1):
                                 self.decision = "buy"
                             # current negative gap is stronger the usual one => Strong sells
-                            elif metric < history.get_highest_decrease() and len(history.values)>1000:
+                            elif (momentum > history.get_highest_momentum() and
+                                len(history.values)>1000 and
+                                    gap < 1):
                                 self.decision = "sell"
                             else:
                                 self.decision = "hodle"
