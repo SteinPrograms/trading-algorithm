@@ -3,8 +3,9 @@
 # Standard import
 import datetime
 import time
-import numpy as np
 from collections import deque
+from datetime import timedelta
+import numpy as np
 
 # Local imports
 import settings
@@ -92,7 +93,7 @@ class Position:
                 order_data = RealCommands().get_order_status(self.identifier)
                 logger.info("Close order success : %s",order_data)
                 self.database.add_position(
-                    time=self.opening_time,
+                    time=str(timedelta(seconds=round(time.time(), 0) - round(self.opening_time, 0))),
                     symbol=self.symbol,
                     yield_value=self.effective_yield,
                     wallet_value=order_data.get('avgFillPrice',0)*order_data.get('filledSize',0),
