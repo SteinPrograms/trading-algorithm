@@ -6,7 +6,7 @@ import Right from '../components/right'
 import Navbar from '../components/navbar'
 
 
-var endpoint = "http://localhost:8080"
+var endpoint = process.env.IP+":8080"
 
 export default function Home() {
   const fetcher = (...args) => fetch(...args).then((res) => res.json());

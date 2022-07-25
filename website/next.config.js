@@ -12,3 +12,14 @@ module.exports = {
     includePaths: [path.join(__dirname, 'styles')],
   },
 }
+
+module.exports = {
+  async rewrites() {
+      return [
+        {
+          source: '/api/:path*',
+          destination: 'https://api.example.com/:path*',
+        },
+      ]
+    },
+};
