@@ -144,9 +144,7 @@ class Position:
             self.close_price = self.open_price * (1+settings.RISK)
             if not self.backtesting:
                 order = RealCommands().market_close(self.symbol, backtesting=self.backtesting)
-                avg_fill_price = order.get('order',{}).get('avgFillPrice',None)
-                if not avg_fill_price is None:
-                    self.close_price = avg_fill_price
+
             self.close_mode = "stop-loss"
             self.close_position()
             return
@@ -159,9 +157,7 @@ class Position:
                 self.close_price = self.current_price
                 if not self.backtesting:
                     order = RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
-                    avg_fill_price = order.get('order',{}).get('avgFillPrice',None)
-                    if not avg_fill_price is None:
-                        self.close_price = avg_fill_price
+
                 self.close_mode = "take-profit"
                 self.close_position()
                 return
