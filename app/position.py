@@ -248,7 +248,8 @@ class Position:
 
         class History:
             """Class create to increase speed"""
-            values = deque(maxlen=50000)
+            LENTGTH = 10000
+            values = deque(maxlen=LENTGTH)
 
             def get_sorted_momentum_history(self):
                 """Give back the sorted history of momentum records inside values"""
@@ -261,7 +262,7 @@ class Position:
 
 
 
-        DATA_LENGTH = 20
+        DATA_LENGTH = 100
         last_x_trades = deque(maxlen=DATA_LENGTH)
         history = History()
 
@@ -280,21 +281,21 @@ class Position:
             if 'bid' in current_data:
                 # remove time metric
                 current_data.pop("time")
-                if previous_data.get("last") != current_data.get("last"):
+                if previous_data != current_data:
                     last_x_trades.append(current_data)
                     previous_data = current_data
                     # fully loaded
                     if len(last_x_trades)==DATA_LENGTH:
                         gap,momentum = metrics(last_x_trades)
                         try:
-                            # current positive gap is stronger the usual one => Strong buys
+                            # current positive momentum is stronger than 95% of usual one => Strong buys
                             if (momentum > history.get_highest_momentum() and
-                                len(history.values)>1000 and
+                                len(history.values)>=history.LENTGTH and
                                     gap > 1):
                                 self.decision = "buy"
-                            # current negative gap is stronger the usual one => Strong sells
+                            # current negative momentum is stronger than 95% usual one => Strong sells
                             elif (momentum > history.get_highest_momentum() and
-                                len(history.values)>1000 and
+                                len(history.values)>=history.LENTGTH and
                                     gap < 1):
                                 self.decision = "sell"
                             else:
