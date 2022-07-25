@@ -11,7 +11,7 @@ import Navbar from '../components/navbar'
 export default function Home() {
   var endpoint = process.env.API_ENDPOINT
   if (!endpoint){
-    endpoint = "localhost:8080"
+    endpoint = "http://51.195.233.67:8080"
   }
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
