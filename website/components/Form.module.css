@@ -1,0 +1,133 @@
+
+
+.form{
+  width: 100%;
+  height: 100%;
+  align-self: center;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: 10% 10% 5% 10% 5% 10% 10%;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+.symbolSelection{
+  grid-area: 2 / 1 / 3 / 2;
+  width:80%;
+  margin: 0 auto;
+}
+
+.buyPriceTarget{
+  grid-area: 3 / 1 / 4 / 2;
+  align-self: center;
+  background: url("../public/up.svg") left / contain no-repeat;
+  background-position-x: 5%;
+  background-color: var(--lightBlack);
+  background-size: 10%;
+  border-radius: 5px;
+  border:none;
+  box-shadow: 0px 0px 34px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  height: 100%;
+  width: 80%;
+  margin:0 auto;
+  color:var(--white);
+}
+
+.sellPriceTarget{
+  grid-area: 5 / 1 / 6 / 2;
+  align-self: center;
+  
+  background: url("../public/down.svg") left / contain no-repeat;
+  background-color: var(--lightBlack);
+  background-position-x: 5%;
+  background-size: 10%;
+  border-radius: 5px;
+  border:none;
+  box-shadow: 0px 0px 34px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  height: 100%;
+  width: 80%;
+  margin:0 auto;
+  color:var(--white);
+}
+
+
+
+.updateButton{
+  text-align: center;
+  width: 80%;
+  margin:0 auto;
+  grid-area: 7 / 1 / 8 / 2;
+  height: 100%;
+  align-self: center;
+  background:var(--blue);
+  border-radius: 5px;
+  text-decoration: none;
+  color: var(--white);
+  border:none;
+  box-shadow: 0px 0px 34px rgba(0, 0, 0, 0.1);
+  font-size: large;
+}
+
+@media (max-width: 600px) {
+  .form{
+    width: 100%;
+    height: 100%;
+    display:flex;
+    flex-direction: column;
+    gap:10px;
+  }
+  
+  
+  
+  .priceTarget{
+    align-self: center;
+    background: url("../public/up.svg") left / contain no-repeat;
+    background-position-x: 5%;
+    background-color: var(--lightBlack);
+    background-size: 10%;
+    border-radius: 5px;
+    border:none;
+    box-shadow: 0px 0px 34px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    height: 100%;
+    width: 50%;
+    margin:0 auto;
+    color:var(--white);
+  }
+  .yieldTarget{
+    grid-area: 4 / 1 / 5 / 2;
+    align-self: center;
+    
+    background: url("../public/down.svg") left / contain no-repeat;
+    background-color: var(--lightBlack);
+    background-position-x: 5%;
+    background-size: 10%;
+    border-radius: 5px;
+    border:none;
+    box-shadow: 0px 0px 34px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    height: 100%;
+    width: 50%;
+    margin:0 auto;
+    color:var(--white);
+  }
+  
+  .updateButton{
+    text-align: center;
+    width: 20%;
+    margin:0 auto;
+    grid-area: 6 / 1 / 7 / 2;
+    height: 100%;
+    align-self: center;
+    background:var(--blue);
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--white);
+    border:none;
+    box-shadow: 0px 0px 34px rgba(0, 0, 0, 0.1);
+    font-size: small;
+  }
+}
+

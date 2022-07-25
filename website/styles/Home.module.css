@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+
+.container {
+  /* lightBlack */
+  --lightBlack: #1C1F24;
+  /* Black */
+  --black: #121418;
+  /* white */
+  --white: #FFFFFF;
+  --box-shadow: 0px 0px 0px rgba(255, 255, 255, 0.1);
+  /* Gray */
+  --gray: #DDDDDD;
+  /* Green */
+  --green: #00DE9D;
+  /* Red */
+  --red: #ED7D73;
+  /* Blue */
+  --blue: #2E7CF6;
+
+  --border-radius:5px;
+  position:absolute;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  font-family: 'Open Sans','Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  overflow: hidden;
+}
+
+
+.main {
+  padding:0;
+  margin:0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: normal;
+  width: 100vw;
+  height: 100vh;
+}
+
+.navbar {
+  background: var(--black);
+  display: grid;
+  height:10%;
+  width: 100%;
+  grid-template-columns: 20% 10% 15% 5% 15% 5% 15% 10% 5%;
+  grid-template-rows: 100%;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  border-bottom: 1px solid gray;
+  overflow:hidden;
+  align-items: center;
+
+}
+
+
+
+.left {
+  background: var(--black);
+  width:20vw;
+  height:90%;
+  display: block;
+  flex-basis: auto;
+  align-self: auto;
+  border-right: 1px solid gray;
+}
+
+.right {
+  background: var(--lightBlack);
+  flex:1;
+  display: grid;
+  grid-template-columns: 5% 27% 4.5% 27% 4.5% 27% 5%;
+  grid-template-rows: 10% 40% 2.5% 40% 2.5%;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+
+
+
+@media (max-width: 600px) {
+  .main {
+    
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 0.5fr 1fr 4fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    overflow: hidden;
+    gap:20px;
+    background: var(--black);
+    }
+    
+    .navbar { 
+      display: grid;
+      height:100%;
+      width: 100%;
+      grid-template-columns: 100%;
+      grid-template-rows: 100%;
+      grid-column-gap: 0px;
+      grid-row-gap: 0px;
+      border:none;
+      background: var(--black);
+      grid-area: 1 / 1 / 2 / 2; 
+      width: 100%;
+      height:100%
+    }
+
+    .left { 
+      background: var(--black);
+      width:100%;
+      height:100%;
+      grid-area: 2 / 1 / 3 / 2; 
+    }
+
+    .right {
+      height:100%;
+      width:100%;
+      background: var(--lightBlack);
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(4, 50%);
+      gap:20px;
+      grid-area: 3 / 1 / 4 / 2; 
+      overflow: scroll;
+    }
+}
+

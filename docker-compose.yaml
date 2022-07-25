@@ -17,7 +17,7 @@ services:
       - .env
     restart: always
     build:
-      dockerfile: app.Dockerfile
+      dockerfile: ./app/Dockerfile
     volumes:
       - ./logs:/usr/src/logs
     depends_on:
@@ -27,7 +27,7 @@ services:
     env_file:
       - .env
     build:
-      dockerfile: api.Dockerfile
+      dockerfile: ./api/Dockerfile
     restart: always
     depends_on:
       - db
@@ -35,7 +35,8 @@ services:
       - "8080:8080"
 
   web:
-    image: website
+    build:
+      dockerfile: ./website/Dockerfile
     restart: always
     depends_on:
       - api

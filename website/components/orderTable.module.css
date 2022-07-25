@@ -1,0 +1,23 @@
+.tableWrapper {
+  position:relative;
+}
+.tableScroll {
+  height:200px;
+  overflow-y:auto;  
+  margin-top:20px;
+}
+.tableWrapper table {
+  width:100%;
+  text-align:center;
+  
+}
+.tableWrapper table * {
+  scroll-behavior: smooth;
+  color:white;
+
+}
+.tableWrapper table thead th .text {
+  position:absolute;   
+  top:-20px;
+  text-indent:-20px;
+}

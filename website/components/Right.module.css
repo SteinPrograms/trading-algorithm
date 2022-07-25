@@ -1,0 +1,106 @@
+.doughnut {
+  background:var(--black);
+  color:var(--white);
+  border-radius:var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding-top:1rem;
+  overflow: hidden;
+  grid-area: 2 / 2 / 3 / 3;
+}
+
+.header{
+  color:var(--white);
+  grid-area: 1 / 2 / 2 / 7;
+}
+
+.orders{
+  grid-area: 4 / 2 / 5 / 5;
+  background:var(--black);
+  border-radius:var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.orderTitle{
+  margin:1rem 1rem;
+  color:var(--white);
+}
+
+.chart{
+  grid-area: 2 / 4 / 3 / 7;
+  
+  background:var(--black);
+  border-radius:var(--border-radius);
+  box-shadow: var(--box-shadow);
+  position:relative;
+}
+
+.console{
+  grid-area: 4 / 6 / 5 / 7;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  overflow: auto;
+  background:var(--black);
+  color:var(--green);
+  border-radius:var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.console p{
+  padding-left: 1rem;
+}
+@media (max-width: 600px) {
+
+  
+
+  .doughnut {
+    margin:1rem 1rem;
+    background:var(--black);
+    color:var(--white);
+    border-radius:var(--border-radius);
+    box-shadow: var(--box-shadow);
+    grid-area: 1 / 1 / 2 / 2;
+  }
+  
+  .header{
+    display:none;
+  }
+  
+  .orders{
+    overflow:auto;
+    margin:1rem 1rem;
+    grid-area: 2 / 1 / 3 / 2;
+  }
+  
+  .orderTitle{
+    margin:1rem 1rem;
+    color:var(--white);
+  }
+  
+  .chart{
+    margin:1rem 1rem;
+    grid-area: 3 / 1 / 4 / 2;
+    
+    background:var(--black);
+    border-radius:var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+  
+  .console{
+    margin:1rem 1rem;
+    grid-area: 4 / 1 / 5 / 2; 
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    overflow: auto;
+    background:var(--black);
+    color:var(--green);
+    border-radius:var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+}
+
