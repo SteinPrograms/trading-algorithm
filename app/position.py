@@ -280,7 +280,7 @@ class Position:
             if 'bid' in current_data:
                 # remove time metric
                 current_data.pop("time")
-                if previous_data.get("last") != current_data.get("last"):
+                if previous_data != current_data:
                     last_x_trades.append(current_data)
                     previous_data = current_data
                     # fully loaded
