@@ -35,6 +35,8 @@ services:
       - "8080:8080"
 
   web:
+    env_file:
+      - .env
     build:
       dockerfile: ./website/Dockerfile
     restart: always
