@@ -6,7 +6,7 @@ import Right from '../components/right'
 import Navbar from '../components/navbar'
 
 
-var endpoint = process.env.API_ENDPOINT
+var endpoint = String.toString(process.env.API_ENDPOINT)
 
 export default function Home() {
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
