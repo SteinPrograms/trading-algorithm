@@ -4,7 +4,7 @@ FROM node
 WORKDIR /usr/src
 
 # Adding files
-ADD . .
+ADD ./website .
 
 # Installing dependencies 
 RUN npm i

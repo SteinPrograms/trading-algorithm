@@ -5,13 +5,10 @@ FROM python:3.9
 WORKDIR /code
 
 # 
-COPY requirements.txt /code/requirements.txt
+ADD ./api /code/app
 
 # 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /code/app/requirements.txt
 
-# 
-COPY . /code/app
-
-# 
+#
 CMD ["python", "/code/app/main.py"]

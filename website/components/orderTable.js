@@ -7,7 +7,7 @@ export default function OrderTable({props}){
                 <table>
                     <thead>
                     <tr>
-                        <th><span className={text}>Price</span></th>
+                        <th><span className={text}>Symbol</span></th>
                         <th><span className={text}>Amount</span></th>
                         <th><span className={text}>Total</span></th>
                     </tr>
