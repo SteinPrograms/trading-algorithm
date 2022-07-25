@@ -143,8 +143,7 @@ class Position:
         if self.current_effective_yield < 1-settings.RISK:
             self.close_price = self.open_price * (1+settings.RISK)
             if not self.backtesting:
-                order = RealCommands().market_close(self.symbol, backtesting=self.backtesting)
-
+                RealCommands().market_close(self.symbol, backtesting=self.backtesting)
             self.close_mode = "stop-loss"
             self.close_position()
             return
@@ -156,8 +155,7 @@ class Position:
             if self.current_effective_yield > 1+self.expected_yield:
                 self.close_price = self.current_price
                 if not self.backtesting:
-                    order = RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
-
+                    RealCommands().market_close(symbol=self.symbol, backtesting=self.backtesting)
                 self.close_mode = "take-profit"
                 self.close_position()
                 return
