@@ -1,7 +1,7 @@
 """Global Settings"""
 
 import os
-from broker import FTX
+
 
 
 BACKTESTING = False
