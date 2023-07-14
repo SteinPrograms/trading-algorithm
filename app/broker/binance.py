@@ -1,7 +1,3 @@
-"""Brokerage connection module
-"""
-
-
 import os
 from dotenv import load_dotenv
 from binance.spot import Spot

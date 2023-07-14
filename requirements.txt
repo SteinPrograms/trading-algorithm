@@ -1,4 +1,3 @@
 python-dotenv
 requests
-dydx-v3-python
 binance-connector
