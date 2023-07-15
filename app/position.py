@@ -100,8 +100,6 @@ class Position:
                 )
         except DatabaseException as error:
             logger.error(error)
-        
-
 
     def force_position_close(self):
         """Force position to close at marketprice"""

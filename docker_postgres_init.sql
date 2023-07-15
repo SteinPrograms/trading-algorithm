@@ -25,3 +25,12 @@ CREATE TABLE target
     buy_price REAL NOT NULL,
     sell_price REAL NOT NULL
 );
+
+CREATE TABLE logs (
+    id SERIAL PRIMARY KEY,
+    log_level REAL NULL,
+    log_levelname VARCHAR (255) NOT NULL,
+    log_content VARCHAR (2048) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    created_by VARCHAR (255) NOT NULL,
+);

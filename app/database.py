@@ -85,8 +85,8 @@ class Database:
         ):
         """Update server data to the queue for routine database upload"""
         try:
-            for data, value__ in data.items():
-                self.data[data] = value__
+            for content, _value in data.items():
+                self.data[content] = _value
         except RuntimeError:
             # Could be raised if data is changed during update
             pass
