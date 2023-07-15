@@ -14,15 +14,11 @@ from datetime import timedelta
 
 # Custom imports
 import logging
-from broker import settings
-
 from bot_exceptions import DrawdownException
 from position import Position
-from brokerconnection import RealCommands
 from database import Database
 from routine import Routine
-from logs import logger
-
+import broker
 
 # Register the starting date
 START_TIME = time.time()
@@ -33,7 +29,7 @@ def testing_connection():
 
     return: Exits the python run if the connection fails
     """
-    if not RealCommands().test_connection():
+    if not broker.BinanceCommands.test_connection():
         logging.error("Connection failed")
         sys.exit()
 
