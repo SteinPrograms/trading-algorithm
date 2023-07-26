@@ -16,23 +16,24 @@ from dotenv import load_dotenv
 from binance.spot import Spot
 from binance.error import ClientError
 
-
-
 class BinanceCommands():
     """Binance SDK"""
 
     @dataclasses.dataclass
     class Order:
         """ORDER CONSTRUCTOR"""
-        open_price : float
+        price : float
+        order_id : str
 
     def __init__(self):
         """Initiate the connection to the broker"""
         load_dotenv()
         # Read API keys from environment variables
         api_key = os.environ.get('API_KEY')
-        api_secret = os.environ.get('API_SECRET')
-        self.client = Spot(api_key, api_secret)
+        private_key = os.environ.get('API_SECRET')
+        with open(private_key, 'rb') as f:
+            private_key = f.read()
+        self.client = Spot(api_key = api_key, private_key=private_key)
 
     def test_connection(self):
         """Test the connection to the broker"""
@@ -42,32 +43,84 @@ class BinanceCommands():
         except ClientError:
             return False
 
-    def get_order_status(self, order_id):
+    def get_order_status(self, symbol, order_id):
         """Check if order is filled"""
-        return self.client.get_order(symbol="BTCUSDT", orderId=order_id)
+        return self.client.get_order(symbol=symbol, orderId=order_id)
 
     def get_balances(self):
-        """Get the current balances to place order"""
-        self.client.get_open_orders()
-        return self.client.account_snapshot(
-            type="SPOT",
-        ).get("snapshotVos")[0].get("data").get("balances")
+        """Get the current balances"""
+        return self.client.user_asset()
 
-    def market_open(self, symbol) -> Order:
+    def get_balance(self, asset)->float:
+        """Get the current balance of asset to place order"""
+        return self.client.user_asset(asset=asset)[0]
+
+    def market_open(self, quote,asset) -> Order:
         """Place an order"""
+        quantity,_ = self.calculate_order_parameters(quote=quote,asset=asset)
+
         return self.client.new_order(
-            symbol=symbol,
+            symbol=f"{asset}{quote}",
             side="BUY",
             type="MARKET",
-            quantity="0.001")
+            quantity=quantity,
+            newClientOrderId = "open",
+        )
 
-    def market_close(self, symbol):
+    def market_close(self, quote,asset) -> Order:
         """Place an order"""
+
+        # Calculate the quantity from balance (round to lower bound (5$))
+        _,quantity = self.calculate_order_parameters(quote=quote,asset=asset)
+        print("quantity",quantity)
         return self.client.new_order(
-            symbol=symbol,
+            symbol=f"{asset}{quote}",
             side="SELL",
             type="MARKET",
-            quantity="0.001")
+            quantity=quantity,
+            newClientOrderId = "close",
+        )
+
+    def get_fee(self,symbol:str=None):
+        """Get the current fee"""
+        if symbol:
+            return self.client.trade_fee(symbol=symbol)
+        return self.client.trade_fee()
+
+    def calculate_order_parameters(self,*,quote:str,asset:str=None):
+        """Calculate the buying power from the balance"""
+        prices = self.get_prices(asset=asset,quote=quote)
+        balances = self.get_balances()
+        for balance in balances:
+            if balance.get("asset") == quote:
+                balance_quote = float(balance.get("free"))
+            if balance.get("asset") == asset:
+                balance_asset = float(balance.get("free"))
+        
+        for _filter in self.get_precision(asset=asset,quote=quote).get("filters"):
+            if _filter.get("filterType") == "LOT_SIZE":
+                step_size = _filter.get("stepSize")
+                precision = step_size.find('1')-1
+                break
+        
+        precisions = self.get_precision(asset=asset,quote=quote).get("filters")
+        precision_quote,precision_asset = precisions.get("quoteAssetPrecision"),precisions.get('baseAssetPrecision')
+        
+        quantity_quote = round(float((balance_quote))/float(prices.get("bidPrice")),precision_asset)
+        quantity_asset = float(str(balance_asset)[:2+precision])
+        return quantity_quote,quantity_asset
+
+    def get_prices(self,asset,quote):
+        """Get the current price"""
+        return self.client.book_ticker(symbol=f"{asset}{quote}")
+
+    def get_precision(self,*,asset,quote):
+        """Get the precision of the asset"""
+        return self.client.exchange_info(symbol=f"{asset}{quote}").get("symbols")[0]
 
 from pprint import pprint
-pprint(BinanceCommands().get_balances())
+# pprint(BinanceCommands().get_precision(asset="BTC",quote="EUR"))
+# pprint(BinanceCommands().market_open(asset="BTC",quote="EUR"))
+# pprint(BinanceCommands().market_close(asset="BTC",quote="EUR"))
+
+pprint(BinanceCommands().calculate_order_parameters(asset="BTC",quote="EUR"))

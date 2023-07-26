@@ -2,41 +2,65 @@
 
 
 import time
+import dataclasses
 
+from datetime import datetime
 from database import Database
-from bot_exceptions import DatabaseException
 from broker import BinanceCommands
+
+@dataclasses.dataclass
+class Prices:
+    """Differents prices used to monitor position
+    """
+    open : float = None
+    close : float = None
+    highest : float = None
+    lowest : float = None
+    take_profit : float = None
+    stop_loss : float = None
+
+@dataclasses.dataclass
+class Times:
+    """Differents prices used to monitor position
+    """
+    open : datetime = None
+    close : datetime = None
+
+@dataclasses.dataclass
+class Settings:
+    """Differents prices used to monitor position
+    """
+    status : str = None
+    symbol : str = None
+    fee : float = None
+    risk : float = None
+    exit_mode : str = None
+    backtesting : bool = None
+
 
 class Position:
     """This class is used to store all the data used to create orders and to make the calculation.
     Defaults : backtesting is True and symbol is 'BTC'
     """
-    def __init__(self,*,backtesting : bool = True,symbol : str = 'BTC',database: Database):
-        self.symbol = f'{symbol}/{settings.BASE_ASSET}'
-        self.status='close'
-        self.effective_yield = 1 # Yield considering fees and slippage
-        self.highest_yield=1 # Highest yield reached
-        self.open_price = None
-        self.close_price = None
-        self.current_price = None
-        self.highest_price = None
-        self.lowest_price = None
-        self.close_mode = None
-        self.opening_time = None
+    def __init__(self,*,symbol : str):
+        self.settings = Settings(symbol=symbol)
+        self.prices = Prices()
+        self.times = Times()
 
     def open_position(self):
         """This function send an open order to the broker, with the opening price,
         and then save the data inside the class Position.
         """
-        # Create a new order at market price
-        order = BinanceCommands().market_open(self.symbol)
-        # Setting highest price and lowest price to the opening price
-        self.open_price,self.highest_price,self.lowest_price = order.open_price
-        # Changing status to open
-        self.status = 'open'
-        self.opening_time = time.time()
 
-        return order
+        # Create a new order at market price
+        open_order = BinanceCommands().market_open(self.settings.status)
+        # Setting highest price and lowest price to the opening price
+        self.prices.open,self.prices.highest,self.prices.lowest = open_order.price
+        # Changing status to open
+        self.settings.status = 'open'
+        self.times.open = time.time()
+
+        return open_order
 
 
     def close_position(self):
@@ -44,25 +68,10 @@ class Position:
         save the database inside the database
         """
 
-        BinanceCommands().market_close(self.symbol)
-
-        self.status = 'close'
-        self.effective_yield = self.effective_yield_calculation(
-                                    self.close_price,
-                                    self.open_price,
-                                    settings.FEE,
-                                )
-
-
-    def force_position_close(self):
-        """Force position to close at marketprice"""
-        self.close_price = self.current_price
-        if not self.backtesting:
-            order = RealCommands().market_close(self.symbol, backtesting=self.backtesting)
-            logger.debug(order)
-        self.close_mode = "force-close"
-        self.close_position()
-
+        close_order = BinanceCommands().market_close(self.settings.symbol)
+        self.settings.status = 'close'
+        self.times.close = time.time()
+        return close_order
 
     def monitor_position(self):
         """
@@ -70,38 +79,34 @@ class Position:
         """
 
         # Updating highest_price
-        if self.current_price > self.highest_price:
-            self.highest_price = self.current_price
+        if self.prices.current > self.prices.highest:
+            self.prices.highest = self.prices.current
 
         # Updating lowest_price
-        if self.current_price < self.lowest_price:
-            self.lowest_price = self.current_price
+        if self.prices.current < self.prices.lowest:
+            self.prices.lowest = self.prices.current
 
         # Calculating current effective_yield
-        self.effective_yield = self.effective_yield_calculation(
-                                            current_price=self.current_price,
-                                            opening_price=self.open_price,
-                                            fee=settings.FEE,
-                                        )
+        effective_yield = self.effective_yield_calculation(
+            current_price=self.prices.current,
+            opening_price=self.prices.open,
+            fee=self.settings.fee,
+        )
 
         # Stop loss
         # Close position :
-        if self.effective_yield < settings.RISK:
-            self.close_price = self.open_price * settings.RISK
-            if not self.BACKTESTING:
-                broker.BinanceCommands().market_close(symbol=self.symbol, backtesting=self.BACKTESTING)
-            self.close_mode = "stop-loss"
+        if effective_yield < self.settings.risk:
+            self.prices.close = self.prices.open * self.settings.risk
+            self.settings.exit_mode = "stop-loss"
             self.close_position()
             return
 
-        # Take profit on expected yield
+        # Take profit
         # Closing on take-profit :
         #   -> Check if the yield  is stronger  than the minimal yield considering fees and slippage
-        if self.current_effective_yield > 1+self.expected_yield:
-            self.close_price = self.current_price
-            if not self.BACKTESTING:
-                RealCommands().market_close(symbol=self.symbol, backtesting=self.BACKTESTING)
-            self.close_mode = "take-profit"
+        if self.prices.current > self.prices.take_profit :
+            self.prices.close = self.prices.current
+            self.settings.exit_mode = "take-profit"
             self.close_position()
             return
 

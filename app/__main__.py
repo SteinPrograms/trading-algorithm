@@ -29,7 +29,7 @@ def testing_connection():
 
     return: Exits the python run if the connection fails
     """
-    if not broker.BinanceCommands.test_connection():
+    if not broker.test_connection():
         logging.error("Connection failed")
         sys.exit()
 
