@@ -1,4 +1,3 @@
 python-dotenv
 requests
-binance-connector
 psycopg2-binary

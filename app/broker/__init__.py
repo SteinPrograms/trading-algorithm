@@ -24,9 +24,16 @@ class BinanceCommands():
         """ORDER CONSTRUCTOR"""
         price : float
         order_id : str
+        def __init__(price:float,order_id:str):
+            self.price = price
+            self.order_id = order_id
 
-    def __init__(self):
+    def __init__(self,backtesting):
         """Initiate the connection to the broker"""
+        if backtesting:
+            self.client = Spot()
+            self.backtesting = backtesting
+            return
         load_dotenv()
         # Read API keys from environment variables
         api_key = os.environ.get('API_KEY')
@@ -57,7 +64,11 @@ class BinanceCommands():
 
     def market_open(self, quote,asset) -> Order:
         """Place an order"""
+        if self.backtesting:
+            return Order(price=self.get_prices(asset,quote))
+
         quantity,_ = self.calculate_order_parameters(quote=quote,asset=asset)
+
 
         return self.client.new_order(
             symbol=f"{asset}{quote}",
@@ -70,7 +81,7 @@ class BinanceCommands():
     def market_close(self, quote,asset) -> Order:
         """Place an order"""
 
-        # Calculate the quantity from balance (round to lower bound (5$))
+        # Calculate the quantity from balance (only use 99% of available balance)
         _,quantity = self.calculate_order_parameters(quote=quote,asset=asset)
         print("quantity",quantity)
         return self.client.new_order(
@@ -117,10 +128,3 @@ class BinanceCommands():
     def get_precision(self,*,asset,quote):
         """Get the precision of the asset"""
         return self.client.exchange_info(symbol=f"{asset}{quote}").get("symbols")[0]
-
-from pprint import pprint
-# pprint(BinanceCommands().get_precision(asset="BTC",quote="EUR"))
-# pprint(BinanceCommands().market_open(asset="BTC",quote="EUR"))
-# pprint(BinanceCommands().market_close(asset="BTC",quote="EUR"))
-
-pprint(BinanceCommands().calculate_order_parameters(asset="BTC",quote="EUR"))

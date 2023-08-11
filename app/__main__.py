@@ -9,106 +9,75 @@ __author__ = "Hugo Demenez"
 # Common imports
 import sys
 import time
+import os
 import threading
 from datetime import timedelta
 
 # Custom imports
-import logging
 from bot_exceptions import DrawdownException
+from prediction import Prediction
 from position import Position
 from database import Database
 from routine import Routine
-import broker
-
-# Register the starting date
-START_TIME = time.time()
-
-@Routine(3600)
-def testing_connection():
-    """Routine testing the broker connection every hour
-
-    return: Exits the python run if the connection fails
-    """
-    if not broker.test_connection():
-        logging.error("Connection failed")
-        sys.exit()
+from log import Log
 
 # create a shared event
 event = threading.Event()
+# Register the starting date
+START_TIME = time.time()
 
-
-def time_updater(database:Database,position:Position):
+def database_update(database:Database,position:Position):
     """Update server running time to console and database"""
     while not event.is_set():
-        # Print program running time in console
-        timer = {
-            'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
-        }
-
         # Update the data which gets posted to the database
-        database.update_server_data(timer)
-        database.update_server_data(position.statistics)
-
-
+        QUERY = f"""INSERT INTO vitals
+            (running_time) 
+            VALUES('{str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))}')
+            ON CONFLICT (id) DO UPDATE SET
+            running_time = '{str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))}'
+            WHERE vitals.id = 1;
+        """
+        try:
+            database.insert(query = QUERY)
+        except:
+            pass
 
 def main():
     """Main loop"""
 
-    # Entering into backtesting mode by default
-    backtesting = True
-
-    # Checking broker connectivity
-    if RealCommands().test_connection():
-        logging.info("MARKET CONNECTION COMPLETE")
-        # Starting connectivity check routine
-        testing_connection()
-        # Not in backtesting mode
-        backtesting = False
-
+    Log('PROGRAM START')
     # Starting routines inside a database instance to update program data
     database = Database()
 
     # Initializing the position
-    position = Position(backtesting=backtesting,symbol='SOL',database=database)
+    position = Position()
 
-    # Recover the previous yield to update the total yield
-    position.total_yield=1
-    if database.get_server_data():
-        total_yield = database.get_server_data()[0].get('total_yield')
-        if total_yield is not None:
-            position.total_yield = float(total_yield)
-
-    # Logs
-    logger.info('PROGRAM START')
+    predictor = Prediction()
 
     # Start time updated
-    timer_thread = threading.Thread(target=time_updater, args=(database,position))
+    timer_thread = threading.Thread(target=database_update, args=(database,position))
     timer_thread.start()
 
     #Looping into trading program
     while True:
-        # Must put everything under try block to correctly handle the exception
         try:
-            # Risky zone
-            if (position.current_effective_yield < settings.RISK or
-                position.total_yield < settings.DRAWDOWN):
-                raise DrawdownException
-
-            # Manage position
-            position.manage_position()
+            position.update_price()
+            if position.settings.status == 'close':
+                # Get signal
+                if predictor.signal(position.settings.symbol) == 'buy':
+                    # Open position
+                    position.open_position()
+                
+            else:
+                # Monitoring position
+                position.monitor_position()
 
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
             event.set()
             print('\n')
-            # And the position is currently opened
-            if position.is_open():
-                # Close every position
-                position.force_position_close()
-                logging.warning('POSITION CLOSED : EXIT')
-            logger.info('PROGRAM END')
+            Log('PROGRAM END')
             return
 
 if __name__ == '__main__':
-    logger.info("Starting trading algorithm")
     main()

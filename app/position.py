@@ -3,10 +3,10 @@
 
 import time
 import dataclasses
-
+import requests
 from datetime import datetime
 from database import Database
-from broker import BinanceCommands
+from prediction import Prediction
 
 @dataclasses.dataclass
 class Prices:
@@ -18,6 +18,7 @@ class Prices:
     lowest : float = None
     take_profit : float = None
     stop_loss : float = None
+    current : float = None
 
 @dataclasses.dataclass
 class Times:
@@ -30,32 +31,44 @@ class Times:
 class Settings:
     """Differents prices used to monitor position
     """
-    status : str = None
-    symbol : str = None
-    fee : float = None
-    risk : float = None
+    status : str = 'close'
+    quote : str = 'USDT'
+    asset : str = 'BTC'
+    symbol : str = asset+quote
+    fee : float = 0.1/100
+    risk : float = 0.5/100
     exit_mode : str = None
-    backtesting : bool = None
+    backtesting : bool = True
 
 
 class Position:
     """This class is used to store all the data used to create orders and to make the calculation.
     Defaults : backtesting is True and symbol is 'BTC'
     """
-    def __init__(self,*,symbol : str):
-        self.settings = Settings(symbol=symbol)
+    def __init__(self):
+        self.settings = Settings()
         self.prices = Prices()
         self.times = Times()
+
+    def update_price(self):
+        """
+        {
+            "symbol": "LTCBTC",
+            "price": "4.00000200"
+        }
+        """
+        price = requests.get('https://data-api.binance.vision/api/v3/ticker/price',params={
+            'symbol':'BTCUSDT',
+        })
+        self.prices.current = float(price.json().get('price'))
 
     def open_position(self):
         """This function send an open order to the broker, with the opening price,
         and then save the data inside the class Position.
         """
 
-        # Create a new order at market price
-        open_order = BinanceCommands().market_open(self.settings.status)
         # Setting highest price and lowest price to the opening price
-        self.prices.open,self.prices.highest,self.prices.lowest = open_order.price
+        self.prices.open,self.prices.highest,self.prices.lowest = prices.current
         # Changing status to open
         self.settings.status = 'open'
         self.times.open = time.time()
@@ -68,7 +81,6 @@ class Position:
         save the database inside the database
         """
 
-        close_order = BinanceCommands().market_close(self.settings.symbol)
         self.settings.status = 'close'
         self.times.close = time.time()
         return close_order
@@ -77,6 +89,8 @@ class Position:
         """
         Start a new thread that will monitor the position
         """
+        # Updating current price
+        self.update_price()
 
         # Updating highest_price
         if self.prices.current > self.prices.highest:
@@ -109,6 +123,14 @@ class Position:
             self.settings.exit_mode = "take-profit"
             self.close_position()
             return
+    
+        # Closing on sell signal :
+        #   -> Check if signal is sell
+        if Prediction().signal(self.settings.symbol) == 'sell' :
+            self.prices.close = self.prices.current
+            self.settings.exit_mode = "sell-signal"
+            self.close_position()
+            return
 
 
     def effective_yield_calculation(self,current_price, opening_price, fee):
@@ -119,3 +141,6 @@ class Position:
             fee + (1 - fee) * return_on_investment * fee
             )
         )
+
+if __name__ == '__main__':
+    print(Position().prices)
