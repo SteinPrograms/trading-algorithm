@@ -58,7 +58,6 @@ def database_update(database:Database,position:Position):
             exit_mode = '{position.settings.exit_mode}'
             WHERE positions.id = {position.settings.id};
         """
-        print(QUERY)
         try:
             database.insert(query = QUERY)
         except Exception as e:
