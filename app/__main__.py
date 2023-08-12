@@ -51,9 +51,10 @@ def database_update(database:Database,position:Position):
         """
         try:
             database.insert(query = QUERY)
+            time.sleep(0.5)
         except Exception as e:
             Log(f"Error {e} while updating database")
-            time.sleep(1)
+            time.sleep(5)
 
         # If position is opened :
         if position.settings.status == 'open':
