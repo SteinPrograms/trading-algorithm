@@ -2,3 +2,10 @@
 08/12/2023 12:17:11    PROGRAM START
 08/12/2023 12:17:16    PROGRAM END
 08/12/2023 19:59:01    Hello World
+08/12/2023 20:31:37    PROGRAM START
+08/12/2023 20:31:46    PROGRAM START
+08/12/2023 20:31:47    Error could not translate host name "db" to address: nodename nor servname provided, or not known
+ while updating database
+08/12/2023 20:31:52    Error could not translate host name "db" to address: nodename nor servname provided, or not known
+ while updating database
+08/12/2023 20:31:54    PROGRAM END
