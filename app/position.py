@@ -7,6 +7,7 @@ import requests
 from datetime import datetime
 from database import Database
 from prediction import Prediction
+from log import Log
 
 @dataclasses.dataclass
 class Prices:
@@ -16,9 +17,9 @@ class Prices:
     close : float = None
     highest : float = None
     lowest : float = None
-    take_profit : float = None
-    stop_loss : float = None
-    current : float = None
+    take_profit : float = 0.2/100
+    stop_loss : float = 0.5/100
+    current : float = 0.0
 
 @dataclasses.dataclass
 class Times:
@@ -37,8 +38,9 @@ class Settings:
     symbol : str = asset+quote
     fee : float = 0.1/100
     risk : float = 0.5/100
-    exit_mode : str = None
+    exit_mode : str = 'default'
     backtesting : bool = True
+    id : int = 0
 
 
 class Position:
@@ -60,7 +62,11 @@ class Position:
         price = requests.get('https://data-api.binance.vision/api/v3/ticker/price',params={
             'symbol':'BTCUSDT',
         })
+        if price.status_code != 200:
+            Log(f"Error {price.status_code} while updating price")
+            return
         self.prices.current = float(price.json().get('price'))
+        
 
     def open_position(self):
         """This function send an open order to the broker, with the opening price,
@@ -68,11 +74,11 @@ class Position:
         """
 
         # Setting highest price and lowest price to the opening price
-        self.prices.open,self.prices.highest,self.prices.lowest = prices.current
+        self.prices.open,self.prices.highest,self.prices.lowest = self.prices.current
         # Changing status to open
         self.settings.status = 'open'
         self.times.open = time.time()
-
+        self.settings.id += 1
         return open_order
 
 
@@ -143,4 +149,4 @@ class Position:
         )
 
 if __name__ == '__main__':
-    print(Position().prices)
+    print(Position().update_price())

@@ -5,10 +5,10 @@ CREATE TABLE positions (
 );
 
 CREATE TABLE vitals (
-    id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY NOT NULL,
     status VARCHAR (255),
     total_net_return REAL,
-    running_time VARCHAR (255) NOT NULL,
+    running_time VARCHAR (255),
     current_position_time VARCHAR (255),
     current_price REAL,
     open_price REAL,

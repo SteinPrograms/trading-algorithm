@@ -4,7 +4,6 @@ version: '3.1'
 services:
   db:
     image: postgres
-    restart: always
     env_file:
       - .env
     volumes:
@@ -14,14 +13,12 @@ services:
 
   adminer:
     image: adminer
-    restart: always
     ports:
       - 8080:8080
 
   algorithm:
     env_file:
       - .env
-    restart: always
     build: .
     depends_on:
       - db
