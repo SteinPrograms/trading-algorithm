@@ -24,10 +24,14 @@ class Prediction:
             ]
         ]
         """
-        return requests.get('https://data-api.binance.vision/api/v3/klines',params={
+        klines = requests.get('https://data-api.binance.vision/api/v3/klines',params={
             'symbol':symbol,
             'interval':'1h'
-        }).json()
+        })
+        if klines.status_code != 200:
+            Log(f"Error {klines.status_code} while predicting")
+            return
+        return klines.json()
 
     def sma(self,klines:list,length:int):
         """

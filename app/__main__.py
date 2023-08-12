@@ -39,6 +39,31 @@ def database_update(database:Database,position:Position):
         if datetime.now().minute==0 and datetime.now().second == 0 and not cleaned:
             Log("Cleaning logs").clean_logs()
             cleaned = True
+
+
+        # Update the data which gets posted to the database
+        QUERY = f"""
+            INSERT INTO positions
+            (id)
+            VALUES({position.settings.id})
+            ON CONFLICT (id) DO UPDATE SET
+            open_price = {position.prices.open},
+            close_price = {position.prices.close},
+            highest_price = {position.prices.highest},
+            lowest_price = {position.prices.lowest},
+            current_price = {position.prices.current},
+            open_date = '{position.times.open}',
+            close_date = '{position.times.close}',
+            status = '{position.settings.status}',
+            exit_mode = '{position.settings.exit_mode}'
+            WHERE positions.id = {position.settings.id};
+        """
+        print(QUERY)
+        try:
+            database.insert(query = QUERY)
+        except Exception as e:
+            Log(f"Error {e} while updating database")
+
         QUERY = f"""
             INSERT INTO vitals
             (id) 
@@ -56,21 +81,7 @@ def database_update(database:Database,position:Position):
             Log(f"Error {e} while updating database")
             time.sleep(5)
 
-        # If position is opened :
-        if position.settings.status == 'open':
-            # Update the data which gets posted to the database
-            QUERY = f"""
-                INSERT INTO positions
-                (id)
-                VALUES({position.settings.number})
-                ON CONFLICT (id) DO UPDATE SET
-                
-                WHERE positions.id = {position.settings.number};
-            """
-            try:
-                database.insert(query = QUERY)
-            except Exception as e:
-                Log(f"Error {e} while updating database")
+        
 
 def price_update(position:Position):
     """Update the price of the asset"""

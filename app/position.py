@@ -13,25 +13,24 @@ from log import Log
 class Prices:
     """Differents prices used to monitor position
     """
-    open : float = None
-    close : float = None
-    highest : float = None
-    lowest : float = None
-    take_profit : float = 0.2/100
-    stop_loss : float = 0.5/100
+    open : float = 0.0
+    close : float = 0.0
+    highest : float = 0.0
+    lowest : float = 0.0
     current : float = 0.0
 
 @dataclasses.dataclass
 class Times:
     """Differents prices used to monitor position
     """
-    open : datetime = None
-    close : datetime = None
+    open : datetime = datetime.now()
+    close : datetime = datetime.now()
 
 @dataclasses.dataclass
 class Settings:
     """Differents prices used to monitor position
     """
+    id : int = 0
     status : str = 'close'
     quote : str = 'USDT'
     asset : str = 'BTC'
@@ -39,8 +38,6 @@ class Settings:
     fee : float = 0.1/100
     risk : float = 0.5/100
     exit_mode : str = 'default'
-    backtesting : bool = True
-    id : int = 0
 
 
 class Position:
@@ -73,12 +70,12 @@ class Position:
         and then save the data inside the class Position.
         """
 
+        self.settings.id += 1
         # Setting highest price and lowest price to the opening price
         self.prices.open,self.prices.highest,self.prices.lowest = self.prices.current
         # Changing status to open
         self.settings.status = 'open'
-        self.times.open = time.time()
-        self.settings.id += 1
+        self.times.open = datetime.now()
         return open_order
 
 
@@ -88,16 +85,13 @@ class Position:
         """
 
         self.settings.status = 'close'
-        self.times.close = time.time()
+        self.times.close = datetime.now()
         return close_order
 
     def monitor_position(self):
         """
         Start a new thread that will monitor the position
         """
-        # Updating current price
-        self.update_price()
-
         # Updating highest_price
         if self.prices.current > self.prices.highest:
             self.prices.highest = self.prices.current

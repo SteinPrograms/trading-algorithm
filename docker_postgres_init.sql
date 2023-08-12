@@ -1,7 +1,14 @@
 CREATE TABLE positions (
-    id SERIAL PRIMARY KEY,
-    time VARCHAR (255) NOT NULL,
-    net_return REAL NOT NULL
+    id SERIAL PRIMARY KEY NOT NULL,
+    open_price REAL,
+    close_price REAL,
+    highest_price REAL,
+    lowest_price REAL,
+    current_price REAL,
+    open_date TIMESTAMP,
+    close_date TIMESTAMP,
+    status VARCHAR (255),
+    exit_mode VARCHAR (255)
 );
 
 CREATE TABLE vitals (
@@ -9,10 +16,7 @@ CREATE TABLE vitals (
     status VARCHAR (255),
     total_net_return REAL,
     running_time VARCHAR (255),
-    current_position_time VARCHAR (255),
-    current_price REAL,
-    open_price REAL,
-    current_yield REAL
+    current_price REAL
 );
 
 CREATE TABLE logs (

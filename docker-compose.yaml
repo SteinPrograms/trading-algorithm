@@ -17,9 +17,9 @@ services:
     ports:
       - 8080:8080
 
-  algorithm:
-    env_file:
-      - .env
-    build: .
-    depends_on:
-      - db
+  # algorithm:
+  #   env_file:
+  #     - .env
+  #   build: .
+  #   depends_on:
+  #     - db
