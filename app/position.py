@@ -73,11 +73,13 @@ class Position:
 
         self.settings.id += 1
         # Setting highest price and lowest price to the opening price
-        self.prices.open,self.prices.highest,self.prices.lowest = self.prices.current
+        self.prices.open = self.prices.highest = self.prices.lowest = self.prices.current
+        print(self.prices)
         # Changing status to open
         self.settings.status = 'open'
         self.times.open = datetime.now()
-        return open_order
+        Log("Opening position")
+        return
 
 
     def close_position(self):
@@ -87,9 +89,10 @@ class Position:
 
         self.settings.status = 'close'
         self.times.close = datetime.now()
-        return close_order
+        Log("Closing position")
+        return
 
-    def monitor_position(self):
+    def monitor_position(self,predictor:Prediction):
         """
         Start a new thread that will monitor the position
         """
@@ -127,7 +130,7 @@ class Position:
     
         # Closing on sell signal :
         #   -> Check if signal is sell
-        if Prediction().signal(self.settings.symbol) == 'sell' :
+        if predictor.signal(self.settings.symbol) == 'sell' :
             self.prices.close = self.prices.current
             self.settings.exit_mode = "sell-signal"
             self.close_position()

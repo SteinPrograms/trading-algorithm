@@ -87,6 +87,7 @@ class Prediction:
 
         Args:
         """
+
         klines = self.get_klines(symbol)
 
         close = float(klines[-1][4])

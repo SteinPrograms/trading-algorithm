@@ -117,7 +117,7 @@ def main():
                 
             else:
                 # Monitoring position
-                position.monitor_position()
+                position.monitor_position(predictor=predictor)
 
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
