@@ -114,7 +114,7 @@ class Position:
         # Stop loss
         # Close position :
         if effective_yield <= 1-self.settings.stop_loss:
-            self.prices.close = self.prices.open * self.settings.stop_loss
+            self.prices.close = self.prices.open * (1-self.settings.stop_loss)
             self.settings.exit_mode = "stop-loss"
             self.close_position()
             return
@@ -123,7 +123,7 @@ class Position:
         # Closing on take-profit :
         #   -> Check if the yield  is stronger  than the minimal yield considering fees and slippage
         if effective_yield >= 1+self.settings.take_profit :
-            self.prices.close = self.prices.current
+            self.prices.close = self.prices.open * (1+self.settings.take_profit)
             self.settings.exit_mode = "take-profit"
             self.close_position()
             return
