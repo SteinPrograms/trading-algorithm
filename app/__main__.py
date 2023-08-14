@@ -36,7 +36,7 @@ def database_update(database:Database,position:Position):
         # Update the data which gets posted to the database
         if datetime.now().second != 0:
             cleaned = False
-        if datetime.now().minute==0 and datetime.now().second == 0 and not cleaned:
+        if datetime.now().day==1 and datetime.now().hour==12 and datetime.now().minute==0 and datetime.now().second == 0 and not cleaned:
             Log("Cleaning logs").clean_logs()
             cleaned = True
 
