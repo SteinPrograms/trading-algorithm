@@ -93,8 +93,10 @@ class Prediction:
         close = float(klines[-1][4])
         upper = self.sma(klines,20) + 2 * self.stdev(klines, 20)
         lower = self.sma(klines,20) - 2 * self.stdev(klines, 20)
+        middle = self.sma(klines,20)
 
         try:
+            # Upper
             if self.was_below_upper and close >= upper:
                 crosses_above_upper = True
             else:
@@ -104,7 +106,7 @@ class Prediction:
             else:
                 crosses_below_upper = False
 
-
+            # Lower
             if self.was_above_lower and close <= lower:
                 crosses_below_lower = True
             else:
@@ -114,10 +116,20 @@ class Prediction:
             else:
                 crosses_above_lower = False
 
-            if crosses_above_upper:
+            # Middle
+            if self.was_above_middle and close <= middle:
+                crosses_below_middle = True
+            else:
+                crosses_below_middle = False
+            if self.was_below_middle and close >= middle:
+                crosses_above_middle = True
+            else:
+                crosses_above_middle = False
+
+            if crosses_above_upper or crosses_above_lower:
                 return 'buy'
 
-            if crosses_below_lower:
+            if crosses_above_middle or crosses_below_upper:
                 return 'sell'
         except:
             pass
@@ -127,6 +139,8 @@ class Prediction:
         self.was_above_upper = close > upper
         self.was_below_lower = close < lower
         self.was_above_lower = close > lower
+        self.was_below_middle = close < middle
+        self.was_above_middle = close > middle
 
 
 if __name__ == "__main__":

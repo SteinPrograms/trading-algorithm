@@ -147,4 +147,4 @@ class Position:
         )
 
 if __name__ == '__main__':
-    print(Position().update_price())
+    print(Position().effective_yield_calculation(current_price=20000,opening_price=21000,fee=0.1/100))
