@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+from statistics import mean
 class Prediction:
     """Class used to predict buy actions"""
     def __init__(self):
@@ -82,6 +83,26 @@ class Prediction:
             stdev += (float(klines[-i-1][4]) - sma)**2
         return (stdev/length)**0.5
 
+    def rsi(self,klines:list,length:int):
+        """
+        compute relative strength index with simple moving average
+        """
+        up = list()
+        down = list()
+        for i in range(length):
+            variation = float(klines[-i-1][4]) - float(klines[-i-2][4])
+            if variation >= 0:
+                up.append(variation)
+                down.append(0)
+            else:
+                down.append(-variation)
+                up.append(0)
+            
+            average_gain = mean(up)
+            average_loss = mean(down)
+
+        return 100 - (100/(1+average_gain/average_loss))
+
     def signal(self,symbol:str):
         """Give the buy signal
 
@@ -90,11 +111,13 @@ class Prediction:
 
         klines = self.get_klines(symbol)
 
+        rsi = self.rsi(klines,14)
+
         close = float(klines[-1][4])
         upper = self.sma(klines,20) + 2 * self.stdev(klines, 20)
         lower = self.sma(klines,20) - 2 * self.stdev(klines, 20)
         middle = self.sma(klines,20)
-
+        
         try:
             # Upper
             if self.was_below_upper and close >= upper:
@@ -126,10 +149,10 @@ class Prediction:
             else:
                 crosses_above_middle = False
 
-            if crosses_above_lower:
+            if crosses_above_lower and rsi < 30:
                 return 'buy'
 
-            if crosses_above_upper:
+            if crosses_below_upper and rsi > 70:
                 return 'sell'
         except:
             pass
