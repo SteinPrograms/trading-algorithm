@@ -4,7 +4,7 @@ FROM python
 WORKDIR /usr/src
 
 # Adding files
-ADD ./app ./app
+ADD . ./app
 COPY ./requirements.txt ./
 
 # Upgrading pip

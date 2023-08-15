@@ -20,6 +20,15 @@ services:
   algorithm:
     env_file:
       - .env
-    build: .
+    build: app
     depends_on:
       - db
+
+  web:
+    env_file:
+      - .env
+    build: web
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
