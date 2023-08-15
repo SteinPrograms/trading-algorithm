@@ -126,10 +126,10 @@ class Prediction:
             else:
                 crosses_above_middle = False
 
-            if crosses_above_upper or crosses_above_lower:
+            if crosses_above_lower:
                 return 'buy'
 
-            if crosses_above_middle or crosses_below_upper:
+            if crosses_above_upper:
                 return 'sell'
         except:
             pass
