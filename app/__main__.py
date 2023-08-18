@@ -82,11 +82,12 @@ def database_update(database:Database,position:Position):
 
         
 
-def price_update(position:Position):
+def market_update(position:Position, predictor : Prediction):
     """Update the price of the asset"""
     while not event.is_set():
-        position.update_price()
-        time.sleep(0.5)
+        predictor.get_signal(position.settings.symbol)
+        position.prices.current = predictor.close
+        time.sleep(0.3)
 
 def main():
     """Main loop"""
@@ -111,7 +112,7 @@ def main():
         try:
             if position.settings.status == 'close':
                 # Get signal
-                if predictor.signal(position.settings.symbol) == 'buy':
+                if predictor.signal == 'buy':
                     # Open position
                     position.open_position()
                 

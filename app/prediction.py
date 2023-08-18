@@ -4,7 +4,7 @@ from statistics import mean
 class Prediction:
     """Class used to predict buy actions"""
     def __init__(self):
-        pass
+        self.signal = 'neutral'
     
     def get_klines(self,symbol):
         """
@@ -103,7 +103,7 @@ class Prediction:
 
         return 100 - (100/(1+average_gain/average_loss))
 
-    def signal(self,symbol:str):
+    def get_signal(self,symbol:str):
         """Give the buy signal
 
         Args:
@@ -113,57 +113,61 @@ class Prediction:
 
         rsi = self.rsi(klines,14)
 
-        close = float(klines[-1][4])
+        self.close = float(klines[-1][4])
         upper = self.sma(klines,20) + 2 * self.stdev(klines, 20)
         lower = self.sma(klines,20) - 2 * self.stdev(klines, 20)
         middle = self.sma(klines,20)
         
         try:
             # Upper
-            if self.was_below_upper and close >= upper:
+            if self.was_below_upper and self.close >= upper:
                 crosses_above_upper = True
             else:
                 crosses_above_upper = False
-            if self.was_above_upper and close <= upper:
+            if self.was_above_upper and self.close <= upper:
                 crosses_below_upper = True
             else:
                 crosses_below_upper = False
 
             # Lower
-            if self.was_above_lower and close <= lower:
+            if self.was_above_lower and self.close <= lower:
                 crosses_below_lower = True
             else:
                 crosses_below_lower = False
-            if self.was_below_lower and close >= lower:
+            if self.was_below_lower and self.close >= lower:
                 crosses_above_lower = True
             else:
                 crosses_above_lower = False
 
             # Middle
-            if self.was_above_middle and close <= middle:
+            if self.was_above_middle and self.close <= middle:
                 crosses_below_middle = True
             else:
                 crosses_below_middle = False
-            if self.was_below_middle and close >= middle:
+            if self.was_below_middle and self.close >= middle:
                 crosses_above_middle = True
             else:
                 crosses_above_middle = False
 
             if crosses_above_lower and rsi < 30:
-                return 'buy'
+                self.signal = 'buy'
+            else:
+                self.signal = 'neutral'
 
             if crosses_below_upper and rsi > 70:
-                return 'sell'
+                self.signal = 'sell'
+            else:
+                self.signal = 'neutral'
         except:
             pass
         
 
-        self.was_below_upper = close < upper
-        self.was_above_upper = close > upper
-        self.was_below_lower = close < lower
-        self.was_above_lower = close > lower
-        self.was_below_middle = close < middle
-        self.was_above_middle = close > middle
+        self.was_below_upper = self.close < upper
+        self.was_above_upper = self.close > upper
+        self.was_below_lower = self.close < lower
+        self.was_above_lower = self.close > lower
+        self.was_below_middle = self.close < middle
+        self.was_above_middle = self.close > middle
 
 
 if __name__ == "__main__":

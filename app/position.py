@@ -36,8 +36,8 @@ class Settings:
     asset : str = 'BTC'
     symbol : str = asset+quote
     fee : float = 0.1/100
-    stop_loss : float = 0.5/100
-    take_profit : float = 0.2/100
+    stop_loss : float = 2/100
+    take_profit : float = 0.5/100
     exit_mode : str = 'default'
 
 
@@ -48,23 +48,7 @@ class Position:
     def __init__(self):
         self.settings = Settings()
         self.prices = Prices()
-        self.times = Times()
-
-    def update_price(self):
-        """
-        {
-            "symbol": "LTCBTC",
-            "price": "4.00000200"
-        }
-        """
-        price = requests.get('https://data-api.binance.vision/api/v3/ticker/price',params={
-            'symbol':'BTCUSDT',
-        })
-        if price.status_code != 200:
-            Log(f"Error {price.status_code} while updating price")
-            return
-        self.prices.current = float(price.json().get('price'))
-        
+        self.times = Times()        
 
     def open_position(self):
         """This function send an open order to the broker, with the opening price,
@@ -74,7 +58,6 @@ class Position:
         self.settings.id += 1
         # Setting highest price and lowest price to the opening price
         self.prices.open = self.prices.highest = self.prices.lowest = self.prices.current
-        print(self.prices)
         # Changing status to open
         self.settings.status = 'open'
         self.times.open = datetime.now()
@@ -130,7 +113,7 @@ class Position:
     
         # Closing on sell signal :
         #   -> Check if signal is sell
-        if predictor.signal(self.settings.symbol) == 'sell' :
+        if predictor.signal == 'sell' :
             self.prices.close = self.prices.current
             self.settings.exit_mode = "sell-signal"
             self.close_position()
