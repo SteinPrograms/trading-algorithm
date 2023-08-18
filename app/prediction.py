@@ -156,8 +156,7 @@ class Prediction:
 
             if crosses_below_upper and rsi > 70:
                 self.signal = 'sell'
-            else:
-                self.signal = 'neutral'
+
         except:
             pass
         
