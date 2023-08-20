@@ -31,4 +31,4 @@ services:
     depends_on:
       - db
     ports:
-      - "443:80"
+      - "80:80"
