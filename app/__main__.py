@@ -104,7 +104,7 @@ def main():
     # Start time updated
     timer_thread = threading.Thread(target=database_update, args=(database,position))
     timer_thread.start()
-    api_thread = threading.Thread(target=price_update, args=(position,))
+    api_thread = threading.Thread(target=market_update, args=(position,predictor))
     api_thread.start()
 
     #Looping into trading program

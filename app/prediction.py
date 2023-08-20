@@ -1,10 +1,11 @@
 import requests
 from datetime import datetime
 from statistics import mean
+from log import Log
 class Prediction:
     """Class used to predict buy actions"""
     def __init__(self):
-        self.signal = 'neutral'
+        self.signal = 'initialize'
     
     def get_klines(self,symbol):
         """
