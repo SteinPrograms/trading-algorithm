@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Response</h1>
+    <p id="response"></p>
+    <script>
+        // Create WebSocket connection.
+        const socket = new WebSocket("wss://ws-api.binance.com:443/ws-api/v3");
+
+        // Connection opened
+        socket.addEventListener("open", (event) => {
+            socket.send(
+                JSON.stringify(
+                    {
+                        "id": "1dbbeb56-8eea-466a-8f6e-86bdcfa2fc0b",
+                        "method": "klines",
+                        "params": {
+                            "symbol": "BTCUSDT",
+                            "interval": "1h",
+                        }
+                    }
+                )
+            );
+        });
+
+        // Listen for messages
+        socket.addEventListener("message", (event) => {
+            console.log("Message from server ", JSON.parse(event.data));
+        });
+    </script>
+</body>
+</html>

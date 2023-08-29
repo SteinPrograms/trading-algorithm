@@ -60,25 +60,18 @@
     </style>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script>
-        function convertToData(response){
-            // [
-            //   [
-            //     1499040000000,      // Kline open time
-            //     "0.01634790",       // Open price
-            //     "0.80000000",       // High price
-            //     "0.01575800",       // Low price
-            //     "0.01577100",       // Close price
-            //     "148976.11427815",  // Volume
-            //     1499644799999,      // Kline Close time
-            //     "2434.19055334",    // Quote asset volume
-            //     308,                // Number of trades
-            //     "1756.87402397",    // Taker buy base asset volume
-            //     "28.46694368",      // Taker buy quote asset volume
-            //     "0"                 // Unused field, ignore.
-            //   ]
-            // ]
+
+        async function getPositions(){
+            const positionsRequest = await fetch("http://localhost:5050");
+            const positions = await positionsRequest.json();
+            return positions
+        }
+
+
+
+        function formatKlines(klines){
             const data = []
-            response.map(elem => {
+            klines.map(elem => {
                 const date = new Date(elem[0])
                 data.push({ time: date/1000 , open: elem[1] , high: elem[2] , low: elem[3] , close: elem[4] })
             });
@@ -102,72 +95,80 @@
                         })
                     })
         }
-        const response = fetch(
-            "https://data-api.binance.vision/api/v3/klines?"+ 
-            new URLSearchParams({
-                symbol: 'BTCUSDT',
-                interval: '1h',
-            }))
-        .then(
-            response => {
-                response.json().then(
-                    response => {
-                        var chart = LightweightCharts.createChart("trading-view-chart", {
-                            timeScale: {
-                                timeVisible: true,
-                                borderColor: '#D1D4DC',
-                            },
-                            rightPriceScale: {
-                                borderColor: '#D1D4DC',
-                            },
-                            watermark: {
-                                visible: true,
-                                fontSize: 24,
-                                horzAlign: 'center',
-                                vertAlign: 'center',
-                                color: 'rgba(171, 71, 188, 0.5)',
-                                text: 'BTCUSDT from Binance',
-                            },
-                            layout: {
-                                background: {
-                                    type: 'solid',
-                                    color: '#ffffff',
-                                },
-                                textColor: '#000',
-                            },
-                            grid: {
-                                horzLines: {
-                                    color: '#F0F3FA',
-                                },
-                                vertLines: {
-                                    color: '#F0F3FA',
-                                },
-                            },
-                            }
-                        );
+        
+        async function createChart(){
+            const klines_request = await fetch(
+                "https://data-api.binance.vision/api/v3/klines?"+ 
+                new URLSearchParams({
+                    symbol: 'BTCUSDT',
+                    interval: '1h',
+                })
+            )
 
-                        var series = chart.addCandlestickSeries(
-                            {
-                                upColor: 'rgb(38,166,154)',
-                                downColor: 'rgb(255,82,82)',
-                                wickUpColor: 'rgb(38,166,154)',
-                                wickDownColor: 'rgb(255,82,82)',
-                                borderVisible: false,
-                            }
-                        );
-                        const marketData = convertToData(response)
-                        series.setData(marketData);
-                        markers = [
-                            { time: marketData[marketData.length -5].time, position: 'aboveBar', color: '#e91e63', shape: 'arrowDown', text: 'Sell @ '},
-                            { time: marketData[marketData.length -15].time, position: 'belowBar', color: '#2196F3', shape: 'arrowUp', text: 'Buy @ '}
-                        ]
+            const klines = await klines_request.json()
+            const marketData = formatKlines(klines)
 
-                        series.setMarkers(markers);
-                        setInterval(()=>{updateChart(series)},500) 
-                    }
-                )
+
+            var chart = LightweightCharts.createChart("trading-view-chart", {
+                timeScale: {
+                    timeVisible: true,
+                    borderColor: '#D1D4DC',
+                },
+                rightPriceScale: {
+                    borderColor: '#D1D4DC',
+                },
+                watermark: {
+                    visible: true,
+                    fontSize: 24,
+                    horzAlign: 'center',
+                    vertAlign: 'center',
+                    color: 'rgba(171, 71, 188, 0.5)',
+                    text: '',
+                },
+                layout: {
+                    background: {
+                        type: 'solid',
+                        color: '#ffffff',
+                    },
+                    textColor: '#000',
+                },
+                grid: {
+                    horzLines: {
+                        color: '#ffffff',
+                    },
+                    vertLines: {
+                        color: '#ffffff',
+                    },
+                },
+                }
+            );
+
+            var series = chart.addCandlestickSeries(
+                {
+                    upColor: 'rgb(38,166,154)',
+                    downColor: 'rgb(255,82,82)',
+                    wickUpColor: 'rgb(38,166,154)',
+                    wickDownColor: 'rgb(255,82,82)',
+                    borderVisible: false,
+                }
+            );
+            series.setData(marketData);
+            const markers = []
+            const positions = await getPositions();
+            for (position of positions){
+                markers.push({ time: Date.parse(position.open_date)/1000, position: 'aboveBar', color: '#e91e63', shape: 'arrowDown', text: 'Sell @ '+position.close_price})
+                markers.push({ time: Date.parse(position.close_date)/1000, position: 'belowBar', color: '#2196F3', shape: 'arrowUp', text: 'Buy @ '+position.open_price})
             }
-        )
+
+            series.setMarkers(markers);
+            setInterval(()=>{updateChart(series)},500) 
+        }
+        
+        
+        
+        
+        createChart()
+
 
 
 
