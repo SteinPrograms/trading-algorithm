@@ -62,7 +62,7 @@
     <script>
 
         async function getPositions(){
-            const positionsRequest = await fetch("http://localhost:5050");
+            const positionsRequest = await fetch("http://20.216.159.4:5050");
             const positions = await positionsRequest.json();
             return positions
         }
@@ -156,8 +156,14 @@
             const markers = []
             const positions = await getPositions();
             for (position of positions){
-                markers.push({ time: Date.parse(position.open_date)/1000, position: 'aboveBar', color: '#e91e63', shape: 'arrowDown', text: 'Sell @ '+position.close_price})
-                markers.push({ time: Date.parse(position.close_date)/1000, position: 'belowBar', color: '#2196F3', shape: 'arrowUp', text: 'Buy @ '+position.open_price})
+                var closeDate = new Date(position.close_date)
+                closeDate.setHours(closeDate.getHours() -1 )
+                
+                var openDate = new Date(position.open_date)
+                openDate.setHours(openDate.getHours() -1 )
+
+                markers.push({ time: closeDate/1000, position: 'aboveBar', color: '#e91e63', shape: 'arrowDown', text: 'Sell @ '+position.close_price})
+                markers.push({ time: openDate/1000, position: 'belowBar', color: '#2196F3', shape: 'arrowUp', text: 'Buy @ '+position.open_price})
             }
 
             series.setMarkers(markers);
