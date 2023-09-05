@@ -2,26 +2,24 @@
 """
 Crypto-Currencies trading algorithm using :
     - logics defined in the corresponding package under the prediction.py script
-    - docker container hosting the postgres database, python3 instance
+    - docker container hosting the postgres database, trading instance and postgres api
 """
 __author__ = "Hugo Demenez"
 
+import logging
+import os
 # Common imports
 import sys
-import time
-import os
 import threading
-from datetime import timedelta,datetime
-
+import time
+from datetime import datetime, timedelta
 
 # Custom imports
 from bot_exceptions import DrawdownException
-from prediction import Prediction
-from position import Position
-from database import Database
-from routine import Routine
-from log import Log
 from dotenv import load_dotenv
+from indicator import Indicator
+from position import Position
+from helpers import database
 
 # Load environment variables
 load_dotenv()
@@ -30,17 +28,11 @@ event = threading.Event()
 # Register the starting date
 START_TIME = time.time()
 
-def database_update(database:Database,position:Position):
-    """Update server running time to console and database"""
+def database_update(position:Position):
+    """
+    Update vitals and position data to database
+    """
     while not event.is_set():
-        # Update the data which gets posted to the database
-        if datetime.now().second != 0:
-            cleaned = False
-        if datetime.now().day==1 and datetime.now().hour==12 and datetime.now().minute==0 and datetime.now().second == 0 and not cleaned:
-            Log("Cleaning logs").clean_logs()
-            cleaned = True
-
-
         # Update the data which gets posted to the database
         QUERY = f"""
             INSERT INTO positions
@@ -61,7 +53,7 @@ def database_update(database:Database,position:Position):
         try:
             database.insert(query = QUERY)
         except Exception as e:
-            Log(f"Error {e} while updating database")
+            logging.warning(f"Error {e} while updating positions in database")
 
         QUERY = f"""
             INSERT INTO vitals
@@ -77,53 +69,49 @@ def database_update(database:Database,position:Position):
             database.insert(query = QUERY)
             time.sleep(0.5)
         except Exception as e:
-            Log(f"Error {e} while updating database")
+            logging.warning(f"Error {e} while updating vitals in database")
             time.sleep(5)
 
         
 
-def market_update(position:Position, predictor : Prediction):
+def market_update(position:Position, indicator : Indicator):
     """Update the price of the asset"""
     while not event.is_set():
-        predictor.get_signal(position.settings.symbol)
-        position.prices.current = predictor.close
+        indicator.get_signal(position.settings.symbol)
+        position.prices.current = indicator.close
         time.sleep(0.3)
 
 def main():
     """Main loop"""
 
-    Log('PROGRAM START')
-    # Starting routines inside a database instance to update program data
-    database = Database()
+    logging.info('PROGRAM START')
 
-    # Initializing the position
+    # Initialize instances
+    indicator = Indicator()
     position = Position()
 
-    predictor = Prediction()
-
-    # Start time updated
-    timer_thread = threading.Thread(target=database_update, args=(database,position))
+    # Start threads
+    timer_thread = threading.Thread(target=database_update, args=(position,))
     timer_thread.start()
-    api_thread = threading.Thread(target=market_update, args=(position,predictor))
-    api_thread.start()
+    broker_interaction_thread = threading.Thread(target=market_update, args=(position,indicator))
+    broker_interaction_thread.start()
 
-    #Looping into trading program
     while True:
         try:
             if position.settings.status == 'close':
                 # Get signal
-                if predictor.signal == 'buy':
+                if indicator.signal == 'buy':
                     # Open position
                     position.open_position()
                 
             else:
                 # Monitoring position
-                position.monitor_position(predictor=predictor)
+                position.monitor_position(indicator=indicator)
 
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
             event.set()
-            Log('PROGRAM END')
+            logging.info('PROGRAM END')
             return
 
 if __name__ == '__main__':

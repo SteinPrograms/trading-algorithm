@@ -20,24 +20,19 @@ services:
   algorithm:
     env_file:
       - .env
-    build: app
+    build:
+      context: .
+      dockerfile: stein-trading.Dockerfile
     depends_on:
       - db
-
-  web:
-    env_file:
-      - .env
-    build: web
-    depends_on:
-      - db
-    ports:
-      - 3000:80
   
   api:
     env_file:
       - .env
-    build: api
+    build:
+      context: .
+      dockerfile: stein-api.Dockerfile
     depends_on:
       - db
     ports:
-      - 5050:5000
+      - 5050:5050
