@@ -4,21 +4,35 @@ version: '3.1'
 services:
   db:
     image: postgres
-    restart: always
     env_file:
       - .env
     volumes:
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
     ports:
-      - "5432:5432"
+      - 5432:5432
+    restart: always
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
 
   algorithm:
     env_file:
       - .env
-    restart: always
     build:
-      dockerfile: app.Dockerfile
-    volumes:
-      - ./logs:/usr/src/logs
+      context: .
+      dockerfile: stein-trading.Dockerfile
     depends_on:
       - db
+  
+  api:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: stein-api.Dockerfile
+    depends_on:
+      - db
+    ports:
+      - 5050:5050

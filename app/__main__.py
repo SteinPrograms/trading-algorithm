@@ -2,125 +2,117 @@
 """
 Crypto-Currencies trading algorithm using :
     - logics defined in the corresponding package under the prediction.py script
-    - docker container hosting the postgres database, python3 instance
+    - docker container hosting the postgres database, trading instance and postgres api
 """
 __author__ = "Hugo Demenez"
 
+import logging
+import os
 # Common imports
 import sys
-import time
 import threading
-from datetime import timedelta
+import time
+from datetime import datetime, timedelta
 
 # Custom imports
-import logging
-import settings
-
 from bot_exceptions import DrawdownException
+from dotenv import load_dotenv
+from indicator import Indicator
 from position import Position
-from brokerconnection import RealCommands
-from database import Database
-from routine import Routine
-from logs import logger
+from helpers import database
 
-
+# Load environment variables
+load_dotenv()
+# create a shared event
+event = threading.Event()
 # Register the starting date
 START_TIME = time.time()
 
-@Routine(3600)
-def testing_connection():
-    """Routine testing the broker connection every hour
-
-    return: Exits the python run if the connection fails
+def database_update(position:Position):
     """
-    if not RealCommands().test_connection():
-        logging.error("Connection failed")
-        sys.exit()
-
-# create a shared event
-event = threading.Event()
-
-
-def time_updater(database:Database,position:Position):
-    """Update server running time to console and database"""
+    Update vitals and position data to database
+    """
     while not event.is_set():
-        output = str()
-        # Print program running time in console
-        timer = {
-            'running_time':str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))
-        }
-        # for data, value__ in timer.items():
-        #     output += f"{data} : {value__} | "
-
-        # for data, value__ in position.statistics.items():
-        #     output+=f"{data} : {value__} | "
-
-        # print(output,end='\r')
-
         # Update the data which gets posted to the database
-        database.update_server_data(timer)
-        database.update_server_data(position.statistics)
+        QUERY = f"""
+            INSERT INTO positions
+            (id)
+            VALUES({position.settings.id})
+            ON CONFLICT (id) DO UPDATE SET
+            open_price = {position.prices.open},
+            close_price = {position.prices.close},
+            highest_price = {position.prices.highest},
+            lowest_price = {position.prices.lowest},
+            current_price = {position.prices.current},
+            open_date = '{position.times.open}',
+            close_date = '{position.times.close}',
+            status = '{position.settings.status}',
+            exit_mode = '{position.settings.exit_mode}'
+            WHERE positions.id = {position.settings.id};
+        """
+        try:
+            database.insert(query = QUERY)
+        except Exception as e:
+            logging.warning(f"Error {e} while updating positions in database")
 
+        QUERY = f"""
+            INSERT INTO vitals
+            (id) 
+            VALUES(1)
+            ON CONFLICT (id) DO UPDATE SET
+            running_time = '{str(timedelta(seconds=round(time.time(), 0) - round(START_TIME, 0)))}',
+            current_price = '{position.prices.current}',
+            status = '{position.settings.status}'
+            WHERE vitals.id = 1;
+        """
+        try:
+            database.insert(query = QUERY)
+            time.sleep(0.5)
+        except Exception as e:
+            logging.warning(f"Error {e} while updating vitals in database")
+            time.sleep(5)
 
+        
+
+def market_update(position:Position, indicator : Indicator):
+    """Update the price of the asset"""
+    while not event.is_set():
+        indicator.get_signal(position.settings.symbol)
+        position.prices.current = indicator.close
+        time.sleep(0.3)
 
 def main():
     """Main loop"""
 
-    # Entering into backtesting mode by default
-    backtesting = True
+    logging.info('PROGRAM START')
 
-    # Checking broker connectivity
-    if RealCommands().test_connection():
-        logging.info("MARKET CONNECTION COMPLETE")
-        # Starting connectivity check routine
-        testing_connection()
-        # Not in backtesting mode
-        backtesting = False
+    # Initialize instances
+    indicator = Indicator()
+    position = Position()
 
-    # Starting routines inside a database instance to update program data
-    database = Database()
-
-    # Initializing the position
-    position = Position(backtesting=backtesting,symbol='SOL',database=database)
-
-    # Recover the previous yield to update the total yield
-    position.total_yield=1
-    if database.get_server_data():
-        total_yield = database.get_server_data()[0].get('total_yield')
-        if total_yield is not None:
-            position.total_yield = float(total_yield)
-
-    # Logs
-    logger.info('PROGRAM START')
-
-    # Start time updated
-    timer_thread = threading.Thread(target=time_updater, args=(database,position))
+    # Start threads
+    timer_thread = threading.Thread(target=database_update, args=(position,))
     timer_thread.start()
+    broker_interaction_thread = threading.Thread(target=market_update, args=(position,indicator))
+    broker_interaction_thread.start()
 
-    #Looping into trading program
     while True:
-        # Must put everything under try block to correctly handle the exception
         try:
-            # Risky zone
-            if (position.current_effective_yield < settings.RISK or
-                position.total_yield < settings.DRAWDOWN):
-                raise DrawdownException
-
-            # Manage position
-            position.manage_position()
+            if position.settings.status == 'close':
+                # Get signal
+                if indicator.signal == 'buy':
+                    # Open position
+                    position.open_position()
+                
+            else:
+                # Monitoring position
+                position.monitor_position(indicator=indicator)
 
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
             event.set()
-            print('\n')
-            # And the position is currently opened
-            if position.is_open():
-                # Close every position
-                position.force_position_close()
-                logging.warning('POSITION CLOSED : EXIT')
-            logger.info('PROGRAM END')
+            logging.info('PROGRAM END')
             return
 
 if __name__ == '__main__':
-    logger.info("Starting trading algorithm")
     main()

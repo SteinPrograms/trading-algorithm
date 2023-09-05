@@ -1,322 +1,130 @@
-import urllib.parse, re, time, hmac,os
-from typing import Optional, Dict, Any, List
-from requests import Request, Session, Response
-import requests
+"""Brokerage connection module
 
-class FTX:
-    def __init__(
-        self,
-        *,
-        base_url: str = "https://ftx.com/api/",
-        api_key: Optional[str] = None,
-        api_secret: Optional[str] = None,
-        subaccount_name: Optional[str] = None,
-    ) -> None:
-        self._session = Session()
-        self._base_url = base_url
-        self._api_key = api_key
-        self._api_secret = api_secret
-        self._subaccount_name = subaccount_name
+It contains the following methods :
+- test_order (check connection to the broker)
+- get_order_status (check if order is filled)
+- get_balances (get the current balances to place order)
+- place_order (place an order)
+"""
 
-    def symbol_format(self,symbol):
-        return re.sub("[^0-9a-zA-Z]+", "/", symbol)
+# Imports from standard library
+import os
+import dataclasses
+from dotenv import load_dotenv
 
+# Imports from local packages
+from binance.spot import Spot
+from binance.error import ClientError
 
-    def _get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Any:
-        return self._request('GET', path, params=params)
+class BinanceCommands():
+    """Binance SDK"""
 
-    def _post(self, path: str, params: Optional[Dict[str, Any]] = None) -> Any:
-        return self._request('POST', path, json=params)
+    @dataclasses.dataclass
+    class Order:
+        """ORDER CONSTRUCTOR"""
+        price : float
+        order_id : str
+        def __init__(price:float,order_id:str):
+            self.price = price
+            self.order_id = order_id
 
-    def _delete(self,
-                path: str,
-                params: Optional[Dict[str, Any]] = None) -> Any:
-        return self._request('DELETE', path, json=params)
+    def __init__(self,backtesting):
+        """Initiate the connection to the broker"""
+        if backtesting:
+            self.client = Spot()
+            self.backtesting = backtesting
+            return
+        load_dotenv()
+        # Read API keys from environment variables
+        api_key = os.environ.get('API_KEY')
+        private_key = os.environ.get('API_SECRET')
+        with open(private_key, 'rb') as f:
+            private_key = f.read()
+        self.client = Spot(api_key = api_key, private_key=private_key)
 
-    def _request(self, method: str, path: str, **kwargs) -> Any:
-        request = Request(method, self._base_url + path, **kwargs)
-        if self._api_key:
-            self._sign_request(request)
-        response = self._session.send(request.prepare())
-
-        return self._process_response(response)
-
-    def _sign_request(self, request: Request) -> None:
-        ts = int(time.time() * 1000)
-        prepared = request.prepare()
-        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode(
-        )
-        if prepared.body:
-            signature_payload += prepared.body
-        signature = hmac.new(self._api_secret.encode(), signature_payload,
-                             'sha256').hexdigest()
-        request.headers['FTX-KEY'] = self._api_key
-        request.headers['FTX-SIGN'] = signature
-        request.headers['FTX-TS'] = str(ts)
-        if self._subaccount_name:
-            request.headers['FTX-SUBACCOUNT'] = urllib.parse.quote(
-                self._subaccount_name)
-
-    @staticmethod
-    def _process_response(response: Response) -> Any:
+    def test_connection(self):
+        """Test the connection to the broker"""
         try:
-            data = response.json()
-        except ValueError:
-            response.raise_for_status()
-            raise
-        else:
-            if not data['success']:
-                raise Exception(data['error'])
-            return data['result']
-
-    #
-    # Authentication required methods
-    #
-    def authentication_required(fn):
-        """Annotation for methods that require auth."""
-        def wrapped(self, *args, **kwargs):
-            if not self._api_key:
-                raise TypeError("You must be authenticated to use this method")
-            else:
-                return fn(self, *args, **kwargs)
-
-        return wrapped
-
-    @authentication_required
-    def get_account_info(self) -> dict:
-        return self._get('account')
-
-    @authentication_required
-    def get_open_orders(self, market: Optional[str] = None) -> List[dict]:
-        return self._get('orders', {'market': market})
-
-    @authentication_required
-    def get_conditional_orders(self,
-                               market: Optional[str] = None) -> List[dict]:
-        if market:
-            market = self.symbol_format(market)
-        return self._get('conditional_orders', {'market': market})
-
-    @authentication_required
-    def get_order_status(self, existing_order_id: int) -> dict:
-        return self._get(f'orders/{existing_order_id}')
-
-    @authentication_required
-    def get_order_history(self,
-                          market: Optional[str] = None,
-                          side: Optional[str] = None,
-                          order_type: Optional[str] = None,
-                          start_time: Optional[float] = None,
-                          end_time: Optional[float] = None) -> List[dict]:
-        return self._get(
-            'orders/history', {
-                'market': self.symbol_format(market),
-                'side': side,
-                'orderType': order_type,
-                'start_time': start_time,
-                'end_time': end_time
-            })
-
-    @authentication_required
-    def get_conditional_order_history(
-            self,
-            market: Optional[str] = None,
-            side: Optional[str] = None,
-            type: Optional[str] = None,
-            order_type: Optional[str] = None,
-            start_time: Optional[float] = None,
-            end_time: Optional[float] = None) -> List[dict]:
-        return self._get(
-            'conditional_orders/history', {
-                'market': self.symbol_format(market),
-                'side': side,
-                'type': type,
-                'orderType': order_type,
-                'start_time': start_time,
-                'end_time': end_time
-            })
-
-    @authentication_required
-    def modify_order(
-        self,
-        existing_order_id: Optional[str] = None,
-        existing_client_order_id: Optional[str] = None,
-        price: Optional[float] = None,
-        size: Optional[float] = None,
-        client_order_id: Optional[str] = None,
-    ) -> dict:
-        assert (existing_order_id is None) ^ (existing_client_order_id is None), \
-            'Must supply exactly one ID for the order to modify'
-        assert (price is None) or (size is
-                                   None), 'Must modify price or size of order'
-        path = f'orders/{existing_order_id}/modify' if existing_order_id is not None else \
-            f'orders/by_client_id/{existing_client_order_id}/modify'
-        return self._post(path, ({'size': size} if size is not None else {}) | ({'price': price} if price is not None else {}) | ({'clientId': client_order_id} if client_order_id is not None else {}))
-
-
-
-    @authentication_required
-    def place_order(self,
-                    market: str,
-                    side: str,
-                    price: float,
-                    size: float,
-                    type: str = 'limit',
-                    reduce_only: bool = False,
-                    ioc: bool = False,
-                    post_only: bool = False,
-                    client_id: Optional[str] = None) -> dict:
-        return self._post(
-            'orders', {
-                'market': self.symbol_format(market),
-                'side': side,
-                'price': price,
-                'size': size,
-                'type': type,
-                'reduceOnly': reduce_only,
-                'ioc': ioc,
-                'postOnly': post_only,
-                'clientId': client_id,
-            })
-
-    
-    @authentication_required
-    def get_fills(self) -> List[dict]:
-        return self._get('fills')
-
-
-
-    @authentication_required
-    def get_deposit_address(self,
-                            ticker: str,
-                            method: Optional[str] = None) -> dict:
-        method = f'?method={method}' if method else ''
-        return self._get(f'wallet/deposit_address/{ticker}{method}')
-
-    @authentication_required
-    def get_positions(self, show_avg_price: bool = False) -> List[dict]:
-        return self._get('positions', {'showAvgPrice': show_avg_price})
-
-    @authentication_required
-    def get_position(self, name: str, show_avg_price: bool = False) -> dict:
-        return next(
-            filter(lambda x: x['future'] == name,
-                   self.get_positions(show_avg_price)), None)
-
-    @authentication_required
-    def set_leverage(self, leverage):
-        return self._post('account/leverage', {'leverage': leverage})
-
-    @authentication_required
-    def get_subaccounts(self) -> List[dict]:
-        return self._get('subaccounts')
-
-    @authentication_required
-    def create_subaccounts(self, nickname) -> List[dict]:
-        return self._post('subaccounts', {'nickname': nickname})
-
-    @authentication_required
-    def delete_subaccounts(self, nickname: Optional[str] = None) -> List[dict]:
-        assert (nickname is not None) or (self._subaccount_name
-                                          is not None), 'SubAccount not set'
-        subaccount = nickname or self._subaccount_name
-        return self._delete('subaccounts', {'nickname': subaccount})
-
-    @authentication_required
-    def get_subaccounts_balance(self, nickname=None) -> List[dict]:
-        assert (nickname is not None) or (self._subaccount_name
-                                          is not None), 'SubAccount not set'
-        subaccount = nickname or self._subaccount_name
-        return self._get(f'subaccounts/{subaccount}/balances',
-                         {'nickname': subaccount})
-
-    @authentication_required
-    def request_quote(self, fromCoin, toCoin, size) -> List[dict]:
-        return self._post('otc/quotes', {
-            'fromCoin': fromCoin,
-            'toCoin': toCoin,
-            'size': size
-        })
-
-    @authentication_required
-    def get_quote_details(self, quoteId):
-        return self._get(f'otc/quotes/{quoteId}')
-
-    @authentication_required
-    def accept_quote(self, quoteId):
-        return self._post(f'otc/quotes/{quoteId}/accept')
-
-    @authentication_required
-    def request_withdrawal(self,
-                           coin: str,
-                           size: float,
-                           address: str,
-                           password: Optional[str] = None,
-                           code: Optional[str] = None):
-        assert (size > 0), 'Size must be greater than 0'
-        return self._post('wallet/withdrawals', {
-            'coin': coin,
-            'size': size,
-            'address': address
-        })
-
-    #
-    # Public methods
-    #
-
-    def get_futures(self) -> List[dict]:
-        return self._get('futures')
-
-    def get_future(self, future_name: str) -> dict:
-        return self._get(f'futures/{future_name}')
-
-    def get_markets(self) -> List[dict]:
-        return self._get('markets')
-
-    def get_market(self, market: str) -> dict:
-        return self._get(f'markets/{market}')
-
-
-    def get_historical_prices(self,market:str)->dict:
-        return self._get(f'markets/{market}/candles?resolution=60')
-
-
-    def get_exchange_info(self):
-        response = requests.get(f'{self._base_url}/markets', params={}).json()
-        try:
-            return response
-        except Exception:
-            return('unable to get server time')
-
-
-    def price(self,symbol):
-        symbol = self.symbol_format(symbol)
-        try:
-            info = self.get_exchange_info()['result']
-            return next(({'bid': pair["bid"], 'ask': pair["ask"]} for pair in info if pair['name'] == symbol), {'error': 'No matching symbol'})
-
-        except Exception as e:
-            return e
-
-    
-    def get_balances(self,asset) -> dict:
-        response = self._get('wallet/balances')
-        try:
-            for balance in response:
-                if asset==balance['coin']:
-                    return balance
-        except Exception:
-            return 
-
-
-
-
-    def test_order(self):
-        try:
-            self.get_account_info()
+            self.client.account_status()
             return True
-        except Exception:
+        except ClientError:
             return False
+
+    def get_order_status(self, symbol, order_id):
+        """Check if order is filled"""
+        return self.client.get_order(symbol=symbol, orderId=order_id)
+
+    def get_balances(self):
+        """Get the current balances"""
+        return self.client.user_asset()
+
+    def get_balance(self, asset)->float:
+        """Get the current balance of asset to place order"""
+        return self.client.user_asset(asset=asset)[0]
+
+    def market_open(self, quote,asset) -> Order:
+        """Place an order"""
+        if self.backtesting:
+            return Order(price=self.get_prices(asset,quote))
+
+        quantity,_ = self.calculate_order_parameters(quote=quote,asset=asset)
+
+
+        return self.client.new_order(
+            symbol=f"{asset}{quote}",
+            side="BUY",
+            type="MARKET",
+            quantity=quantity,
+            newClientOrderId = "open",
+        )
+
+    def market_close(self, quote,asset) -> Order:
+        """Place an order"""
+
+        # Calculate the quantity from balance (only use 99% of available balance)
+        _,quantity = self.calculate_order_parameters(quote=quote,asset=asset)
+        print("quantity",quantity)
+        return self.client.new_order(
+            symbol=f"{asset}{quote}",
+            side="SELL",
+            type="MARKET",
+            quantity=quantity,
+            newClientOrderId = "close",
+        )
+
+    def get_fee(self,symbol:str=None):
+        """Get the current fee"""
+        if symbol:
+            return self.client.trade_fee(symbol=symbol)
+        return self.client.trade_fee()
+
+    def calculate_order_parameters(self,*,quote:str,asset:str=None):
+        """Calculate the buying power from the balance"""
+        prices = self.get_prices(asset=asset,quote=quote)
+        balances = self.get_balances()
+        for balance in balances:
+            if balance.get("asset") == quote:
+                balance_quote = float(balance.get("free"))
+            if balance.get("asset") == asset:
+                balance_asset = float(balance.get("free"))
         
+        for _filter in self.get_precision(asset=asset,quote=quote).get("filters"):
+            if _filter.get("filterType") == "LOT_SIZE":
+                step_size = _filter.get("stepSize")
+                precision = step_size.find('1')-1
+                break
         
-    
+        precisions = self.get_precision(asset=asset,quote=quote).get("filters")
+        precision_quote,precision_asset = precisions.get("quoteAssetPrecision"),precisions.get('baseAssetPrecision')
+        
+        quantity_quote = round(float((balance_quote))/float(prices.get("bidPrice")),precision_asset)
+        quantity_asset = float(str(balance_asset)[:2+precision])
+        return quantity_quote,quantity_asset
+
+    def get_prices(self,asset,quote):
+        """Get the current price"""
+        return self.client.book_ticker(symbol=f"{asset}{quote}")
+
+    def get_precision(self,*,asset,quote):
+        """Get the precision of the asset"""
+        return self.client.exchange_info(symbol=f"{asset}{quote}").get("symbols")[0]

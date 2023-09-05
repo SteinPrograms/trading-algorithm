@@ -1,3 +1,6 @@
 ./notebooks
 ./tmp
 __pycache__
+.venv
+*next
+*node_modules
