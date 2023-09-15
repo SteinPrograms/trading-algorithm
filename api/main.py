@@ -29,12 +29,12 @@ async def get_positions():
     positions = database.select(query="SELECT * FROM positions")
     return positions
 
-@app.get("/news")
-async def get_news():
+@app.get("/news/")
+async def get_news(symbol:str = "BTC"):
     """
     Get the latest news about bitcoin from stocktwits
     """
-    response = requests.get("https://stocktwits.com/symbol/BTC.X/news")
+    response = requests.get(f"https://stocktwits.com/symbol/{symbol}.X/news")
     soup = BeautifulSoup(response.content,features="html.parser")
     news_elements = soup.find_all("div",class_='NewsItem_textContainer__6FGsX')
     content = str()
@@ -43,7 +43,7 @@ async def get_news():
         date = news.find("span",class_="text-light-grey")
         content+=f"{index+1}. {title.text} - {date.text.split('•')[1]}\n"
 
-
+    
 
     dotenv.load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -55,10 +55,11 @@ async def get_news():
             {
             "role": "system", 
             "content": (
-                "You will be provided with a list of news titles about the bitcoin market."
-                "Your task is to give the overall sentiment as positive, neutral, or negative."
-                "Give the average time of the news."
-                "Then make a general summary of 200 characters about the current market state, it will be used for a blog post."
+                "Your are a crypto market analyst. Don't take into consideration everything you already know about the crypto market."
+                f"You will be provided with a list of news titles about the {symbol} crypto market."
+                "Your task is to give the overall sentiment as positive, slightly-positive, neutral, slightly-negative or negative."
+                "Then make a general summary of around 250 characters about the news, it will be used for a blog post."
+                "Your answer is a json object, the time key represents the average news time."
                 )
             },
             {
@@ -72,6 +73,8 @@ async def get_news():
         ]
     )
     
+    print(content)
+
     return json.loads(response['choices'][0]['message']['content'])
 
 if __name__ == "__main__":

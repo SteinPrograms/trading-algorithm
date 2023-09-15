@@ -128,7 +128,7 @@ class Position:
     
         # Closing on sell signal :
         #   -> Check if signal is sell
-        if signal == 'sell' :
+        if indicator.signal == 'sell' :
             self.prices.close = self.prices.current
             self.settings.exit_mode = "sell-signal"
             self.close_position()
