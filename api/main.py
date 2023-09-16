@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers import database
-
+from uvicorn.config import LOGGING_CONFIG
 app = FastAPI()
 
 app.add_middleware(
@@ -80,4 +80,5 @@ async def get_news(password:str, symbol:str = "BTC"):
     return json.loads(response['choices'][0]['message']['content'])
 
 if __name__ == "__main__":
+    LOGGING_CONFIG["formatters"]["access"]["fmt"] = "%(asctime)s [%(name)s] %(levelprefix)s %(message)s"
     uvicorn.run("main:app", host="0.0.0.0", port=5050, log_level="info",reload=True)
