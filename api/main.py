@@ -30,10 +30,12 @@ async def get_positions():
     return positions
 
 @app.get("/news/")
-async def get_news(symbol:str = "BTC"):
+async def get_news(password:str, symbol:str = "BTC"):
     """
     Get the latest news about bitcoin from stocktwits
     """
+    if password != os.getenv("STEIN_API_KEY"):
+        return {"message":"Unauthorized"}
     response = requests.get(f"https://stocktwits.com/symbol/{symbol}.X/news")
     soup = BeautifulSoup(response.content,features="html.parser")
     news_elements = soup.find_all("div",class_='NewsItem_textContainer__6FGsX')
