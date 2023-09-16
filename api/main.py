@@ -6,7 +6,7 @@ import requests
 import uvicorn
 import json
 from bs4 import BeautifulSoup
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from helpers import database
 from uvicorn.config import LOGGING_CONFIG
@@ -29,13 +29,14 @@ async def get_positions():
     positions = database.select(query="SELECT * FROM positions")
     return positions
 
-@app.get("/news/")
-async def get_news(password:str, symbol:str = "BTC"):
+@app.get("/news/", status_code=200)
+async def get_news(password:str,response: Response, symbol:str = "BTC" ):
     """
     Get the latest news about bitcoin from stocktwits
     """
     if password != os.getenv("STEIN_API_KEY"):
-        return {"message":"Unauthorized"}
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {"message": "Invalid password"}
     response = requests.get(f"https://stocktwits.com/symbol/{symbol}.X/news")
     soup = BeautifulSoup(response.content,features="html.parser")
     news_elements = soup.find_all("div",class_='NewsItem_textContainer__6FGsX')
