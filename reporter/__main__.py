@@ -6,7 +6,7 @@ import os
 from bs4 import BeautifulSoup
 import requests
 from supabase import create_client, Client
-
+from helpers import logger
 
 def get_stocktwits_news(symbol:str = "BTC") -> str:
     print("Fetching news")
@@ -60,8 +60,9 @@ def ask_chat_gpt(news:str, symbol:str = "BTC") -> str:
 
 if __name__ == "__main__":
     load_dotenv()
-    MINUTE = 30
+    MINUTE = 0
     trigger = True
+    logger.get_module_logger(__name__).info("REPORTER STARTED")
     while True:
         if datetime.now().minute == MINUTE and trigger:
             trigger = False
@@ -83,10 +84,10 @@ if __name__ == "__main__":
                     publish_to_supabase(label=symbol,title=json_response.get('title'),content=json_response.get('summary'),score=json_response.get('score'))
                 except Exception as e:
                     print(response['choices'][0]['message']['content'])
-                    get_module_logger().error("error",e)
+                    logger.get_module_logger(__name__).error("error",e)
                     # GPT response invalid
                     exit()
             supabase.auth.sign_out()
 
-        else:
+        elif datetime.now().minute != MINUTE:
             trigger = True

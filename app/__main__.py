@@ -84,7 +84,7 @@ def market_update(position:Position, indicator : Indicator):
 def main():
     """Main loop"""
 
-    get_module_logger(__name__).info("PROGRAM START")
+    logger.get_module_logger(__name__).info("PROGRAM START")
 
     # Initialize instances
     indicator = Indicator()
@@ -111,7 +111,7 @@ def main():
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
             event.set()
-            get_module_logger(__name__).info("PROGRAM START")
+            logger.get_module_logger(__name__).info("PROGRAM END")
             return
 
 if __name__ == '__main__':
