@@ -19,7 +19,7 @@ from bot_exceptions import DrawdownException
 from dotenv import load_dotenv
 from indicator import Indicator
 from position import Position
-from helpers import database
+from helpers import database, logger
 
 # Load environment variables
 load_dotenv()
@@ -84,7 +84,7 @@ def market_update(position:Position, indicator : Indicator):
 def main():
     """Main loop"""
 
-    logging.info('PROGRAM START')
+    get_module_logger(__name__).info("PROGRAM START")
 
     # Initialize instances
     indicator = Indicator()
@@ -111,7 +111,7 @@ def main():
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
             event.set()
-            logging.info('PROGRAM END')
+            get_module_logger(__name__).info("PROGRAM START")
             return
 
 if __name__ == '__main__':
