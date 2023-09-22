@@ -9,7 +9,7 @@ from supabase import create_client, Client
 from helpers import logger
 
 def get_stocktwits_news(symbol:str = "BTC") -> str:
-    print("Fetching news")
+    logger.get_module_logger(__name__).info(f"Fetching news for {symbol}")
     """Get 10 latest news from stocktwits website about a crypto symbol"""
     response = requests.get(f"https://stocktwits.com/symbol/{symbol}.X/news")
     soup = BeautifulSoup(response.content,features="html.parser")
@@ -19,7 +19,6 @@ def get_stocktwits_news(symbol:str = "BTC") -> str:
         title = news.find("span", class_="")
         date = news.find("span",class_="text-light-grey")
         content+=f"{index+1}. {title.text} - {date.text.split('•')[1]}\n"
-    print("News fetched")
     return content
 
 def prepare_prompt(symbol:str = "BTC") -> str:
@@ -38,7 +37,7 @@ def publish_to_supabase(*,label:str,content:str,title:str,score:int):
     data, count = rls.table('marketnews').insert({"label": label, "content": content,"title":title,"score":score}).execute()
 
 def ask_chat_gpt(news:str, symbol:str = "BTC") -> str:
-    print('Asking GPT model')
+    logger.get_module_logger(__name__).info(f'Asking GPT model for {symbol}')
     return openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -61,10 +60,11 @@ def ask_chat_gpt(news:str, symbol:str = "BTC") -> str:
 if __name__ == "__main__":
     load_dotenv()
     MINUTE = 0
+    HOUR = [6,18]
     trigger = True
     logger.get_module_logger(__name__).info("REPORTER STARTED")
     while True:
-        if datetime.now().minute == MINUTE and trigger:
+        if datetime.now().minute == MINUTE and datetime.now().hour in HOUR and trigger:
             trigger = False
             ### OPENAI API
             openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -80,10 +80,9 @@ if __name__ == "__main__":
                 response = ask_chat_gpt(news=news,symbol=symbol)
                 try:
                     json_response = json.loads(response['choices'][0]['message']['content'])
-                    print(json_response)
                     publish_to_supabase(label=symbol,title=json_response.get('title'),content=json_response.get('summary'),score=json_response.get('score'))
                 except Exception as e:
-                    print(response['choices'][0]['message']['content'])
+                    logger.get_module_logger(__name__).error(response['choices'][0]['message']['content'])
                     logger.get_module_logger(__name__).error("error",e)
                     # GPT response invalid
                     exit()
