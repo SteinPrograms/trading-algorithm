@@ -6,7 +6,6 @@ import os
 from bs4 import BeautifulSoup
 import requests
 from supabase import create_client, Client
-from helpers import logger
 
 def get_stocktwits_news(symbol:str = "BTC") -> str:
     logger.get_module_logger(__name__).info(f"Fetching news for {symbol}")
@@ -23,11 +22,9 @@ def get_stocktwits_news(symbol:str = "BTC") -> str:
 
 def prepare_prompt(symbol:str = "BTC") -> str:
     return (
-        "Your are a crypto market analyst writing a blog post based on news."
-        "Don't take into consideration what you know."
-        f"You will be provided with a list of news about the {symbol} crypto market."
-        "Your role is to write a blog post about the news."
-        "Your answer is a JSON object with the following keys: sentiment, summary, time."
+        f"Provided a list of news about the {symbol} crypto market."
+        "Write a blog post about the news."
+        "Answer is a JSON object with the following keys: sentiment, summary, time."
         "summary key : Make a general readable summary of around 500 characters about the news, make transition between news. It should be easy to read"
         "title key : Find a short title for the blog post."
         "score key : Provide overall sentiment score on a scale from 0 to 100 as 0 being very negative and 100 being very positive."
@@ -56,37 +53,34 @@ def ask_chat_gpt(news:str, symbol:str = "BTC") -> str:
         ]
     )
 
+print(get_stocktwits_news())
 
-if __name__ == "__main__":
-    load_dotenv()
-    MINUTE = 0
-    HOUR = [6,18]
-    trigger = True
-    logger.get_module_logger(__name__).info("REPORTER STARTED")
-    while True:
-        if datetime.now().minute == MINUTE and datetime.now().hour in HOUR and trigger:
-            trigger = False
-            ### OPENAI API
-            openai.api_key = os.getenv("OPENAI_API_KEY")
-            ### SUPABASE CLIENT
-            supabase: Client = create_client(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY"))
-            data = supabase.auth.sign_in_with_password({"email": os.environ.get("SUPABASE_EMAIL"), "password": os.environ.get("SUPABASE_PASSWORD")})
-            rls = supabase.postgrest.auth(supabase.auth.get_session().access_token)
-            ### SYMBOLS TRACKED
-            SYMBOL_LIST = ["BTC","ETH","XRP"]
-
-            for symbol in SYMBOL_LIST:
-                news = get_stocktwits_news(symbol)
-                response = ask_chat_gpt(news=news,symbol=symbol)
-                try:
-                    json_response = json.loads(response['choices'][0]['message']['content'])
-                    publish_to_supabase(label=symbol,title=json_response.get('title'),content=json_response.get('summary'),score=json_response.get('score'))
-                except Exception as e:
-                    logger.get_module_logger(__name__).error(response['choices'][0]['message']['content'])
-                    logger.get_module_logger(__name__).error("error",e)
-                    # GPT response invalid
-                    exit()
-            supabase.auth.sign_out()
-
-        elif datetime.now().minute != MINUTE:
-            trigger = True
+#
+#if __name__ == "__main__":
+#    load_dotenv()
+#    openai.api_key = os.getenv("OPENAI_API_KEY")
+#    ### SUPABASE CLIENT
+#    supabase: Client = create_client(
+#        os.environ.get("SUPABASE_URL"),
+#        os.environ.get("SUPABASE_KEY")
+#    )
+#    data = supabase.auth.sign_in_with_password({
+#        "email": os.environ.get("SUPABASE_EMAIL"),
+#        "password": os.environ.get("SUPABASE_PASSWORD")
+#    })
+#    rls = supabase.postgrest.auth(supabase.auth.get_session().access_token)
+#    ### SYMBOLS TRACKED
+#    SYMBOL_LIST = ["BTC","ETH","XRP"]
+#
+#    for symbol in SYMBOL_LIST:
+#        news = get_stocktwits_news(symbol)
+#        response = ask_chat_gpt(news=news,symbol=symbol)
+#        try:
+#            json_response = json.loads(response['choices'][0]['message']['content'])
+#            publish_to_supabase(label=symbol,title=json_response.get('title'),content=json_response.get('summary'),score=json_response.get('score'))
+#        except Exception as e:
+#            logger.get_module_logger(__name__).error(response['choices'][0]['message']['content'])
+#            logger.get_module_logger(__name__).error("error",e)
+#            # GPT response invalid
+#            exit()
+#    supabase.auth.sign_out()

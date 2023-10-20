@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """
+
 Crypto-Currencies trading algorithm using :
     - logics defined in the corresponding package under the prediction.py script
     - docker container hosting the postgres database, trading instance and postgres api
@@ -35,20 +36,6 @@ def database_update(position:Position):
     while not event.is_set():
         # Update the data which gets posted to the database
         QUERY = f"""
-            INSERT INTO positions
-            (id)
-            VALUES({position.settings.id})
-            ON CONFLICT (id) DO UPDATE SET
-            open_price = {position.prices.open},
-            close_price = {position.prices.close},
-            highest_price = {position.prices.highest},
-            lowest_price = {position.prices.lowest},
-            current_price = {position.prices.current},
-            open_date = '{position.times.open}',
-            close_date = '{position.times.close}',
-            status = '{position.settings.status}',
-            exit_mode = '{position.settings.exit_mode}'
-            WHERE positions.id = {position.settings.id};
         """
         try:
             database.insert(query = QUERY)
@@ -84,7 +71,8 @@ def market_update(position:Position, indicator : Indicator):
 def main():
     """Main loop"""
 
-    logger.get_module_logger(__name__).info("PROGRAM START")
+    # Initialize logger
+    logger = logger.get_module_logger(__name__)
 
     # Initialize instances
     indicator = Indicator()
@@ -110,8 +98,9 @@ def main():
 
         # If there is an interrupt
         except (KeyboardInterrupt, DrawdownException):
+            logger.info("Exiting gracefully")
             event.set()
-            logger.get_module_logger(__name__).info("PROGRAM END")
+            logger.info("PROGRAM END")
             return
 
 if __name__ == '__main__':
