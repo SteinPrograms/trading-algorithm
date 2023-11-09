@@ -13,7 +13,9 @@ until now it has been a crypto trading algorithm following rules passed inside a
 
 This repository hosts all algorithms used by Stein Programs. They are built under open source license in order to ensure auditability and allow trading community to grow towards algorithmic methodology.
 
-My moto is "you miss 100% of the shots you don't take", this means that if I want to do something and I hesitate, I should do it anyway.
+My moto is "you miss 100% of the shots you don't take", this means that if you want to do something and you hesitate, you should do it anyway.
+
+By no means, this repository consists of financial advice. By running any algorithm hosted on this repository you expose your self to possible financial losses.
 
 ## Credits
 
@@ -21,7 +23,11 @@ In fact, if you find this repository useful in someway, feel free to reach at : 
 
 ## Code rules
 
-In life, communication is the hardest skill to master. I try to master code communication at its best and I try to follow PEP recommendation as much as possible. That's why I added a pylint workflow which checks code quality.
+In life, communication is the hardest skill to master. 
+Trying to master code communication at its best and to follow PEP recommendation as much as possible is important. 
+There is a pylint workflow which checks code quality before anything gets to production.
+
+The project is also translated to rely on python types.
 
 ## Algorithm targets
 
