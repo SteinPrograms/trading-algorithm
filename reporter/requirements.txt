@@ -1,5 +1,0 @@
-langchain
-openai
-transformers
-beautifulsoup4
-requests
