@@ -1,4 +1,6 @@
+import logging
 import dotenv
+import requests
 
 # Creating trader class
 class Trader:
@@ -6,6 +8,14 @@ class Trader:
     def __init__(self):
         # Loading environment variables
         dotenv.load_dotenv()
+        # Setting up logger with timestamp
+        logging.basicConfig(
+            filename="trader.log", 
+            level=logging.INFO,
+            format="%(asctime)s %(message)s"
+        )
+        # Creating logger object
+        self.logger = logging.getLogger(__name__)
 
     # Self calibration
     def assets_trends(self):
@@ -35,8 +45,20 @@ class Trader:
         pass
     
     # Exchange stocks based on the stock data
-    def exchange(self):
-        pass
+    def exchange(self, from_asset, to_asset, amount):
+        # Get server time
+        server_time = requests.get("https://api.kraken.com/0/public/Time")
+        if (server_time.status_code == 200):
+            if (server_time.json()["error"] == []):
+                self.logger.info("Server time fetched successfully")
+            else:
+                self.logger.error(
+                        "Error fetching server time due to internal API error"
+                        f"Error: {server_time.json()['error']}"
+                )
+            print(server_time.json())
+        else:
+            self.logger.error("Error fetching server time due to request error")
     
     # Monitor performance of the trader
     def monitor(self):
@@ -50,3 +72,4 @@ class Trader:
 if __name__ == "__main__":
     # Creating trader object, which will start to operate
     trader = Trader()
+    trader.exchange("BTC", "ETH", 100)
