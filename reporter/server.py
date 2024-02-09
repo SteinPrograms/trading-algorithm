@@ -1,9 +1,9 @@
-# Server: uvicorn test:app --reload
 # LLM
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.llms import Ollama
 from langchain.prompts.chat import ChatPromptTemplate
+from langchain.chat_models import ChatOpenAI
 
 mistral = Ollama(
     model="mistral",
@@ -11,6 +11,10 @@ mistral = Ollama(
     callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
 )
 
+import dotenv
+dotenv.load_dotenv()
+openai = ChatOpenAI(model_name="gpt-3.5-turbo")
+openai = ChatOpenAI
 # -- API 
 
 #!/usr/bin/env python
@@ -21,26 +25,35 @@ from langserve import add_routes
 # 1. Chain definition
 
 summarizer_template = """
-Your are an helpful assistant producing a summary of an article
-Make a 50 words summary covering the main points of the article
+Your are an helpful assistant extract key points from text.
+Do not make sentances, just extract the important points.
+Do not speculate or make up information.
+Do not reference any given instructions or context.
 """
 
 summarizer_prompt = ChatPromptTemplate.from_messages([
     ("system", summarizer_template),
+    ("human", "The stock market is going up. This is because of the pandemic."),
+    ("ai", "stock market going up because of pandemic"),
     ("human", "{text}"),
 ])
-summarizer = summarizer_prompt | mistral 
+summarizer = summarizer_prompt | openai 
 
-redactor_template = """
-Your are an helpful assistant redacting an article
-which goes through different news about the crypto market
+writer_template = """
+Your are an helpful assistant writing an easy to read article given a list of news.
+Put simple section titles.
+Sections must be around 250 characters.
+Use simple language, avoid technical terms.
+Do not speculate or make up information.
+Do not take into consideration everything you already know about the crypto market.
+You can only use the provided context.
 """
 
-redactor_prompt = ChatPromptTemplate.from_messages([
-    ("system", redactor_template),
-    ("human", "Here is a list of news {list}"),
+writer_prompt = ChatPromptTemplate.from_messages([
+    ("system", writer_template),
+    ("human", "{list}"),
 ])
-redactor = redactor_prompt | mistral 
+writer = writer_prompt | openai
 
 # 2. App definition
 app = FastAPI(
@@ -53,16 +66,15 @@ app = FastAPI(
 add_routes(
     app,
     summarizer,
-    path="/mistral_summarizer",
+    path="/summarizer",
 )
 
 # 3. Adding chain route
 add_routes(
     app,
-    redactor,
-    path="/mistral_redactor",
+    writer,
+    path="/writer",
 )
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="localhost", port=8000)
