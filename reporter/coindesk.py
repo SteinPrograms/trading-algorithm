@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from bs4 import BeautifulSoup
+import requests
 
 class Coindesk:
     def __init__(self):
@@ -18,8 +19,8 @@ class Coindesk:
             # Fetch url
             try:
                 response = requests.get(url)
-            except:
-                raise HTTPException(status_code=404, detail="UNABLE TO ACCESS COINDESK")
+            except Exception as error:
+                raise HTTPException(status_code=404, detail=f"{error} UNABLE TO ACCESS COINDESK")
             # Get the different articles details (title, description, date, creator, section, picture)
             items = response.json().get("items")
             # Test if items is a list
