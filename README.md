@@ -1,4 +1,4 @@
-# Base Python Architecture
+# Realtime News API
 
 [![Python Syntax Check and Docker Image](https://github.com/SteinPrograms/base-python-architecture/actions/workflows/workflow.yml/badge.svg)](https://github.com/SteinPrograms/base-python-architecture/actions/workflows/workflow.yml)
 
@@ -6,8 +6,14 @@
 
 ### Motivations
 
-Stein programs python algorithm is aiming for high frequency arbitrage between dapps
-until now it has been a crypto trading algorithm following rules passed inside a database with buy and sell levels
+Getting machine readable news data is either hard or expensive.
+My goal is to make it accessible to everyone and for cheap.
+
+Having relevent data about the market, and the ability to interpret the news is extremely important in trading. 
+
+Indeed, some strategies are only based on technical analysis but required tons of backtesting and are not reliable enough to keep running without serious overlook.
+
+That's why I strive to develop a trading algorithm which behaves as human do, without the emotional over reaction. A trading algorithm with the sharp analysis of the human brain has no emotion but understands them.
 
 ### Why open sourcing ?
 
@@ -19,7 +25,7 @@ By no means, this repository consists of financial advice. By running any algori
 
 ## Credits
 
-In fact, if you find this repository useful in someway, feel free to reach at : <a href="mailto:h2menez@gmail.com">this mail address</a>
+If you find this repository useful in someway, feel free to reach at : <a href="mailto:h2menez@gmail.com">this mail address</a>
 
 ## Code rules
 
@@ -28,14 +34,6 @@ Trying to master code communication at its best and to follow PEP recommendation
 There is a pylint workflow which checks code quality before anything gets to production.
 
 The project is also translated to rely on python types.
-
-## Algorithm targets
-
-As said above, this repository hosts all different trading algorithm built on top of python language.
-Here is a list of different algorithm
-
-- Ichimoku Trading Style
-- Moving Average (finding best strategy through a backtesting algorithm before running)
 
 ## Troubleshoot
 

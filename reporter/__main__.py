@@ -1,3 +1,7 @@
+"""
+
+MAIN MODULE: API initialization
+"""
 from datetime import datetime
 import openai
 from dotenv import load_dotenv
@@ -55,32 +59,32 @@ def ask_chat_gpt(news:str, symbol:str = "BTC") -> str:
 
 print(get_stocktwits_news())
 
-#
-#if __name__ == "__main__":
-#    load_dotenv()
-#    openai.api_key = os.getenv("OPENAI_API_KEY")
-#    ### SUPABASE CLIENT
-#    supabase: Client = create_client(
-#        os.environ.get("SUPABASE_URL"),
-#        os.environ.get("SUPABASE_KEY")
-#    )
-#    data = supabase.auth.sign_in_with_password({
-#        "email": os.environ.get("SUPABASE_EMAIL"),
-#        "password": os.environ.get("SUPABASE_PASSWORD")
-#    })
-#    rls = supabase.postgrest.auth(supabase.auth.get_session().access_token)
-#    ### SYMBOLS TRACKED
-#    SYMBOL_LIST = ["BTC","ETH","XRP"]
-#
-#    for symbol in SYMBOL_LIST:
-#        news = get_stocktwits_news(symbol)
-#        response = ask_chat_gpt(news=news,symbol=symbol)
-#        try:
-#            json_response = json.loads(response['choices'][0]['message']['content'])
-#            publish_to_supabase(label=symbol,title=json_response.get('title'),content=json_response.get('summary'),score=json_response.get('score'))
-#        except Exception as e:
-#            logger.get_module_logger(__name__).error(response['choices'][0]['message']['content'])
-#            logger.get_module_logger(__name__).error("error",e)
-#            # GPT response invalid
-#            exit()
-#    supabase.auth.sign_out()
+
+if __name__ == "__main__":
+   load_dotenv()
+   openai.api_key = os.getenv("OPENAI_API_KEY")
+   ### SUPABASE CLIENT
+   supabase: Client = create_client(
+       os.environ.get("SUPABASE_URL"),
+       os.environ.get("SUPABASE_KEY")
+   )
+   data = supabase.auth.sign_in_with_password({
+       "email": os.environ.get("SUPABASE_EMAIL"),
+       "password": os.environ.get("SUPABASE_PASSWORD")
+   })
+   rls = supabase.postgrest.auth(supabase.auth.get_session().access_token)
+   ### SYMBOLS TRACKED
+   SYMBOL_LIST = ["BTC","ETH","XRP"]
+
+   for symbol in SYMBOL_LIST:
+       news = get_stocktwits_news(symbol)
+       response = ask_chat_gpt(news=news,symbol=symbol)
+       try:
+           json_response = json.loads(response['choices'][0]['message']['content'])
+           publish_to_supabase(label=symbol,title=json_response.get('title'),content=json_response.get('summary'),score=json_response.get('score'))
+       except Exception as e:
+           logger.get_module_logger(__name__).error(response['choices'][0]['message']['content'])
+           logger.get_module_logger(__name__).error("error",e)
+           # GPT response invalid
+           exit()
+   supabase.auth.sign_out()
