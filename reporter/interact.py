@@ -4,11 +4,13 @@ API to fetch news from coindesk
 
 # Import the required libraries
 import uvicorn
-from fastapi import FastAPI 
+from fastapi import FastAPI
 from uvicorn.config import LOGGING_CONFIG
 from fastapi.middleware.cors import CORSMiddleware
 from coindesk import Coindesk
 from log import logger
+import asyncio
+import time
 
 # Create the fastapi app
 app = FastAPI()
@@ -20,25 +22,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/news")
-async def get_news(symbol: str = "BTC", MAX_PAGE: int = 1, MAX_ARTICLE: int = 1) -> list[dict]:
+async def get_news(
+    symbol: str = "BTC", MAX_PAGE: int = 1, MAX_ARTICLE: int = 3
+) -> list[dict]:
     list_of_articles: list = []
     set_of_articles: set = set()
     aticle_number = 0
-    for page_number,page in enumerate(Coindesk.search(symbol=symbol, MAX_PAGE=MAX_PAGE)):
-        logger.info(f"Fetching page {page_number+1}/{MAX_PAGE}")
-        for article in page:
-            details = Coindesk.details(article, symbol)
-            # if the same author wrote with same symbol, same date, same title
-            specificities = (details.CREATOR, details.SYMBOL, details.DATE)
-            if specificities in set_of_articles:
-                continue
-            set_of_articles.add(specificities)
-            list_of_articles.append(details.to_dict())
-            aticle_number+=1
-            if aticle_number == MAX_ARTICLE:
-                return list_of_articles
-    return list_of_articles
+    logger.error(f"started at {time.strftime('%X')}")
+    tasks = [Coindesk.details(article, symbol) for page in Coindesk.search(symbol=symbol, MAX_PAGE=MAX_PAGE) for article in page]
+    logger.error(f"starting coroutine at {time.strftime('%X')}")
+    results = await asyncio.gather(*tasks)
+    logger.error(f"finished at {time.strftime('%X')}")
+    return results[:MAX_ARTICLE]
+
 
 if __name__ == "__main__":
     LOGGING_CONFIG["formatters"]["access"][

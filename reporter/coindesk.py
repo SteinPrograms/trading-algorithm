@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 from bs4 import BeautifulSoup
 import requests
-
+import aiohttp
+from log import logger
 
 class Article:
     def __init__(
@@ -68,7 +69,19 @@ class Coindesk:
             yield items
 
     @staticmethod
-    def details(article: dict, symbol) -> Article:
+    async def fetch_article_content(session: aiohttp.ClientSession, url: str) -> str:
+        async with session.get(url) as response:
+            # Line to check if the request was successful
+            # However, we don't want to raise an exception here
+            # response.raise_for_status()
+            logger.info(response.status)
+            soup = BeautifulSoup(await response.text(), 'html.parser')
+            body = soup.find_all("div", class_="eSbCkN")
+            content = ''.join(value.text for value in body)
+            return content
+
+    @staticmethod
+    async def details(article: dict, symbol) -> Article:
         # Get the values
         title = article["title"]
         description = article["subheadlines"]  # Subheadlines is a polished description
@@ -79,17 +92,11 @@ class Coindesk:
 
         # Fetch content of the article
         url = Coindesk.DOMAIN + Coindesk.ENDPOINTS.article.format(link=article["link"])
-        try:
-            response = requests.get(url)
-        except:
-            raise HTTPException(status_code=404, detail="UNABLE TO ACCESS COINDESK")
-        # Init the HTML parser
-        soup = BeautifulSoup(response.content, features="html.parser")
-        # Class of content is eSbCkN
-        body = soup.find_all("div", class_="eSbCkN")
-        content = str()
-        for values in body:
-            content += values.text
+        async with aiohttp.ClientSession() as session:
+            try:
+                content = await Coindesk.fetch_article_content(session, url)
+            except aiohttp.ClientError as error:
+                raise HTTPException(status_code=404, detail=f"{error} : UNABLE TO ACCESS COINDESK")
 
         return Article(
             title=title,
@@ -101,4 +108,4 @@ class Coindesk:
             content=content,
             section=section,
             picture=picture,
-        )
+        ).to_dict()
