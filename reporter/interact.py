@@ -11,6 +11,7 @@ from coindesk import Coindesk
 from log import logger
 import asyncio
 import time
+import itertools
 
 # Create the fastapi app
 app = FastAPI()
@@ -27,11 +28,20 @@ app.add_middleware(
 async def get_news(
     symbol: str = "BTC", MAX_PAGE: int = 1, MAX_ARTICLE: int = 3
 ) -> list[dict]:
-    logger.error(f"started at {time.strftime('%X')}")
-    tasks = [Coindesk.details(article, symbol) for page in Coindesk.search(symbol=symbol, MAX_PAGE=MAX_PAGE) for article in page][:MAX_ARTICLE]
-    logger.error(f"starting coroutine at {time.strftime('%X')}")
+    logger.info(f"started at {time.strftime('%X')}")
+    # First we fetch asyncronously the articles urls from coindesk
+    # Through different pages
+    task_urls = [Coindesk.search(symbol=symbol,page=page) for page in range(0, MAX_PAGE)]
+    logger.info(f"starting pages coroutine at {time.strftime('%X')}")
+    articles_urls = await asyncio.gather(*task_urls)
+    logger.info(f"finished at {time.strftime('%X')}")
+    combined_list = list(itertools.chain(*articles_urls))[:MAX_ARTICLE]
+    # We have a list of list of url_articles
+    # Create a list of coroutines
+    tasks = [Coindesk.details(article, symbol) for article in combined_list]
+    logger.info(f"starting articles coroutine at {time.strftime('%X')}")
     results = await asyncio.gather(*tasks)
-    logger.error(f"finished at {time.strftime('%X')}")
+    logger.info(f"finished at {time.strftime('%X')}")
     return results
 
 

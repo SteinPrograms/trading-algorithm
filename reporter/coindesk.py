@@ -49,36 +49,28 @@ class Coindesk:
         article = "/{link}"
 
     @staticmethod   
-    def search(symbol: str = "BTC", MAX_PAGE: int = 10):
-        # Length of search
-        for page in range(0, MAX_PAGE):
+    async def search(*,symbol: str = "BTC", page: int = 1) -> list:
+        """
+        SEARCH ALL ARTICLES URL ON COINDESK
+        FOR A SPECIFIC CRYPTO SYMBOL
+        THROUGH MULTIPLE PAGES
+        """
             # Construct main page url
-            query = f"%7B%22search_query%22%3A%22{symbol}%22%2C%22sort%22%3A0%2C%22page%22%3A{page}%2C%22filter_url%22%3A%22%22%7D"
-            url = Coindesk.DOMAIN + Coindesk.ENDPOINTS.search.format(query=query)
-            # Fetch url
+        query = f"%7B%22search_query%22%3A%22{symbol}%22%2C%22sort%22%3A0%2C%22page%22%3A{page}%2C%22filter_url%22%3A%22%22%7D"
+        url = Coindesk.DOMAIN + Coindesk.ENDPOINTS.search.format(query=query)
+        # Fetch url
+        async with aiohttp.ClientSession() as session:
             try:
-                response = requests.get(url)
-            except Exception as error:
-                raise HTTPException(
-                    status_code=404, detail=f"{error} UNABLE TO ACCESS COINDESK"
-                )
-            # Get the different articles details (title, description, date, creator, section, picture)
-            items = response.json().get("items")
-            # Test if items is a list
-            assert type(items) == list, "Items is not a list"
-            yield items
-
-    @staticmethod
-    async def fetch_article_content(session: aiohttp.ClientSession, url: str) -> str:
-        async with session.get(url) as response:
-            # Line to check if the request was successful
-            # However, we don't want to raise an exception here
-            # response.raise_for_status()
-            logger.info(response.status)
-            soup = BeautifulSoup(await response.text(), 'html.parser')
-            body = soup.find_all("div", class_="eSbCkN")
-            content = ''.join(value.text for value in body)
-            return content
+                async with session.get(url) as response:
+                    # response.raise_for_status()
+                    logger.info(response.status)
+                    response = await response.json()
+                    # Get the different articles details (title, description, date, creator, section, picture)
+                    items = response.get("items")
+                    assert type(items) == list, "Items is not a list"
+                    return items
+            except aiohttp.ClientError as error:
+                raise HTTPException(status_code=404, detail=f"{error} : UNABLE TO ACCESS COINDESK")
 
     @staticmethod
     async def details(article: dict, symbol) -> Article:
@@ -94,9 +86,16 @@ class Coindesk:
         url = Coindesk.DOMAIN + Coindesk.ENDPOINTS.article.format(link=article["link"])
         async with aiohttp.ClientSession() as session:
             try:
-                content = await Coindesk.fetch_article_content(session, url)
+                async with session.get(url) as response:
+                    # Line to check if the request was successful
+                    # However, we don't want to raise an exception here
+                    # response.raise_for_status()
+                    logger.info(response.status)
+                    soup = BeautifulSoup(await response.text(), 'html.parser')
+                    body = soup.find_all("div", class_="eSbCkN")
+                    content = ''.join(value.text for value in body)
             except aiohttp.ClientError as error:
-                raise HTTPException(status_code=404, detail=f"{error} : UNABLE TO ACCESS COINDESK")
+                raise HTTPException(status_code=404, detail=f"{error} : UNABLE TO ACCESS COINDESK ARTICLE")
 
         return Article(
             title=title,
