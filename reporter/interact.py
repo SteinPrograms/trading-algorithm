@@ -27,15 +27,12 @@ app.add_middleware(
 async def get_news(
     symbol: str = "BTC", MAX_PAGE: int = 1, MAX_ARTICLE: int = 3
 ) -> list[dict]:
-    list_of_articles: list = []
-    set_of_articles: set = set()
-    aticle_number = 0
     logger.error(f"started at {time.strftime('%X')}")
-    tasks = [Coindesk.details(article, symbol) for page in Coindesk.search(symbol=symbol, MAX_PAGE=MAX_PAGE) for article in page]
+    tasks = [Coindesk.details(article, symbol) for page in Coindesk.search(symbol=symbol, MAX_PAGE=MAX_PAGE) for article in page][:MAX_ARTICLE]
     logger.error(f"starting coroutine at {time.strftime('%X')}")
     results = await asyncio.gather(*tasks)
     logger.error(f"finished at {time.strftime('%X')}")
-    return results[:MAX_ARTICLE]
+    return results
 
 
 if __name__ == "__main__":
