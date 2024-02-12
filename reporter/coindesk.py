@@ -1,7 +1,5 @@
 from fastapi import HTTPException
 from bs4 import BeautifulSoup
-from openai import OpenAI
-import requests
 import aiohttp
 from log import logger
 import os
