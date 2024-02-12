@@ -12,7 +12,9 @@ from log import logger
 import asyncio
 import time
 import itertools
+from dotenv import load_dotenv
 
+load_dotenv()
 # Create the fastapi app
 app = FastAPI()
 app.add_middleware(
@@ -22,7 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/news")
 async def get_news(
@@ -43,7 +44,6 @@ async def get_news(
     results = await asyncio.gather(*tasks)
     logger.info(f"finished at {time.strftime('%X')}")
     return results
-
 
 if __name__ == "__main__":
     LOGGING_CONFIG["formatters"]["access"][
