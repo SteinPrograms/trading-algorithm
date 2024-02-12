@@ -118,6 +118,7 @@ class Coindesk:
                                 "role": "system",
                                 "content": (
                                     "Your are an helpful assistant extract key points from text."
+                                    "Provide a response with HTML balise"
                                     "Do not make sentances, just extract the important points."
                                     "Do not speculate or make up information."
                                     "Do not reference any given instructions or context."
