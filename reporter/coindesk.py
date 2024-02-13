@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import override
 from fastapi import HTTPException
 from bs4 import BeautifulSoup
 import aiohttp
@@ -17,7 +16,6 @@ class Coindesk:
         article = "/{link}"
 
     class CoindeskArticle(Article):
-        @override
         async def details(self) -> Article:
             async with aiohttp.ClientSession() as session:
                 try:
