@@ -1,7 +1,7 @@
 
 from datetime import datetime
 import os
-from log import logger
+from helpers import logger
 import aiohttp
 
 
@@ -76,7 +76,7 @@ class Article:
                     json=json_data,
                 ) as response:
                     result = await response.json()
-                    logger.info(result)
+                    logger(__name__).info(result)
                     self.CONTENT = result.get("choices")[0].get("message").get("content")
 
             return self

@@ -2,10 +2,8 @@ from datetime import datetime
 from fastapi import HTTPException
 from bs4 import BeautifulSoup
 import aiohttp
-from log import logger
-import os
-from article import Article
-
+from helpers import logger
+from models.article import Article
 
 class Crypto:
     DOMAIN = 'https://crypto.news'
@@ -22,7 +20,7 @@ class Crypto:
                         # Line to check if the request was successful
                         # However, we don't want to raise an exception here
                         # response.raise_for_status()
-                        logger.info(f"crypto.news article code:{response.status}")
+                        logger(__name__).info(f"crypto.news article code:{response.status}")
                         soup = BeautifulSoup(await response.text(), "html.parser")
                         content = soup.find_all(class_="post-detail__content blocks")[0]
                         self.CONTENT = ''.join([value.text for value in content if value.name in ['h2','p','ul','blockquote','a']])
@@ -53,7 +51,7 @@ class Crypto:
             try:
                 async with session.get(url) as response:
                     # response.raise_for_status()
-                    logger.info(f"crypto.news search code :{response.status}")
+                    logger(__name__).info(f"crypto.news search code :{response.status}")
                     response = await response.text()
                     # Get the different articles details (title, description, date, creator, section, picture)
                     items = Crypto.parse_html_to_objects(response)

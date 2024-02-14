@@ -1,9 +1,9 @@
 # LLM server interface
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.llms import Ollama
+from langchain_community.llms import Ollama
 from langchain.prompts.chat import ChatPromptTemplate
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 
 mistral = Ollama(
     model="mistral",
@@ -37,7 +37,7 @@ summarizer_prompt = ChatPromptTemplate.from_messages([
     ("ai", "stock market going up because of pandemic"),
     ("human", "{text}"),
 ])
-summarizer = summarizer_prompt | openai 
+summarizer = summarizer_prompt | mistral 
 
 writer_template = """
 Your are an helpful assistant writing an easy to read article given a list of news.
@@ -53,7 +53,7 @@ writer_prompt = ChatPromptTemplate.from_messages([
     ("system", writer_template),
     ("human", "{list}"),
 ])
-writer = writer_prompt | openai
+writer = writer_prompt | mistral
 
 # 2. App definition
 app = FastAPI(
