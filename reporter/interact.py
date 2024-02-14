@@ -3,8 +3,10 @@ API to fetch news from coindesk
 """
 
 # Import the required libraries
+import os
+from pydantic import BaseModel
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from uvicorn.config import LOGGING_CONFIG
 from fastapi.middleware.cors import CORSMiddleware
 from log import logger
@@ -26,11 +28,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/news")
-async def get_news(
-    symbol: str = "BTC", MAX_PAGE: int = 1, MAX_ARTICLE: int = 3, summarize: bool = False
-) -> list[dict]:
+class APIKEY(BaseModel):
+    api_key: str
+@app.post("/news")
+async def news(
+    item: APIKEY,
+    symbol: str = "BTC",
+    MAX_PAGE: int = 1,
+    MAX_ARTICLE: int = 3,
+    summarize: bool = False,
+) :
     """
     With `/news` endpoint you get
     detailed articles from different sources
@@ -72,6 +79,13 @@ async def get_news(
     });
     ```
     """
+    if item.api_key != os.getenv("STEINPROGRAMS_API_KEY"):
+        logger.error(f"api_key: {item.api_key}")
+        raise HTTPException(
+            status_code=403, detail
+            =f"API KEY {item.api_key} is not valid"
+        )
+
     logger.info(f"started at {time.strftime('%X')}")
     # First we fetch asyncronously the articles urls from coindesk
     # Through different pages
@@ -107,6 +121,7 @@ async def get_news(
 
     results = [article.to_dict() for article in results] # Convert articles to dict for json formatting
     return results
+ 
 
 
 if __name__ == "__main__":
