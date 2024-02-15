@@ -5,7 +5,6 @@ import os
 from fastapi import HTTPException
 from helpers import logger
 import aiohttp
-from transformers import pipeline
 import asyncio
 
 class Article:
