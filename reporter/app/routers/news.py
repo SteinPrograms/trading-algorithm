@@ -22,12 +22,14 @@ async def get_api_key(api_key_header: str = Depends(api_key_header)):
         )
 
 
+
 @router.get("/news", dependencies=[Depends(get_api_key)])
 async def news(
     symbol: str = "BTC",
     MAX_PAGE: int = 1,
     MAX_ARTICLE: int = 3,
     summarize: bool = False,
+    sentiment: bool = False
 ) :
     """
     REQUEST FROM WEB SERVER ONLY
@@ -103,6 +105,10 @@ async def news(
     # Then we can summarize the articles content
     if summarize:
         tasks = [article.summarize() for article in results]
+        results = await asyncio.gather(*tasks)
+
+    if sentiment and summarize:
+        tasks = [article.categorize() for article in results]
         results = await asyncio.gather(*tasks)
 
     results = [article.to_dict() for article in results] # Convert articles to dict for json formatting
