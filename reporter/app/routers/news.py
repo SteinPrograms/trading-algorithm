@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
 from fastapi.security.api_key import APIKeyHeader
 import time
-from models import Coindesk, Crypto 
+from models import Coindesk, Crypto
 from helpers import logger, Database
 import asyncio
 
@@ -12,12 +12,13 @@ router = APIRouter()
 
 api_keys = Database().get_api_keys()
 
-api_keys.append(os.environ['STEINPROGRAMS_API_KEY'])
+api_keys.append({"tier": 4, "api_key": os.environ["STEINPROGRAMS_API_KEY"]})
 api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=True)
+
+
 async def get_api_key(api_key_header: str = Depends(api_key_header)):
-    logger(__name__).info(f"api_key_header: {api_key_header}")
     # We load all api keys from the db and check (warning it is not efficient)
-    if api_key_header in api_keys:
+    if api_key_header in [api_key["api_key"] for api_key in api_keys]:
         return api_key_header
     else:
         raise HTTPException(
@@ -25,16 +26,25 @@ async def get_api_key(api_key_header: str = Depends(api_key_header)):
             detail="Invalid API Key",
         )
 
+
 @router.get("/refresh")
-def refresh():
+def refresh(
+    api_key: str = Depends(api_key_header)
+):
     """
     REQUEST FROM WEB SERVER ONLY
     With `/refresh` endpoint you can
     refresh the api keys from the database.
     """
     global api_keys
+    
+    if api_key not in [api_key["api_key"] for api_key in api_keys if api_key["tier"] > 0]:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Upgrade API key to access this feature",
+            )
     api_keys = Database().get_api_keys()
-    api_keys.append(os.environ['STEINPROGRAMS_API_KEY'])
+    api_keys.append({"tier": 4, "api_key": os.environ["STEINPROGRAMS_API_KEY"]})
     return {"detail": "API keys refreshed"}
 
 
@@ -44,8 +54,9 @@ async def news(
     MAX_PAGE: int = 1,
     MAX_ARTICLE: int = 3,
     summarize: bool = False,
-    sentiment: bool = False
-) :
+    sentiment: bool = False,
+    api_key: str = Depends(api_key_header)
+):
     """
     REQUEST FROM WEB SERVER ONLY
     With `/news` endpoint you get
@@ -89,10 +100,20 @@ async def news(
     ```
     """
 
+    # ACCESS TO SUMMARIZE AND SENTIMENT IS LIMITED TO TIER 1 and above
+    if summarize or sentiment:
+        if api_key not in [api_key["api_key"] for api_key in api_keys if api_key["tier"] > 0]:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Upgrade API key to access this feature",
+            )
     logger(__name__).info(f"STARTED ")
     # First we fetch asyncronously the articles urls from coindesk
     # Through different pages
-    search_functions = [Coindesk.search, Crypto.search] #, Yahoo.search, Twitter.search, Binance.search, Kraken.searc
+    search_functions = [
+        Coindesk.search,
+        Crypto.search,
+    ]  # , Yahoo.search, Twitter.search, Binance.search, Kraken.searc
     task_urls = [
         search(symbol=symbol, page=page)
         for search in search_functions
@@ -126,5 +147,7 @@ async def news(
         tasks = [article.categorize() for article in results]
         results = await asyncio.gather(*tasks)
 
-    results = [article.to_dict() for article in results] # Convert articles to dict for json formatting
+    results = [
+        article.to_dict() for article in results
+    ]  # Convert articles to dict for json formatting
     return results

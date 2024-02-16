@@ -11,4 +11,4 @@ class Database:
 
     def get_api_keys(self):
         response = self.supabase.table("users").select("*").execute()
-        return [user["api_key"] for user in response.data]
+        return response.data
