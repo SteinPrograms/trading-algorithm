@@ -61,10 +61,17 @@ async def news(
     api_key: str = Depends(api_key_header)
 ):
     """
-    REQUEST FROM WEB SERVER ONLY
     With `/news` endpoint you get
     detailed articles from different sources
     for a given symbol.
+
+    To access the endpoint you need to provide an api key
+    in the header of the request with the key `X-API-KEY`.
+
+    To access the summarize and sentiment features
+    you need to have a tier 1 or above api key which
+    you can get by subscribing to the service through
+    [steinprograms.com](https://steinprograms.com).
 
     How to use with python:
     ```python
