@@ -1,0 +1,8 @@
+langchain
+supabase
+langserve[all]
+fastapi
+beautifulsoup4
+python-dotenv
+transformers
+torch

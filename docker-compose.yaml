@@ -36,3 +36,12 @@ services:
       - db
     ports:
       - 5050:5050
+
+  reporter:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: stein-reporter.Dockerfile
+    depends_on:
+      - db
