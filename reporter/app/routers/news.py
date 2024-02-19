@@ -35,9 +35,12 @@ def refresh(
     api_key: str = Depends(api_key_header)
 ):
     """
-    REQUEST FROM WEB SERVER ONLY
-    With `/refresh` endpoint you can
-    refresh the api keys from the database.
+    REQUEST FROM WEB SERVER ONLY  
+
+    This endpoint is used to refresh the api keys in memory from the database.
+    It allows to add new api keys without restarting the server by providing
+    better performance.
+
     """
     global api_keys
     
