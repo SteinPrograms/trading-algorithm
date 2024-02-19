@@ -86,42 +86,11 @@ class Article:
 
             return self
     
-    async def categorize(self) -> 'Article': # forward reference
-        async with aiohttp.ClientSession() as session:
-            # Use a pipeline as a high-level helper
-            # Split the summary per keypoint and check the overall sentiment
-            if self.CONTENT != "":
-                headers = {
-                    "Accept" : "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + os.getenv("HUGGINGFACE_API_KEY", ""),
-                }
-                json_data = {
-                    "inputs": self.CONTENT,
-                }
-                for _ in range(3):
-                    async with session.post(
-                        os.getenv("HUGGINGFACE_ENDPOINT"), # Model can be loading {'error': 'Model ProsusAI/finbert is currently loading', 'estimated_time': 20.0}
-                        headers=headers,
-                        json=json_data,
-                    ) as response:
-                        result = await response.json()
-                        logger(__name__).info(result)
-                        # Check for errors
-                        if 'error' in result:
-                            try:
-                                estimated_time = int(result["estimated_time"])
-                                await asyncio.sleep(estimated_time) # suspense for X seconds
-                                continue # Try again
-                            except KeyError:
-                                error = result.get("error") # If there is not error, it will raise an exception
-                                raise HTTPException(
-                                    status_code=404,
-                                    detail=f"{error} : UNABLE TO ACCESS HUGGINGFACE API",
-                                )
-                        try:
-                            self.SENTIMENT = result[0].get("label") # Can be slightly bullish if NEUTRAL first and BULLISH second
-                        except:
-                            self.SENTIMENT = "Unavailable"
-                        break
-            return self
+    async def categorize(self,pipe) -> 'Article': # forward reference
+        # We use a transformer model to categorize the article
+        # Use a pipeline as a high-level helper
+        result = pipe(self.CONTENT) 
+        # result = pipe(self.CONTENT,return_all_scores = True) 
+        logger(__name__).info(result)
+        self.SENTIMENT = result[0].get("label")
+        return self

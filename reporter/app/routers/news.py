@@ -7,6 +7,7 @@ import time
 from models import Coindesk, Crypto
 from helpers import logger, Database
 import asyncio
+from transformers import pipeline
 
 router = APIRouter()
 
@@ -15,6 +16,8 @@ api_keys = Database().get_api_keys()
 api_keys.append({"tier": 4, "api_key": os.environ["STEINPROGRAMS_API_KEY"]})
 api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=True)
 
+# Pipeline for sentiment analysis
+pipe = pipeline("text-classification", model="ProsusAI/finbert")
 
 async def get_api_key(api_key_header: str = Depends(api_key_header)):
     # We load all api keys from the db and check (warning it is not efficient)
@@ -112,7 +115,7 @@ async def news(
     # Through different pages
     search_functions = [
         Coindesk.search,
-        Crypto.search,
+        # Crypto.search,
     ]  # , Yahoo.search, Twitter.search, Binance.search, Kraken.searc
     task_urls = [
         search(symbol=symbol, page=page)
@@ -127,16 +130,13 @@ async def news(
 
     # We should sort articles by date (which has to be in datetime format) descending
     combined_list.sort(key=lambda article: article.DATE, reverse=True)
-
-    for article in combined_list:
-        logger(__name__).info(f"article date: {article.DATE}")
     combined_list = combined_list[:MAX_ARTICLE]  # Limit the number of articles
 
     # Create a list of coroutines to fetch the details of the articles on their respective websites
     tasks = [article.details() for article in combined_list]
-    logger(__name__).info(f"starting articles coroutine at {time.strftime('%X')}")
+    logger(__name__).info(f"ARTICLE DETAILS FETCHING STARTED")
     results = await asyncio.gather(*tasks)
-    logger(__name__).info(f"finished at {time.strftime('%X')}")
+    logger(__name__).info(f"ARTICLE DETAILS FETCHING FINISHED")
 
     # Then we can summarize the articles content
     if summarize:
@@ -144,7 +144,7 @@ async def news(
         results = await asyncio.gather(*tasks)
 
     if sentiment and summarize:
-        tasks = [article.categorize() for article in results]
+        tasks = [article.categorize(pipe) for article in results]
         results = await asyncio.gather(*tasks)
 
     results = [
