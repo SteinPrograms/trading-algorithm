@@ -52,6 +52,8 @@ class Coindesk:
                     # Get the different articles details (title, description, date, creator, section, picture)
                     items = Coindesk.parse_json_to_objects(json)
                     assert type(items) == list, "Items is not a list"
+                    # Should filter to only keep english - markets   
+                    items = [item for item in items if r"https://www.coindesk.com//markets" in item.LINK]
                     return items
             except aiohttp.ClientError as error:
                 raise HTTPException(
