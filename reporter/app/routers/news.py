@@ -114,8 +114,13 @@ async def news(
     """
 
     # ACCESS TO SUMMARIZE AND SENTIMENT IS LIMITED TO TIER 1 and above
-    if summarize or sentiment:
-        if api_key not in [api_key["api_key"] for api_key in api_keys if api_key["tier"] > 0]:
+    if api_key not in [api_key["api_key"] for api_key in api_keys if api_key["tier"] > 0]:
+        if symbol != "BTC" or MAX_PAGE != 1 or MAX_ARTICLE != 3:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Upgrade API key to access this feature",
+            )
+        if summarize or sentiment:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Upgrade API key to access this feature",
