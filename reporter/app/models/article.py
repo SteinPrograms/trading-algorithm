@@ -82,7 +82,13 @@ class Article:
                 ) as response:
                     result = await response.json()
                     logger(__name__).info(result)
-                    self.CONTENT = result.get("choices")[0].get("message").get("content")
+                    try:
+                        self.CONTENT = result.get("choices")[0].get("message").get("content")
+                    except:
+                        raise HTTPException(
+                            status_code=500,
+                            detail="OpenAI API failed to summarize the article",
+                        )
 
             return self
     
