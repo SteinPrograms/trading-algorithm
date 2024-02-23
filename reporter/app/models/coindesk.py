@@ -5,6 +5,7 @@ import aiohttp
 from helpers import logger
 from models.article import Article
 
+
 class Coindesk:
     DOMAIN = "https://www.coindesk.com"
 
@@ -20,7 +21,9 @@ class Coindesk:
                         # Line to check if the request was successful
                         # However, we don't want to raise an exception here
                         # response.raise_for_status()
-                        logger(__name__).info(f"coindesk article code :{response.status}")
+                        logger(__name__).info(
+                            f"coindesk article code :{response.status}"
+                        )
                         soup = BeautifulSoup(await response.text(), "html.parser")
                         body = soup.find_all("div", class_="eSbCkN")
                         self.CONTENT = "".join(value.text for value in body)
@@ -50,35 +53,38 @@ class Coindesk:
                     logger(__name__).info(f"coindesk search code:{response.status}")
                     json = await response.json()
                     # Get the different articles details (title, description, date, creator, section, picture)
-                    items = Coindesk.parse_json_to_objects(json)
+                    items = Coindesk.parse_json_to_objects(json=json, symbol=symbol)
                     assert type(items) == list, "Items is not a list"
-                    # Should filter to only keep english - markets   
-                    items = [item for item in items if r"https://www.coindesk.com//markets" in item.LINK]
+                    # Should filter to only keep english - markets
+                    items = [
+                        item
+                        for item in items
+                        if r"https://www.coindesk.com//markets" in item.LINK
+                    ]
                     return items
             except aiohttp.ClientError as error:
                 raise HTTPException(
                     status_code=404, detail=f"{error} : UNABLE TO ACCESS COINDESK"
                 )
 
-
     @staticmethod
-    def parse_json_to_objects(json:dict) -> list:
+    def parse_json_to_objects(*, json: dict, symbol: str) -> list:
         items = json.get("items")
         return [
             Coindesk.CoindeskArticle(
-                title = article["title"],
-                description = article["subheadlines"],  # Subheadlines is a polished description
-                creator = article["creator"],
-                date = datetime.strptime(article["pubdate"], "%b %d, %Y"),
-                link = Coindesk.DOMAIN + Coindesk.ENDPOINTS.article.format(link=article["link"]),
-                symbol = "",
-                content = "",
-                section = article["primary_section"],
-                picture = Coindesk.DOMAIN + article["promo_image"],
+                provider="Coindesk",
+                title=article["title"],
+                description=article[
+                    "subheadlines"
+                ],  # Subheadlines is a polished description
+                creator=article["creator"],
+                date=datetime.strptime(article["pubdate"], "%b %d, %Y"),
+                link=Coindesk.DOMAIN
+                + Coindesk.ENDPOINTS.article.format(link=article["link"]),
+                symbol=symbol,
+                content="",
+                section=article["primary_section"],
+                picture=Coindesk.DOMAIN + article["promo_image"],
             )
             for article in items
         ]
-
-
-
-

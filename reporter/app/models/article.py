@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import os
 
@@ -7,10 +6,12 @@ from helpers import logger
 import aiohttp
 import asyncio
 
+
 class Article:
     def __init__(
         self,
         *,
+        provider,
         title,
         description,
         creator,
@@ -20,8 +21,9 @@ class Article:
         content,
         section,
         picture,
-        sentiment = "Unavailable"
+        sentiment="Unavailable",
     ) -> None:
+        self.PROVIDER: str = provider
         self.TITLE = title
         self.DESCRIPTION = description
         self.CREATOR = creator
@@ -35,6 +37,7 @@ class Article:
 
     def to_dict(self):
         return {
+            "provider": self.PROVIDER,
             "title": self.TITLE,
             "description": self.DESCRIPTION,
             "creator": self.CREATOR,
@@ -44,10 +47,10 @@ class Article:
             "content": self.CONTENT,
             "section": self.SECTION,
             "picture": self.PICTURE,
-            "sentiment": self.SENTIMENT
+            "sentiment": self.SENTIMENT,
         }
 
-    async def summarize(self) -> 'Article': # forward reference
+    async def summarize(self) -> "Article":  # forward reference
         # Make summary here
         # async with session.post(
         #     "http://localhost:8000/summarizer/invoke", json={"input": {"text": content}}
@@ -72,18 +75,23 @@ class Article:
                                 "Do not reference any given instructions or context."
                             ),
                         },
-                        {"role": "user", "content": self.CONTENT[:1000]}, # Limit to 1000 characters
+                        {
+                            "role": "user",
+                            "content": self.CONTENT[:1000],
+                        },  # Limit to 1000 characters
                     ],
                 }
                 async with session.post(
-                    "https://api.openai.com/v1/chat/completions", # Now we can use local server and ollama model but isn't async
+                    "https://api.openai.com/v1/chat/completions",  # Now we can use local server and ollama model but isn't async
                     headers=headers,
                     json=json_data,
                 ) as response:
                     result = await response.json()
                     logger(__name__).info(result)
                     try:
-                        self.CONTENT = result.get("choices")[0].get("message").get("content")
+                        self.CONTENT = (
+                            result.get("choices")[0].get("message").get("content")
+                        )
                     except:
                         raise HTTPException(
                             status_code=500,
@@ -91,12 +99,47 @@ class Article:
                         )
 
             return self
-    
-    async def categorize(self,pipe) -> 'Article': # forward reference
+
+    async def categorize(self, pipe) -> "Article":  # forward reference
         # We use a transformer model to categorize the article
         # Use a pipeline as a high-level helper
-        result = pipe(self.CONTENT) 
-        # result = pipe(self.CONTENT,return_all_scores = True) 
+        result = pipe(self.CONTENT)
+        # result = pipe(self.CONTENT,return_all_scores = True)
         logger(__name__).info(result)
         self.SENTIMENT = result[0].get("label")
         return self
+
+    @staticmethod
+    def parse_dict_to_object(*, json: dict):
+        from models.coindesk import Coindesk
+        from models.crypto import Crypto
+
+        match json.get("provider"):
+            case "Crypto News":
+                return Crypto.CryptoArticle(
+                    provider=json.get("provider"),
+                    title=json.get("title"),
+                    description=json.get("description"),
+                    creator=json.get("creator"),
+                    date=json.get("date"),
+                    link=json.get("link"),
+                    symbol=json.get("symbol"),
+                    content=json.get("content"),
+                    section=json.get("section"),
+                    picture=json.get("picture"),
+                    sentiment=json.get("sentiment"),
+                )
+            case "Coindesk":
+                return Coindesk.CoindeskArticle(
+                    provider=json.get("provider"),
+                    title=json.get("title"),
+                    description=json.get("description"),
+                    creator=json.get("creator"),
+                    date=json.get("date"),
+                    link=json.get("link"),
+                    symbol=json.get("symbol"),
+                    content=json.get("content"),
+                    section=json.get("section"),
+                    picture=json.get("picture"),
+                    sentiment=json.get("sentiment"),
+                )

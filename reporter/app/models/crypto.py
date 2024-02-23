@@ -54,7 +54,7 @@ class Crypto:
                     logger(__name__).info(f"crypto.news search code :{response.status}")
                     response = await response.text()
                     # Get the different articles details (title, description, date, creator, section, picture)
-                    items = Crypto.parse_html_to_objects(response)
+                    items = Crypto.parse_html_to_objects(html=response, symbol=symbol)
                     assert type(items) == list, "Items is not a list"
                     return items
             except aiohttp.ClientError as error:
@@ -63,16 +63,17 @@ class Crypto:
                 )
     
     @staticmethod
-    def parse_html_to_objects(html: str) -> list:
+    def parse_html_to_objects(*,html: str, symbol: str) -> list:
         soup = BeautifulSoup(html, "html.parser")
         return [
             Crypto.CryptoArticle(
+                provider="Crypto News",
                 title=article.find(class_='search-result-loop__title').text.strip(),
                 description=article.find(class_='search-result-loop__summary').text.strip(),
                 creator='Crypto News',
                 date=datetime.strptime(article.find(class_='search-result-loop__date').text.strip(), "%B %d, %Y at %I:%M %p"),
                 link=article.find(class_='search-result-loop__link').get('href'),
-                symbol='',
+                symbol=symbol,
                 content='',
                 section='news',
                 picture=article.find(class_='search-result-loop__image').get('src')
